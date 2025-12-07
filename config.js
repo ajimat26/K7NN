@@ -1,6 +1,6 @@
 const CONFIG = {
   GITHUB_USERNAME: "ajimat26",
-  GITHUB_REPO: "https://ajimat26.github.io/K7NN/",
+  GITHUB_REPO: " K7NN",
   GITHUB_BRANCH: "main",
   GITHUB_TOKEN: "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",
   DATABASE_FILE: "database.json"
