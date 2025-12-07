@@ -2240,103 +2240,75 @@ function saveK7NDB(db){
 
 // Add Account panel control
 function openAddAccount(){
-  const sess = getSession();
-  if (!sess) {
-    alert("Harap login.");
-    return;
+    const sess = getSession();
+    if (!sess || sess.username !== "K7N") {
+      alert("Hanya akun K7N yang dapat menggunakan fitur ini.");
+      return;
+    }
+    document.getElementById('k7n-add-account-panel').style.display = 'block';
   }
-  document.getElementById('k7n-add-account-panel').style.display = 'block';
-}
+  function closeAddAccount(){
+    document.getElementById('k7n-add-account-panel').style.display = 'none';
+    document.getElementById('k7n_new_username').value = "";
+    document.getElementById('k7n_new_password').value = "";
+    document.getElementById('k7n_new_expired').value = "";
+  }
 
-function closeAddAccount(){
-  document.getElementById('k7n-add-account-panel').style.display = 'none';
-  document.getElementById('k7n_new_username').value = "";
-  document.getElementById('k7n_new_password').value = "";
-  document.getElementById('k7n_new_expired').value = "";
-}
-
-// -----------------------------
-// expired helper
-// -----------------------------
-function getExpiredTimestamp(type){
-    const now = Date.now();
-
-    if(type === "7D") return now + (7 * 24 * 60 * 60 * 1000);
-    if(type === "1M") return now + (30 * 24 * 60 * 60 * 1000);
-    return null;
-}
-
-// hapus otomatis expired
-function removeExpiredAccounts(){
-    const db = initK7NDB();
-    const now = Date.now();
-
-    db.accounts = db.accounts.filter(a => {
-        if(!a.expired) return true;
-        return a.expired > now;
-    });
-
-    saveK7NDB(db);
-}
-
-// -----------------------------
-// save account
-// -----------------------------
-async function saveAccount(){
+  async function saveAccount(){
     const u = document.getElementById('k7n_new_username').value.trim();
     const p = document.getElementById('k7n_new_password').value.trim();
-    const e = document.getElementById('k7n_new_expired').value.trim();
+    const e = document.getElementById('k7n_new_expired').value.trim() || "NEVER";
 
-    if (!u || !p) {
-        alert("Username & password wajib diisi.");
-        return;
-    }
+    if (!u || !p) { alert("Username & password wajib diisi."); return; }
 
     const db = initK7NDB();
+    // prevent duplicate username
+    if (db.accounts.find(a => a.username === u)) {
+      alert("Username sudah ada.");
+      return;
+    }
 
-    const expired = getExpiredTimestamp(e);
-
-    db.accounts.push({
-        username: u,
-        password: p,
-        role: "USER",
-        expired: expired,
-        type: e
-    });
-
+    db.accounts.push({ username: u, password: p, role: "USER", expired: e });
     saveK7NDB(db);
-
     alert("Akun berhasil ditambahkan.");
     closeAddAccount();
-}
+  }
 
-// expose
-window.K7N = window.K7N || {};
-window.K7N.initDB = initK7NDB;
-window.K7N.getDB = () => JSON.parse(localStorage.getItem(DB_KEY));
-window.K7N.saveAccount = saveAccount;
+  // Expose saving to global for debugging/testing
+  window.K7N = window.K7N || {};
+  window.K7N.initDB = initK7NDB;
+  window.K7N.getDB = () => JSON.parse(localStorage.getItem(DB_KEY));
+  window.K7N.saveAccount = saveAccount;
 
-document.addEventListener('DOMContentLoaded', function(){
-
-    removeExpiredAccounts();
-
+  // Hook up panel buttons
+  document.addEventListener('DOMContentLoaded', function(){
+    // require login (will redirect if not logged in)
     const sess = getSession();
     if (!sess) { window.location.href = LOGIN_PAGE; return; }
 
-    insertSidebarEntry();
+    // only show add account link for owner
+    if (sess.username === "K7N") {
+      insertSidebarEntry();
+    }
 
+    // swap logo
     swapLogo();
 
+    // attach event listeners for panel buttons
     const saveBtn = document.getElementById('k7n_save_btn');
     const cancelBtn = document.getElementById('k7n_cancel_btn');
-
     if (saveBtn) saveBtn.addEventListener('click', saveAccount);
     if (cancelBtn) cancelBtn.addEventListener('click', closeAddAccount);
+  });
 
-});
-
-try {
+  // Also run immediately in case DOM already ready
+  try {
     const sess = getSession();
-} catch(e){}
+    if (!sess) { /* do not force redirect if script runs before DOMContentLoaded; wait */ }
+  } catch(e){}
+
 })();
 </script>
+<!-- K7N INTEGRATION INJECTION END -->
+</body>
+</html>
