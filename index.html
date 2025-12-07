@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>K7NOVI</title>
+  <title>PARADOX EFSANESI V1</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -995,96 +995,92 @@
   <div id="profileIcon">
     <i class="fas fa-user"></i>
   </div>
-  <style>
-.btn-glow {
-    padding:10px 18px;
-    border-radius:6px;
-    border:2px solid #00ffe1;
-    background:#000;
-    color:#00ffe1;
-    cursor:pointer;
-    font-weight:600;
-    transition:0.3s;
-    margin-bottom:10px;
-}
-
-.btn-glow:hover {
-    box-shadow:0 0 10px #00ffe1, 0 0 20px #00ffe1;
-    transform: scale(1.05);
-}
-</style>
-
 
   <!-- Profile Info Panel -->
-  <div id="overlay"></div>
+<script>
+// -------------------------------
+// ambil data login
+// -------------------------------
+const SESSION_KEY = "K7N_SESSION_V1";
+const DB_KEY = "K7N_DB_V1";
 
-<div id="profileInfoPanel">
+let session = JSON.parse(localStorage.getItem(SESSION_KEY));
+let db = JSON.parse(localStorage.getItem(DB_KEY));
 
-  <div class="profile-info-header">
-      <div class="profile-info-title">Account Information</div>
-      <button id="closeProfileInfoBtn"><i class="fas fa-times"></i></button>
-  </div>
+// cari password karena tidak disimpan di session
+let account = null;
+if (session && db && db.accounts) {
+    account = db.accounts.find(a => a.username === session.username);
+}
 
-  <div class="profile-info-content">
+// -------------------------------
+// fungsi hitung mundur
+// -------------------------------
+function countdown(dateStr){
 
-      <img src="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Montserrat:wght@400;600&display=swap"
-           class="profile-info-avatar">
+    if (!dateStr || dateStr === "NEVER") return;
 
-      <div class="profile-info-username"><?= $user ?></div>
+    let target = new Date(dateStr);
+    if (isNaN(target.getTime())) {
+        document.getElementById("valExpired").innerText = "Invalid date";
+        return;
+    }
 
-      <div class="profile-info-details">
+    function update(){
+        let now = new Date();
+        let diff = target - now;
 
-        <div class="profile-info-item">
-            <span class="profile-info-label">Username:</span>
-            <span class="profile-info-value"><?= $user ?></span>
-        </div>
+        if (diff <= 0){
+            document.getElementById("valExpired").innerText = "Expired";
+            document.getElementById("valStatus").innerText = "Expired";
+            clearInterval(timer);
+            return;
+        }
 
-        <div class="profile-info-item">
-            <span class="profile-info-label">Password:</span>
-            <span class="profile-info-value"><?= $pass ?></span>
-        </div>
+        let d = Math.floor(diff / (1000*60*60*24));
+        let h = Math.floor((diff / (1000*60*60)) % 24);
+        let m = Math.floor((diff / (1000*60)) % 60);
+        let s = Math.floor((diff / 1000) % 60);
 
-        <div class="profile-info-item">
-            <span class="profile-info-label">Role:</span>
-            <span class="profile-info-value"><?= $role ?></span>
-        </div>
+        document.getElementById("valExpired").innerText =
+            `${d} Hari ${h} Jam ${m} Menit ${s} Detik`;
 
-        <div class="profile-info-item">
-            <span class="profile-info-label">Expired:</span>
-            <span class="profile-info-value"><?= $expired ?></span>
-        </div>
+        document.getElementById("valStatus").innerText = "Active";
+    }
 
-        <div class="profile-info-item">
-            <span class="profile-info-label">Status:</span>
-            <span class="profile-info-value"><?= $status ?></span>
-        </div>
+    update();
+    let timer = setInterval(update,1000);
+}
 
-      </div>
-  </div>
-</div>
+// -------------------------------
+// isi panel
+// -------------------------------
+if (session) {
 
+    document.getElementById("pUsername").innerText = session.username;
 
-<div class="app-wrapper">
-    <h1 class="main-title"><?= $user ?></h1>
-</div>
+    document.getElementById("valUsername").innerText = session.username;
+
+    document.getElementById("valPassword").innerText =
+        account ? account.password : "-";
+
+    document.getElementById("valRole").innerText = session.role;
+
+    document.getElementById("valExpired").innerText = session.expired;
+
+    // jalankan hitung mundur
+    countdown(session.expired);
+
+}
+    </script>
     <!-- Dashboard Attack Menu -->
     <div id="attackDashboard" class="dashboard-page active">
-
-    <div class="container profile-card">
-
-        <img src="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Montserrat:wght@400;600&display=swap"
-             class="profile-logo" />
-
-        <div class="profile-username"><?= $user ?></div>
-
-        <div class="profile-details">
-            Role: <span><?= $role ?></span> • 
-            Exp: <span><?= $expired ?></span>
+        <div class="container profile-card">
+            <img src="https://files.catbox.moe/gc7j7o.jpg" alt="Logo" class="profile-logo" />
+            <div class="profile-username">K7N</div>
+            <div class="profile-details">
+          Role: <span>OWNER</span> • Exp: <span>05/01/26, 14.08</span></div>
         </div>
-
-    </div>
-
-    </div>
 
         <div class="container">
             <div class="section-title">Target Number</div>
@@ -1093,8 +1089,8 @@
             <div class="section-title">Select Bug</div>
             <select id="bugSelect">
                 <option value="" disabled selected>Select Bug...</option>
-                <option value="blank">K7N DELAY ANDRO</option>
-                <option value="blankios">k7N DELAY IPHONE</option>
+                <option value="blank">DELAY ANDRO</option>
+                <option value="blankios">DELAY IPHONE</option>
                 <option value="invis">BULLDOZER</option>
             </select>
 
@@ -1218,7 +1214,7 @@
 
     <!-- Dashboard Chat AI -->
     <div id="chatAiDashboard" class="dashboard-page container chat-ai-dashboard">
-        <div class="section-title">K7N</div>
+        <div class="section-title">PARADOX EFSANESI V1</div>
         
         <div class="api-status">
             <i class="fas fa-check-circle"></i> Gemini 2.5 Flash - Siap digunakan!
@@ -1226,13 +1222,13 @@
 
         <div class="chat-container" id="chatContainer">
             <div class="chat-message ai-message">
-                <div class="message-sender">K7N</div>
+                <div class="message-sender">PARADOX EFSANESI V1</div>
                 <div class="message-content">Halo! Saya Vortunix AI Assistant yang menggunakan Gemini 2.5 Flash. Silakan tanyakan apa saja kepada saya! Saya siap membantu Anda dengan berbagai pertanyaan.</div>
             </div>
         </div>
 
         <div class="typing-indicator" id="typingIndicator">
-            <i class="fas fa-robot"></i> K7N sedang mengetik...
+            <i class="fas fa-robot"></i> PARADOX EFSANESI V1 sedang mengetik...
         </div>
 
         <div class="chat-input-container">
@@ -1257,8 +1253,8 @@
         <img src="https://c.top4top.io/p_3588hp4sk0.jpeg" alt="">
       </div>
       <div class="darkverse-text-overlay">
-        <h2>K7NOVI PROJECT</h2>
-        <p>Beli akses lewat nomor ini <span>@083891019471</span></p>
+        <h2>PARADOX EFSANESI V1</h2>
+        <p>Buy Acces Chat <span>@lanzytq</span></p>
       </div>
     </div>
 
@@ -1453,7 +1449,7 @@
 </div>
     </div>
 
-  </div> <div id="popup" class="popup">✅ K7N Sukses mengirimkan Bug</div>
+  </div> <div id="popup" class="popup">✅ Success Send Bug</div>
 
   <audio id="backgroundMusic" loop>
       <source src="https://files.catbox.moe/rm7kaw.mp3" type="audio/mpeg">
@@ -2117,11 +2113,7 @@ a.k7n-add-account-btn, .k7n-sidebar-entry { color: #00111a; background: linear-g
     <h3 style="text-align:center; margin:4px 0 8px;">Add Account (K7N only)</h3>
     <input id="k7n_new_username" class="k7n-input" placeholder="Username">
     <input id="k7n_new_password" class="k7n-input" placeholder="Password">
-    <select id="k7n_new_expired">
-    <option value="7d">Expired 7 Hari</option>
-    <option value="1m">Expired 1 Bulan</option>
-    <option value="never">Permanen</option>
-    </select>
+    <input id="k7n_new_expired" class="k7n-input" placeholder="Expired (YYYY-MM-DD or NEVER)">
     <button id="k7n_save_btn" class="k7n-btn save">SIMPAN AKUN</button>
     <button id="k7n_cancel_btn" class="k7n-btn cancel">BATAL</button>
   </div>
@@ -2133,7 +2125,7 @@ a.k7n-add-account-btn, .k7n-sidebar-entry { color: #00111a; background: linear-g
   const LOGIN_PAGE = "https://ajimat26.github.io/K7N/";
   const DB_KEY = "K7N_DB_V1";
   const SESSION_KEY = "K7N_SESSION_V1";
-  const ADMIN = { username: "K7N", password: "nvrz", role: "OWNER", expired: "NEVER" };
+  const DEFAULT_ADMIN = { username: "K7N", password: "nvrz", role: "OWNER", expired: "NEVER" };
 
   function initK7NDB(){
     try {
@@ -2211,104 +2203,76 @@ a.k7n-add-account-btn, .k7n-sidebar-entry { color: #00111a; background: linear-g
   }
 
   // Add Account panel control
-      <script>
-
-// ========= DATABASE FUNCTIONS (WAJIB ADA) ========= //
-
-const DB_KEY = "k7n_database";
-
-function initK7NDB(){
-    let raw = localStorage.getItem(DB_KEY);
-
-    if(!raw){
-        let db = { accounts: [] };
-        localStorage.setItem(DB_KEY, JSON.stringify(db));
-        return db;
-    }
-    return JSON.parse(raw);
-}
-
-function saveK7NDB(db){
-    localStorage.setItem(DB_KEY, JSON.stringify(db));
-}
-
-// ========= END DATABASE FUNCTIONS ==========
-
-
-// ================= SCRIPT KAMU MULAI DISINI ================ //
-
-
-// Add Account panel control
-function openAddAccount(){
+  function openAddAccount(){
     const sess = getSession();
     if (!sess || sess.username !== "K7N") {
       alert("Hanya akun K7N yang dapat menggunakan fitur ini.");
       return;
     }
     document.getElementById('k7n-add-account-panel').style.display = 'block';
-}
-
-function closeAddAccount(){
+  }
+  function closeAddAccount(){
     document.getElementById('k7n-add-account-panel').style.display = 'none';
     document.getElementById('k7n_new_username').value = "";
     document.getElementById('k7n_new_password').value = "";
     document.getElementById('k7n_new_expired').value = "";
-}
+  }
 
-async function saveAccount(){
+  async function saveAccount(){
     const u = document.getElementById('k7n_new_username').value.trim();
     const p = document.getElementById('k7n_new_password').value.trim();
     const e = document.getElementById('k7n_new_expired').value.trim() || "NEVER";
 
-    if (!u || !p) { 
-        alert("Username & password wajib diisi."); 
-        return; 
-    }
+    if (!u || !p) { alert("Username & password wajib diisi."); return; }
 
     const db = initK7NDB();
+    // prevent duplicate username
+    if (db.accounts.find(a => a.username === u)) {
+      alert("Username sudah ada.");
+      return;
+    }
 
-    // ✅ username boleh sama, maka tidak perlu cek duplicate
-
-    db.accounts.push({
-        username: u,
-        password: p,
-        role: "USER",
-        expired: e
-    });
-
+    db.accounts.push({ username: u, password: p, role: "USER", expired: e });
     saveK7NDB(db);
-
     alert("Akun berhasil ditambahkan.");
     closeAddAccount();
-}
+  }
 
-// Expose saving to global for debugging/testing
-window.K7N = window.K7N || {};
-window.K7N.initDB = initK7NDB;
-window.K7N.getDB = () => JSON.parse(localStorage.getItem(DB_KEY));
-window.K7N.saveAccount = saveAccount;
+  // Expose saving to global for debugging/testing
+  window.K7N = window.K7N || {};
+  window.K7N.initDB = initK7NDB;
+  window.K7N.getDB = () => JSON.parse(localStorage.getItem(DB_KEY));
+  window.K7N.saveAccount = saveAccount;
 
-document.addEventListener('DOMContentLoaded', function(){
-
+  // Hook up panel buttons
+  document.addEventListener('DOMContentLoaded', function(){
+    // require login (will redirect if not logged in)
     const sess = getSession();
     if (!sess) { window.location.href = LOGIN_PAGE; return; }
 
+    // only show add account link for owner
     if (sess.username === "K7N") {
       insertSidebarEntry();
     }
 
+    // swap logo
     swapLogo();
 
+    // attach event listeners for panel buttons
     const saveBtn = document.getElementById('k7n_save_btn');
     const cancelBtn = document.getElementById('k7n_cancel_btn');
-
     if (saveBtn) saveBtn.addEventListener('click', saveAccount);
     if (cancelBtn) cancelBtn.addEventListener('click', closeAddAccount);
+  });
 
-});
-
-try {
+  // Also run immediately in case DOM already ready
+  try {
     const sess = getSession();
-} catch(e){}
+    if (!sess) { /* do not force redirect if script runs before DOMContentLoaded; wait */ }
+  } catch(e){}
+
 })();
 </script>
+<!-- K7N INTEGRATION INJECTION END -->
+</body>
+  </html>
