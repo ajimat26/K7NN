@@ -2219,6 +2219,7 @@ a.k7n-add-account-btn, .k7n-sidebar-entry { color: #00111a; background: linear-g
 
     db.accounts.push({ username: u, password: p, role: "USER", expired: e });
     saveK7NDB(db);
+    saveToJSON({ username:u, password:p, role:"USER", expired:e });
     alert("Akun berhasil ditambahkan.");
     closeAddAccount();
   }
@@ -2261,3 +2262,36 @@ a.k7n-add-account-btn, .k7n-sidebar-entry { color: #00111a; background: linear-g
 <!-- K7N INTEGRATION INJECTION END -->
 </body>
 </html>
+// -----------------------------------------------------
+// TAMBAHAN : simpan ke database.json
+// -----------------------------------------------------
+
+async function saveToJSON(account){
+
+    await fetch("save_account.php",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(account)
+    });
+
+}
+
+
+
+// -----------------------------------------------------
+// TAMBAHAN : auto hapus expired
+// -----------------------------------------------------
+
+async function autoDeleteExpired(){
+    await fetch("delete_expired.php");
+}
+
+
+
+// -----------------------------------------------------
+// TAMBAHAN : panggil setelah login / load
+// -----------------------------------------------------
+
+document.addEventListener("DOMContentLoaded", ()=>{
+    autoDeleteExpired();
+});
