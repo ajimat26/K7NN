@@ -1014,8 +1014,6 @@
 }
 </style>
 
-<!-- TOMBOL TAMBAH AKUN -->
-<button class="btn-glow" onclick="openAddAccount()">✨ Tambah Akun</button>
 
   <!-- Profile Info Panel -->
   <div id="overlay"></div>
@@ -2242,32 +2240,69 @@ function saveK7NDB(db){
 
 // Add Account panel control
 function openAddAccount(){
-    const sess = getSession();
-    if (!sess || sess.username !== "K7N") {
-      alert("Hanya akun K7N yang dapat menggunakan fitur ini.");
-      return;
-    }
-    document.getElementById('k7n-add-account-panel').style.display = 'block';
+  const sess = getSession();
+  if (!sess) {
+    alert("Harap login.");
+    return;
+  }
+  document.getElementById('k7n-add-account-panel').style.display = 'block';
 }
 
 function closeAddAccount(){
-    document.getElementById('k7n-add-account-panel').style.display = 'none';
-    document.getElementById('k7n_new_username').value = "";
-    document.getElementById('k7n_new_password').value = "";
-    document.getElementById('k7n_new_expired').value = "";
+  document.getElementById('k7n-add-account-panel').style.display = 'none';
+  document.getElementById('k7n_new_username').value = "";
+  document.getElementById('k7n_new_password').value = "";
+  document.getElementById('k7n_new_expired').value = "";
 }
 
+// -----------------------------
+// expired helper
+// -----------------------------
+function getExpiredTimestamp(type){
+    const now = Date.now();
+
+    if(type === "7D") return now + (7 * 24 * 60 * 60 * 1000);
+    if(type === "1M") return now + (30 * 24 * 60 * 60 * 1000);
+    return null;
+}
+
+// hapus otomatis expired
+function removeExpiredAccounts(){
+    const db = initK7NDB();
+    const now = Date.now();
+
+    db.accounts = db.accounts.filter(a => {
+        if(!a.expired) return true;
+        return a.expired > now;
+    });
+
+    saveK7NDB(db);
+}
+
+// -----------------------------
+// save account
+// -----------------------------
 async function saveAccount(){
     const u = document.getElementById('k7n_new_username').value.trim();
     const p = document.getElementById('k7n_new_password').value.trim();
-    const e = document.getElementById('k7n_new_expired').value.trim() || "NEVER";
+    const e = document.getElementById('k7n_new_expired').value.trim();
 
-    if (!u || !p) { alert("Username & password wajib diisi."); return; }  
+    if (!u || !p) {
+        alert("Username & password wajib diisi.");
+        return;
+    }
 
     const db = initK7NDB();
 
-    // username boleh sama (sesuai perintah terbaru)
-    db.accounts.push({ username: u, password: p, role: "USER", expired: e });
+    const expired = getExpiredTimestamp(e);
+
+    db.accounts.push({
+        username: u,
+        password: p,
+        role: "USER",
+        expired: expired,
+        type: e
+    });
 
     saveK7NDB(db);
 
@@ -2275,19 +2310,20 @@ async function saveAccount(){
     closeAddAccount();
 }
 
+// expose
+window.K7N = window.K7N || {};
+window.K7N.initDB = initK7NDB;
+window.K7N.getDB = () => JSON.parse(localStorage.getItem(DB_KEY));
+window.K7N.saveAccount = saveAccount;
 
-// DOM ready
 document.addEventListener('DOMContentLoaded', function(){
+
+    removeExpiredAccounts();
+
     const sess = getSession();
     if (!sess) { window.location.href = LOGIN_PAGE; return; }
-});
 
-// ================= SCRIPT SELESAI ================ //
-
-
-    if (sess.username === "K7N") {
-      insertSidebarEntry();
-    }
+    insertSidebarEntry();
 
     swapLogo();
 
