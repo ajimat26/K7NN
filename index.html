@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>K7N PROJECT V1 V1</title>
+  <title>PARADOX EFSANESI V1</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -997,86 +997,43 @@
   </div>
 
   <!-- Profile Info Panel -->
-<!-- Profile Info Panel -->  <div id="overlay"></div>  
-<div id="profileInfoPanel">    <div class="profile-info-header">  
-    <div class="profile-info-title">Account Information</div>  
-    <button id="closeProfileInfoBtn"><i class="fas fa-times"></i></button>  
-  </div>    <div class="profile-info-content">  <img src="https://files.catbox.moe/gc7j7o.jpg" class="profile-info-avatar" />  
-<div class="profile-info-username" id="pUsername">K7N</div>  
-
-<div class="profile-info-details">  
-
-  <div class="profile-info-item">  
-    <span class="profile-info-label">Username:</span>  
-    <span class="profile-info-value" id="valUsername"></span>  
-  </div>  
-
-  <div class="profile-info-item">  
-    <span class="profile-info-label">Password:</span>  
-    <span class="profile-info-value" id="valPassword"></span>  
-  </div>  
-
-  <div class="profile-info-item">  
-    <span class="profile-info-label">Role:</span>  
-    <span class="profile-info-value" id="valRole"></span>  
-  </div>  
-
-  <div class="profile-info-item">  
-    <span class="profile-info-label">Expired:</span>  
-    <span class="profile-info-value" id="valExpired"></span>  
-  </div>  
-
-  <div class="profile-info-item">  
-    <span class="profile-info-label">Status:</span>  
-    <span class="profile-info-value" id="valStatus"></span>  
-  </div>  
-
+  <div id="overlay"></div>
+  <div id="profileInfoPanel">
+    <div class="profile-info-header">
+      <div class="profile-info-title">Account Information</div>
+      <button id="closeProfileInfoBtn"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="profile-info-content">
+      <img src="https://files.catbox.moe/gc7j7o.jpg" alt="Profile Avatar" class="profile-info-avatar" />
+      <div class="profile-info-username">K7N</div>
+      <div class="profile-info-details">
+    <div class="profile-info-item">
+        <span class="profile-info-label">Username:</span>
+        <span class="profile-info-value">K7N</span>
+    </div>
+    <div class="profile-info-item">
+        <span class="profile-info-label">Password:</span>
+        <span class="profile-info-value">kiya</span> <!-- ✅ INI YANG BENAR -->
+    </div>
+    <div class="profile-info-item">
+        <span class="profile-info-label">Role:</span>
+        <span class="profile-info-value">OWNER</span>
+    </div>
+    <div class="profile-info-item">
+        <span class="profile-info-label">Expired:</span>
+        <span class="profile-info-value">05/01/26, 14.08</span>
+    </div>
+    <div class="profile-info-item">
+        <span class="profile-info-label">Status:</span>
+        <span class="profile-info-value">Active</span>
+    </div>
 </div>
+    </div>
+  </div>
 
-  </div>  
-</div>  <div class="app-wrapper">  
-  <h1 class="main-title">K7N PROJECT V1</h1>  
-</div>  <script>  
-// -------------------------------  
-// ambil data login  
-// -------------------------------  
-const SESSION_KEY = "K7N_SESSION_V1";  
-const DB_KEY = "K7N_DB_V1";  
-  
-let session = JSON.parse(localStorage.getItem(SESSION_KEY));  
-let db = JSON.parse(localStorage.getItem(DB_KEY));  
-  
-// cari password karena tidak disimpan di session  
-let account = null;  
-if (session && db && db.accounts) {  
-    account = db.accounts.find(a => a.username === session.username);  
-}  
-  
-// isi panel  
-if (session) {  
-  
-    document.getElementById("pUsername").innerText = session.username;  
-  
-    document.getElementById("valUsername").innerText = session.username;  
-  
-    document.getElementById("valPassword").innerText =  
-        account ? account.password : "-";  
-  
-    document.getElementById("valRole").innerText = session.role;  
-  
-    document.getElementById("valExpired").innerText = session.expired;  
-  
-    // status  
-    let status = "Active";  
-    if (session.expired && session.expired !== "NEVER") {  
-        let exp = new Date(session.expired);  
-        if (new Date() > exp) status = "Expired";  
-    }  
-    document.getElementById("valStatus").innerText = status;  
-  
-}  
-  
-</script>
+  <div class="app-wrapper">
+    <h1 class="main-title">PARADOX EFSANESI V1</h1>
+
     <!-- Dashboard Attack Menu -->
     <div id="attackDashboard" class="dashboard-page active">
         <div class="container profile-card">
@@ -2091,293 +2048,5 @@ if (session) {
         createSmokeParticles();
     });
   </script>
-
-<!-- K7N INTEGRATION INJECTION START -->
-<style id="k7n-color-overrides">
-/* Override purple accents with light-blue (#6AB8FF) while preserving layout */
-h1.main-title { color: #6AB8FF !important; text-shadow: 0 0 10px rgba(106,184,255,0.6) !important; }
-.profile-details span, .profile-username, .section-title, .container, .profile-logo {
-    /* some overrides to shift purple => light-blue */
-}
-.container { box-shadow: 0 0 25px rgba(106,184,255,0.25) !important; border-color: rgba(106,184,255,0.35) !important; }
-.profile-logo { border-color: #6AB8FF !important; box-shadow: 0 0 10px rgba(106,184,255,0.6) !important; }
-.section-title { color: #6AB8FF !important; }
-a.k7n-add-account-btn, .k7n-sidebar-entry { color: #00111a; background: linear-gradient(90deg,#6AB8FF,#3399FF); border-radius:8px; padding:8px 10px; display:inline-flex; gap:8px; align-items:center; text-decoration:none; font-weight:600; }
-.k7n-floating-badge { position: absolute; top:14px; left:12px; z-index:9999; }
-.k7n-add-panel { background: linear-gradient(180deg,#0b1a26,#101322); border:1px solid rgba(106,184,255,0.25); color: #E0E0E0; padding:16px; border-radius:12px; width:320px; max-width:90%; box-shadow: 0 6px 24px rgba(16,36,56,0.6); }
-.k7n-input { width:100%; padding:10px; margin:8px 0; border-radius:8px; border:1px solid rgba(106,184,255,0.2); background:#0f1720; color:#E0E0E0; }
-.k7n-btn { width:100%; padding:10px; margin-top:8px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
-.k7n-btn.save { background: linear-gradient(90deg,#6AB8FF,#3399FF); color:#00111a; }
-.k7n-btn.cancel { background:#ff5050; color:white; }
-</style>
-
-<!-- AddAccount UI (hidden, inserted by script) -->
-<div id="k7n-add-account-panel" style="display:none;" aria-hidden="true">
-  <div class="k7n-add-panel" id="k7nAddPanel" role="dialog" aria-modal="true">
-    <h3 style="text-align:center; margin:4px 0 8px;">Add Account (K7N only)</h3>
-    <input id="k7n_new_username" class="k7n-input" placeholder="Username">
-    <input id="k7n_new_password" class="k7n-input" placeholder="Password">
-    <input id="k7n_new_expired" class="k7n-input" placeholder="Expired (YYYY-MM-DD or NEVER)">
-    <button id="k7n_save_btn" class="k7n-btn save">SIMPAN AKUN</button>
-    <button id="k7n_cancel_btn" class="k7n-btn cancel">BATAL</button>
-  </div>
-</div>
-
-<script>
-(function(){
-  // --- K7N local DB / Session helpers ---
-  const LOGIN_PAGE = "https://ajimat26.github.io/K7N/";
-  const DB_KEY = "K7N_DB_V1";
-  const SESSION_KEY = "K7N_SESSION_V1";
-  const DEFAULT_ADMIN = { username: "K7N", password: "nvrz", role: "OWNER", expired: "NEVER" };
-
-  function initK7NDB(){
-    try {
-      const raw = localStorage.getItem(DB_KEY);
-      if (!raw) {
-        const db = { accounts: [ DEFAULT_ADMIN ] };
-        localStorage.setItem(DB_KEY, JSON.stringify(db));
-        return db;
-      }
-      return JSON.parse(raw);
-    } catch (e) {
-      console.error("K7N DB init error", e);
-      const db = { accounts: [ DEFAULT_ADMIN ] };
-      localStorage.setItem(DB_KEY, JSON.stringify(db));
-      return db;
-    }
-  }
-
-  function saveK7NDB(db){
-    localStorage.setItem(DB_KEY, JSON.stringify(db));
-  }
-
-  function getSession(){
-    try {
-      return JSON.parse(localStorage.getItem(SESSION_KEY));
-    } catch (e) { return null; }
-  }
-
-  function requireLogin(){
-    const s = getSession();
-    if (!s || !s.username) {
-      // not logged in -> redirect to login page
-      console.warn("K7N: no session, redirecting to login");
-      window.location.href = LOGIN_PAGE;
-      return false;
-    }
-    // session exists - allow
-    return true;
-  }
-
-  // Immediately initialize DB
-  const k7nDB = initK7NDB();
-
-  // Replace profile logo if present
-  function swapLogo(){
-    try {
-      const logos = document.querySelectorAll('img.profile-logo');
-      logos.forEach(img => {
-        img.src = "https://i.supaimg.com/9775bd8b-667c-4ea3-8173-b27aeee837bc.jpg";
-      });
-    } catch(e){ console.warn(e); }
-  }
-
-  // Insert Add Account entry near sidebar/open button
-  function insertSidebarEntry(){
-    const openBtn = document.getElementById('openSidebarBtn');
-    if (!openBtn) return;
-
-    // create wrapper
-    const wrapper = document.createElement('div');
-    wrapper.className = "k7n-floating-badge";
-    wrapper.style.pointerEvents = "auto";
-
-    const a = document.createElement('a');
-    a.href = "javascript:void(0);";
-    a.className = "k7n-sidebar-entry";
-    a.title = "Add Account (K7N only)";
-    a.innerHTML = '<i class="fas fa-user-plus"></i><span style="margin-left:6px;">Add Account</span>';
-    a.addEventListener('click', openAddAccount);
-
-    wrapper.appendChild(a);
-
-    // place next to openBtn
-    openBtn.parentNode.insertBefore(wrapper, openBtn.nextSibling);
-  }
-
-  // Add Account panel control
-  <!-- ===============================
-     FIREBASE + ACCOUNT SYSTEM
-     =============================== -->
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
-
-<script>
-// ==========================
-// FIREBASE INIT
-// ==========================
-
-const firebaseConfig = {
-  apiKey: "AIzaSyA3-34rf9VZUIrAIR6z4BJtQm_MClqXm-Q",
-  authDomain: "uangduty.firebaseapp.com",
-  databaseURL: "https://uangduty-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "uangduty"
-};
-
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-
-// ==========================
-// HELPERS
-// ==========================
-
-// hitung expired
-function getExpiredTimestamp(type){
-    const now = Date.now();
-    const H = 3600000;
-    const D = 86400000;
-
-    switch(type){
-      case "1h": return now + H;
-      case "7d": return now + (7*D);
-      case "1m": return now + (30*D);
-      case "1y": return now + (365*D);
-      case "never": return null;
-    }
-}
-
-// cek expired
-function isExpired(ts){
-    if(ts === null) return false;
-    return Date.now() > ts;
-}
-
-
-// ==========================
-// OPEN PANEL
-// ==========================
-
-function openAddAccount(){
-    const sess = getSession();
-
-    if(!sess || sess.username !== "K7N"){
-        alert("Hanya akun K7N yang boleh membuat akun.");
-        return;
-    }
-
-    document.getElementById("k7n-add-account-panel").style.display = "block";
-}
-
-function closeAddAccount(){
-    document.getElementById("k7n-add-account-panel").style.display = "none";
-}
-
-
-
-// ==========================
-// SAVE ACCOUNT FIREBASE
-// ==========================
-
-async function saveAccount(){
-
-    const u = document.getElementById("k7n_new_username").value.trim();
-    const p = document.getElementById("k7n_new_password").value.trim();
-    const r = document.getElementById("k7n_new_role").value;
-    const e = document.getElementById("k7n_new_expired").value;
-
-    if(!u || !p){
-        alert("Username & Password wajib!");
-        return;
-    }
-
-    // cek username sudah ada atau belum
-    const snap = await firebase.get(firebase.child(firebase.ref(db), "accounts/"+u));
-
-    if(snap.exists()){
-        alert("Username sudah digunakan!");
-        return;
-    }
-
-    const data = {
-        username: u,
-        password: p,
-        role: r,
-        expired: getExpiredTimestamp(e)
-    };
-
-    await firebase.set(firebase.ref(db,"accounts/"+u),data);
-
-    alert("Akun berhasil dibuat.");
-    closeAddAccount();
-}
-
-
-
-// ==========================
-// LOAD KEYS & EVENT
-// ==========================
-
-document.addEventListener("DOMContentLoaded", function(){
-
-    const sess = getSession();
-
-    if(!sess){
-        window.location.href = LOGIN_PAGE;
-        return;
-    }
-
-    if(sess.username === "K7N"){
-        insertSidebarEntry();
-    }
-
-});
-
-</script>
-
-
-
-
-<!-- ===============================
-     PANEL HTML
-     =============================== -->
-
-
-<div id="k7n-add-account-panel"
-     style="display:none; padding:20px; background:#222; color:white">
-
-<h3>Buat Akun Baru</h3>
-
-Username <br>
-<input id="k7n_new_username"><br><br>
-
-Password <br>
-<input id="k7n_new_password"><br><br>
-
-Role <br>
-<select id="k7n_new_role">
-    <option value="USER">USER</option>
-    <option value="OWNER">OWNER</option>
-</select><br><br>
-
-Expired <br>
-<select id="k7n_new_expired">
-    <option value="1h">1 Jam</option>
-    <option value="7d">7 Hari</option>
-    <option value="1m">1 Bulan</option>
-    <option value="1y">1 Tahun</option>
-    <option value="never">Permanen</option>
-</select><br><br>
-
-
-<button onclick="saveAccount()">Buat Akun</button>
-<button onclick="closeAddAccount()">Batal</button>
-
-</div>
-
-</script>
-<!-- K7N INTEGRATION INJECTION END -->
 </body>
-          </html>
+  </html>
