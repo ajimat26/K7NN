@@ -4,12 +4,7 @@
       "username": "K7N",
       "password": "nvrz",
       "level": "admin",
-      "expired": "never"
-      
-      "username": "pepek",
-      "password": "memek",
-      "level": "admin",
-      "expired": "never"
+      "expired": "never", 
     }
   ]
 }
