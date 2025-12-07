@@ -2246,69 +2246,69 @@ function openAddAccount(){
       return;
     }
     document.getElementById('k7n-add-account-panel').style.display = 'block';
-  }
-  function closeAddAccount(){
+}
+
+function closeAddAccount(){
     document.getElementById('k7n-add-account-panel').style.display = 'none';
     document.getElementById('k7n_new_username').value = "";
     document.getElementById('k7n_new_password').value = "";
     document.getElementById('k7n_new_expired').value = "";
-  }
+}
 
-  async function saveAccount(){
+async function saveAccount(){
     const u = document.getElementById('k7n_new_username').value.trim();
     const p = document.getElementById('k7n_new_password').value.trim();
     const e = document.getElementById('k7n_new_expired').value.trim() || "NEVER";
 
-    if (!u || !p) { alert("Username & password wajib diisi."); return; }
-
-    const db = initK7NDB();
-    // prevent duplicate username
-    if (db.accounts.find(a => a.username === u)) {
-      alert("Username sudah ada.");
-      return;
+    if (!u || !p) { 
+        alert("Username & password wajib diisi."); 
+        return; 
     }
 
-    db.accounts.push({ username: u, password: p, role: "USER", expired: e });
+    const db = initK7NDB();
+
+    // ✅ username boleh sama, maka tidak perlu cek duplicate
+
+    db.accounts.push({
+        username: u,
+        password: p,
+        role: "USER",
+        expired: e
+    });
+
     saveK7NDB(db);
+
     alert("Akun berhasil ditambahkan.");
     closeAddAccount();
-  }
+}
 
-  // Expose saving to global for debugging/testing
-  window.K7N = window.K7N || {};
-  window.K7N.initDB = initK7NDB;
-  window.K7N.getDB = () => JSON.parse(localStorage.getItem(DB_KEY));
-  window.K7N.saveAccount = saveAccount;
+// Expose saving to global for debugging/testing
+window.K7N = window.K7N || {};
+window.K7N.initDB = initK7NDB;
+window.K7N.getDB = () => JSON.parse(localStorage.getItem(DB_KEY));
+window.K7N.saveAccount = saveAccount;
 
-  // Hook up panel buttons
-  document.addEventListener('DOMContentLoaded', function(){
-    // require login (will redirect if not logged in)
+document.addEventListener('DOMContentLoaded', function(){
+
     const sess = getSession();
     if (!sess) { window.location.href = LOGIN_PAGE; return; }
 
-    // only show add account link for owner
     if (sess.username === "K7N") {
       insertSidebarEntry();
     }
 
-    // swap logo
     swapLogo();
 
-    // attach event listeners for panel buttons
     const saveBtn = document.getElementById('k7n_save_btn');
     const cancelBtn = document.getElementById('k7n_cancel_btn');
+
     if (saveBtn) saveBtn.addEventListener('click', saveAccount);
     if (cancelBtn) cancelBtn.addEventListener('click', closeAddAccount);
-  });
 
-  // Also run immediately in case DOM already ready
-  try {
+});
+
+try {
     const sess = getSession();
-    if (!sess) { /* do not force redirect if script runs before DOMContentLoaded; wait */ }
-  } catch(e){}
-
+} catch(e){}
 })();
 </script>
-<!-- K7N INTEGRATION INJECTION END -->
-</body>
-</html>
