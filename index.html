@@ -998,20 +998,18 @@
 
   <!-- Profile Info Panel -->
   <div id="overlay"></div>
-  <div id="overlay"></div>
 
 <div id="profileInfoPanel">
 
   <div class="profile-info-header">
-    <div class="profile-info-title">Account Information</div>
-    <button id="closeProfileInfoBtn"><i class="fas fa-times"></i></button>
+      <div class="profile-info-title">Account Information</div>
+      <button id="closeProfileInfoBtn"><i class="fas fa-times"></i></button>
   </div>
 
   <div class="profile-info-content">
 
       <img src="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Montserrat:wght@400;600&display=swap"
-           alt="Profile Avatar"
-           class="profile-info-avatar" />
+           class="profile-info-avatar">
 
       <div class="profile-info-username"><?= $user ?></div>
 
@@ -1024,7 +1022,7 @@
 
         <div class="profile-info-item">
             <span class="profile-info-label">Password:</span>
-            <span class="profile-info-value">nvrz</span>
+            <span class="profile-info-value"><?= $pass ?></span>
         </div>
 
         <div class="profile-info-item">
@@ -1046,17 +1044,16 @@
   </div>
 </div>
 
+
 <div class="app-wrapper">
     <h1 class="main-title"><?= $user ?></h1>
-              </div>
-
+</div>
     <!-- Dashboard Attack Menu -->
     <div id="attackDashboard" class="dashboard-page active">
 
     <div class="container profile-card">
 
         <img src="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Montserrat:wght@400;600&display=swap"
-             alt="Logo"
              class="profile-logo" />
 
         <div class="profile-username"><?= $user ?></div>
