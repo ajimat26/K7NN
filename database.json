@@ -1,0 +1,10 @@
+{
+  "accounts": [
+    {
+      "username": "K7N",
+      "password": "nvrz",
+      "level": "admin",
+      "expired": "never"
+    }
+  ]
+}
