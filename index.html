@@ -2195,15 +2195,16 @@ a.k7n-add-account-btn, .k7n-sidebar-entry { color: #00111a; background: linear-g
       return;
     }
     document.getElementById('k7n-add-account-panel').style.display = 'block';
-  }
-  function closeAddAccount(){
+}
+
+function closeAddAccount(){
     document.getElementById('k7n-add-account-panel').style.display = 'none';
     document.getElementById('k7n_new_username').value = "";
     document.getElementById('k7n_new_password').value = "";
     document.getElementById('k7n_new_expired').value = "";
-  }
+}
 
-  async function saveAccount(){
+async function saveAccount(){
     const u = document.getElementById('k7n_new_username').value.trim();
     const p = document.getElementById('k7n_new_password').value.trim();
     const e = document.getElementById('k7n_new_expired').value.trim() || "NEVER";
@@ -2211,11 +2212,19 @@ a.k7n-add-account-btn, .k7n-sidebar-entry { color: #00111a; background: linear-g
     if (!u || !p) { alert("Username & password wajib diisi."); return; }
 
     const db = initK7NDB();
-    // prevent duplicate username
-    if (db.accounts.find(a => a.username === u)) {
-      alert("Username sudah ada.");
+
+    // prevent duplicate username + password
+    if (db.accounts.find(a => a.username === u && a.password === p)) {
+      alert("Akun dengan username & password yang sama sudah ada.");
       return;
     }
+
+    db.accounts.push({ username: u, password: p, role: "USER", expired: e });
+    saveK7NDB(db);
+
+    alert("Akun berhasil ditambahkan.");
+    closeAddAccount();
+  }
 
     db.accounts.push({ username: u, password: p, role: "USER", expired: e });
     saveK7NDB(db);
