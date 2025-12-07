@@ -2207,92 +2207,176 @@ a.k7n-add-account-btn, .k7n-sidebar-entry { color: #00111a; background: linear-g
   }
 
   // Add Account panel control
-  function openAddAccount(){
+  <!-- ===============================
+     FIREBASE + ACCOUNT SYSTEM
+     =============================== -->
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+
+<script>
+// ==========================
+// FIREBASE INIT
+// ==========================
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA3-34rf9VZUIrAIR6z4BJtQm_MClqXm-Q",
+  authDomain: "uangduty.firebaseapp.com",
+  databaseURL: "https://uangduty-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "uangduty"
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+
+// ==========================
+// HELPERS
+// ==========================
+
+// hitung expired
+function getExpiredTimestamp(type){
+    const now = Date.now();
+    const H = 3600000;
+    const D = 86400000;
+
+    switch(type){
+      case "1h": return now + H;
+      case "7d": return now + (7*D);
+      case "1m": return now + (30*D);
+      case "1y": return now + (365*D);
+      case "never": return null;
+    }
+}
+
+// cek expired
+function isExpired(ts){
+    if(ts === null) return false;
+    return Date.now() > ts;
+}
+
+
+// ==========================
+// OPEN PANEL
+// ==========================
+
+function openAddAccount(){
     const sess = getSession();
 
-    if (!sess || sess.role !== "OWNER") {
-        alert("Hanya OWNER yang dapat menggunakan fitur ini.");
+    if(!sess || sess.username !== "K7N"){
+        alert("Hanya akun K7N yang boleh membuat akun.");
         return;
     }
 
-    document.getElementById('k7n-add-account-panel').style.display = 'block';
+    document.getElementById("k7n-add-account-panel").style.display = "block";
 }
 
 function closeAddAccount(){
-    document.getElementById('k7n-add-account-panel').style.display = 'none';
-    document.getElementById('k7n_new_username').value = "";
-    document.getElementById('k7n_new_password').value = "";
-    document.getElementById('k7n_new_expired').value = "";
+    document.getElementById("k7n-add-account-panel").style.display = "none";
 }
 
-function buildExpired(code){
-    const now = new Date();
 
-    switch(code){
-        case "1h": now.setHours(now.getHours()+1); break;
-        case "7d": now.setDate(now.getDate()+7); break;
-        case "1m": now.setMonth(now.getMonth()+1); break;
-        case "1y": now.setFullYear(now.getFullYear()+1); break;
-        default: return "NEVER";
-    }
-    return now.toISOString().slice(0,10);
-}
+
+// ==========================
+// SAVE ACCOUNT FIREBASE
+// ==========================
 
 async function saveAccount(){
-    const u = document.getElementById('k7n_new_username').value.trim();
-    const p = document.getElementById('k7n_new_password').value.trim();
-    const r = document.getElementById('k7n_new_role').value;
-    const expCode = document.getElementById('k7n_new_expired').value;
 
-    if (!u || !p) { alert("Username & password wajib diisi."); return; }
+    const u = document.getElementById("k7n_new_username").value.trim();
+    const p = document.getElementById("k7n_new_password").value.trim();
+    const r = document.getElementById("k7n_new_role").value;
+    const e = document.getElementById("k7n_new_expired").value;
 
-    const db = initK7NDB();
+    if(!u || !p){
+        alert("Username & Password wajib!");
+        return;
+    }
 
-    const expired = buildExpired(expCode);
+    // cek username sudah ada atau belum
+    const snap = await firebase.get(firebase.child(firebase.ref(db), "accounts/"+u));
 
-    db.accounts.push({
+    if(snap.exists()){
+        alert("Username sudah digunakan!");
+        return;
+    }
+
+    const data = {
         username: u,
         password: p,
         role: r,
-        expired: expired
-    });
+        expired: getExpiredTimestamp(e)
+    };
 
-    saveK7NDB(db);
+    await firebase.set(firebase.ref(db,"accounts/"+u),data);
 
     alert("Akun berhasil dibuat.");
     closeAddAccount();
 }
 
-window.K7N = window.K7N || {};
-window.K7N.initDB = initK7NDB;
-window.K7N.getDB = () => JSON.parse(localStorage.getItem(DB_KEY));
-window.K7N.saveAccount = saveAccount;
 
-document.addEventListener('DOMContentLoaded', function(){
+
+// ==========================
+// LOAD KEYS & EVENT
+// ==========================
+
+document.addEventListener("DOMContentLoaded", function(){
 
     const sess = getSession();
-    if (!sess) { window.location.href = LOGIN_PAGE; return; }
 
-    if (sess.role === "OWNER") {
+    if(!sess){
+        window.location.href = LOGIN_PAGE;
+        return;
+    }
+
+    if(sess.username === "K7N"){
         insertSidebarEntry();
     }
 
-    swapLogo();
-
-    const saveBtn = document.getElementById('k7n_save_btn');
-    const cancelBtn = document.getElementById('k7n_cancel_btn');
-
-    if (saveBtn) saveBtn.addEventListener('click', saveAccount);
-    if (cancelBtn) cancelBtn.addEventListener('click', closeAddAccount);
-
 });
-  // Also run immediately in case DOM already ready
-  try {
-    const sess = getSession();
-    if (!sess) { /* do not force redirect if script runs before DOMContentLoaded; wait */ }
-  } catch(e){}
 
-})();
+</script>
+
+
+
+
+<!-- ===============================
+     PANEL HTML
+     =============================== -->
+
+
+<div id="k7n-add-account-panel"
+     style="display:none; padding:20px; background:#222; color:white">
+
+<h3>Buat Akun Baru</h3>
+
+Username <br>
+<input id="k7n_new_username"><br><br>
+
+Password <br>
+<input id="k7n_new_password"><br><br>
+
+Role <br>
+<select id="k7n_new_role">
+    <option value="USER">USER</option>
+    <option value="OWNER">OWNER</option>
+</select><br><br>
+
+Expired <br>
+<select id="k7n_new_expired">
+    <option value="1h">1 Jam</option>
+    <option value="7d">7 Hari</option>
+    <option value="1m">1 Bulan</option>
+    <option value="1y">1 Tahun</option>
+    <option value="never">Permanen</option>
+</select><br><br>
+
+
+<button onclick="saveAccount()">Buat Akun</button>
+<button onclick="closeAddAccount()">Batal</button>
+
+</div>
+
 </script>
 <!-- K7N INTEGRATION INJECTION END -->
 </body>
