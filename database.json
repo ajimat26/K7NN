@@ -8,3 +8,36 @@
     }
   ]
 }
+// -----------------------------------------------------
+// TAMBAHAN : simpan ke database.json
+// -----------------------------------------------------
+
+async function saveToJSON(account){
+
+    await fetch("save_account.php",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(account)
+    });
+
+}
+
+
+
+// -----------------------------------------------------
+// TAMBAHAN : auto hapus expired
+// -----------------------------------------------------
+
+async function autoDeleteExpired(){
+    await fetch("delete_expired.php");
+}
+
+
+
+// -----------------------------------------------------
+// TAMBAHAN : panggil setelah login / load
+// -----------------------------------------------------
+
+document.addEventListener("DOMContentLoaded", ()=>{
+    autoDeleteExpired();
+});
