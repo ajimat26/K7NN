@@ -1,2052 +1,2251 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PARADOX EFSANESI V1</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    /* Global Reset and Base Styles */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background: #0D0014;
-      color: #E0E0E0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-      padding: 20px;
-      position: relative; 
-      overflow-x: hidden; 
-    }
-
-    /* Main App Container (for smooth animation with sidebar) */
-    .app-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        max-width: 420px;
-        transition: transform 0.3s ease;
-        position: relative;
-        z-index: 10;
-    }
-
-    /* Header/Title */
-    h1.main-title {
-      font-family: 'Orbitron', sans-serif;
-      color: #BE60EE;
-      font-size: 32px;
-      margin-bottom: 30px;
-      text-shadow: 0 0 10px rgba(190, 96, 238, 0.6);
-      letter-spacing: 2px;
-    }
-
-    /* Main Content Panels */
-    .container {
-      background: #1A0526;
-      border: 1px solid #3F0A5E;
-      padding: 24px;
-      border-radius: 20px;
-      max-width: 420px;
-      width: 100%;
-      box-shadow: 0 0 25px rgba(190, 96, 238, 0.4);
-      backdrop-filter: blur(5px);
-      position: relative;
-      margin-bottom: 20px;
-    }
-
-    /* Profile Card and Details */
-    .profile-card {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .profile-logo {
-      width: 100px; height: 100px; margin: 0 auto 15px; display: block; border-radius: 50%;
-      box-shadow: 0 0 10px rgba(190, 96, 238, 0.8); border: 3px solid #BE60EE; object-fit: cover;
-    }
-    .profile-username { font-family: 'Orbitron', sans-serif; font-size: 24px; color: #E0E0E0; font-weight: bold; margin-bottom: 8px; }
-    .profile-details { font-size: 14px; color: #9A9A9A; }
-    .profile-details span { color: #BE60EE; font-weight: 600; }
-
-    /* Section Titles and Inputs */
-    .section-title { font-family: 'Orbitron', sans-serif; font-size: 18px; color: #BE60EE; margin-bottom: 15px; text-align: left; text-transform: uppercase; letter-spacing: 1px; }
-    input[type="text"], select, textarea { width: 100%; padding: 14px 18px; border-radius: 10px; background: #2D0842; border: 1px solid #BE60EE; color: #E0E0E0; margin-bottom: 25px; font-size: 16px; font-family: 'Montserrat', sans-serif; outline: none; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
-    select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23E0E0E0" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 15px center; padding-right: 40px; }
-    
-    /* Execute Button */
-    .execute-button { background: linear-gradient(90deg, #BE60EE, #7D26A6); color: #fff; padding: 18px; width: 100%; border-radius: 10px; font-weight: bold; border: none; margin-bottom: 12px; cursor: pointer; font-size: 18px; letter-spacing: 1px; transition: 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 0 15px rgba(190, 96, 238, 0.4); }
-    .execute-button:disabled { background: #4A1B6B; cursor: not-allowed; opacity: 0.6; box-shadow: none; }
-    .execute-button:hover:not(:disabled) { background: linear-gradient(90deg, #7D26A6, #BE60EE); box-shadow: 0 0 25px rgba(190, 96, 238, 0.8); }
-
-    /* Footer Action - DIHAPUS */
-    .footer-action-container { display: none; }
-
-    /* Popup */
-    .popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: #2D0842; color: #00ff5e; padding: 16px 22px; border-radius: 12px; box-shadow: 0 0 20px rgba(0,255,94,0.7); font-weight: bold; display: none; z-index: 9999; animation: zoomFade 2s ease forwards; text-align: center; }
-    @keyframes zoomFade { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 15% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 85% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } }
-
-    /* ======================================= */
-    /* DARKVERSE DASHBOARD STYLES */
-    /* ======================================= */
-    .darkverse-dashboard {
-        display: none;
-        width: 100%;
-        max-width: 420px;
-    }
-
-    .darkverse-dashboard.active {
-        display: block;
-    }
-
-    .darkverse-header {
-      text-align: center;
-      margin-bottom: 25px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #3F0A5E;
-    }
-    .darkverse-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 28px;
-      color: #BE60EE;
-      margin-bottom: 10px;
-      text-shadow: 0 0 8px rgba(190, 96, 238, 0.6);
-    }
-    .darkverse-subtitle {
-      font-size: 14px;
-      color: #9A9A9A;
-      margin-bottom: 15px;
-    }
-    .darkverse-contact {
-      background: rgba(190, 96, 238, 0.1);
-      border: 1px solid #BE60EE;
-      border-radius: 8px;
-      padding: 12px;
-      font-size: 14px;
-      color: #BE60EE;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-    .darkverse-contact i {
-      margin-right: 8px;
-    }
-    
-    /* Menu Buttons */
-    .darkverse-menu {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 25px;
-    }
-    .darkverse-button {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 15px 10px;
-      background: #1A0526;
-      border: 1px solid #3F0A5E;
-      border-radius: 10px;
-      color: #E0E0E0;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-      min-height: 80px;
-    }
-    .darkverse-button i {
-      color: #BE60EE;
-      font-size: 24px;
-      margin-bottom: 8px;
-    }
-    .darkverse-button:hover {
-      background: #2D0842;
-      border-color: #BE60EE;
-      transform: translateY(-3px);
-    }
-    
-    /* Telegram Channel */
-    .telegram-channel {
-      background: rgba(0, 136, 204, 0.1);
-      border: 1px solid #0088cc;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 25px;
-      text-align: center;
-    }
-    .telegram-title {
-      font-size: 16px;
-      color: #0088cc;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-    .telegram-desc {
-      font-size: 13px;
-      color: #9A9A9A;
-    }
-    
-    /* Server Stats */
-    .server-stats {
-      margin-bottom: 25px;
-    }
-    .stats-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 18px;
-      color: #BE60EE;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .stat-card {
-      background: #1A0526;
-      border: 1px solid #3F0A5E;
-      border-radius: 10px;
-      padding: 15px;
-      text-align: center;
-    }
-    .stat-value {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 24px;
-      color: #BE60EE;
-      margin-bottom: 5px;
-    }
-    .stat-label {
-      font-size: 12px;
-      color: #9A9A9A;
-    }
-
-    /* Hamburger Button */
-    #openSidebarBtn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: #2D0842;
-      color: #BE60EE;
-      border: 1px solid #BE60EE;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 20px;
-      cursor: pointer;
-      z-index: 50; 
-      transition: all 0.3s ease;
-    }
-    #openSidebarBtn:hover {
-      background: #3F0A5E;
-      transform: scale(1.05);
-    }
-    
-    /* ======================================= */
-    /* MUSIC PLAYER DASHBOARD STYLES */
-    /* ======================================= */
-    .music-player-dashboard {
-        display: none; 
-        text-align: center;
-        padding-top: 20px;
-    }
-
-    .music-player-dashboard.active {
-        display: block;
-    }
-
-    .player-controls button {
-        background: #BE60EE;
-        border: none;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        margin: 0 10px;
-        color: #1A0526;
-        font-size: 24px;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
-    .player-controls button:hover {
-        background: #9a4ed1;
-    }
-    .song-title {
-        font-family: 'Orbitron', sans-serif;
-        font-size: 18px;
-        color: #E0E0E0;
-        margin-bottom: 20px;
-        text-shadow: 0 0 5px rgba(190, 96, 238, 0.4);
-    }
-    
-    /* Progress Bar (Garis waktu lagu) */
-    #progressContainer {
-        width: 100%;
-        height: 8px;
-        background: #3F0A5E;
-        border-radius: 4px;
-        margin-top: 30px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        overflow: hidden;
-    }
-    #progressBar {
-        width: 0%;
-        height: 100%;
-        background: linear-gradient(90deg, #BE60EE, #7D26A6);
-        transition: width 0.1s linear;
-    }
-    .time-display {
-        display: flex;
-        justify-content: space-between;
-        font-size: 12px;
-        color: #9A9A9A;
-        margin-bottom: 30px;
-    }
-
-    /* Dashboard Visibility */
-    .dashboard-page {
-        display: none;
-    }
-    .dashboard-page.active {
-        display: block;
-    }
-
-    /* ======================================= */
-    /* PROFILE ICON STYLES */
-    /* ======================================= */
-    #profileIcon {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      background: #2D0842;
-      border: 2px solid #BE60EE;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #BE60EE;
-      font-size: 20px;
-      cursor: pointer;
-      z-index: 50;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 10px rgba(190, 96, 238, 0.5);
-    }
-
-    #profileIcon:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 15px rgba(190, 96, 238, 0.8);
-    }
-
-    /* Profile Info Panel */
-    #profileInfoPanel {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #1A0526;
-      border: 2px solid #BE60EE;
-      border-radius: 20px;
-      padding: 30px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 0 30px rgba(190, 96, 238, 0.6);
-      z-index: 2000;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    #profileInfoPanel.active {
-      display: flex;
-      animation: fadeInScale 0.3s ease forwards;
-    }
-
-    @keyframes fadeInScale {
-      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    }
-
-    .profile-info-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      margin-bottom: 25px;
-    }
-
-    .profile-info-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 22px;
-      color: #BE60EE;
-      text-shadow: 0 0 8px rgba(190, 96, 238, 0.6);
-    }
-
-    #closeProfileInfoBtn {
-      background: none;
-      border: none;
-      color: #BE60EE;
-      font-size: 24px;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-
-    #closeProfileInfoBtn:hover {
-      color: #fff;
-    }
-
-    .profile-info-content {
-      width: 100%;
-      text-align: center;
-    }
-
-    .profile-info-avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      border: 3px solid #BE60EE;
-      margin: 0 auto 20px;
-      box-shadow: 0 0 15px rgba(190, 96, 238, 0.7);
-    }
-
-    .profile-info-username {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 24px;
-      color: #E0E0E0;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-
-    .profile-info-details {
-      background: #2D0842;
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 20px;
-      border: 1px solid #3F0A5E;
-    }
-
-    .profile-info-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #3F0A5E;
-    }
-
-    .profile-info-item:last-child {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-
-    .profile-info-label {
-      color: #9A9A9A;
-      font-size: 14px;
-    }
-
-    .profile-info-value {
-      color: #BE60EE;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    /* Overlay */
-    #overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 1500;
-      display: none;
-    }
-
-    #overlay.active {
-      display: block;
-    }
-
-    /* ======================================= */
-    /* ✅ ASEP ROKOK BACKGROUND STYLES */
-    /* ======================================= */
-    #smoke-background {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      pointer-events: none;
-      overflow: hidden;
-    }
-
-    .smoke-particle {
-      position: absolute;
-      bottom: 0;
-      width: 5px;
-      height: 5px;
-      background-color: rgba(255, 50, 50, 0.6);
-      border-radius: 50%;
-      filter: blur(2px);
-      animation: smoke-rise linear infinite;
-    }
-
-    @keyframes smoke-rise {
-      0% {
-        transform: translateY(0) translateX(0) scale(0.5);
-        opacity: 0.8;
-      }
-      50% {
-        transform: translateY(-50vh) translateX(10px) scale(1.5);
-        opacity: 0.5;
-      }
-      100% {
-        transform: translateY(-100vh) translateX(20px) scale(2);
-        opacity: 0;
-      }
-    }
-
-    /* ======================================= */
-    /* IP CHECK DASHBOARD STYLES */
-    /* ======================================= */
-    .ip-info-result {
-      background: #2D0842;
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 20px;
-      border: 1px solid #3F0A5E;
-      display: none;
-    }
-
-    .ip-info-result.active {
-      display: block;
-    }
-
-    .ip-info-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #3F0A5E;
-    }
-
-    .ip-info-item:last-child {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-
-    .ip-info-label {
-      color: #9A9A9A;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .ip-info-value {
-      color: #BE60EE;
-      font-weight: 600;
-      font-size: 14px;
-      text-align: right;
-      max-width: 60%;
-      word-break: break-word;
-    }
-
-    .loading-spinner {
-      display: none;
-      text-align: center;
-      color: #BE60EE;
-      margin: 20px 0;
-    }
-
-    .loading-spinner.active {
-      display: block;
-    }
-
-    .spinner {
-      border: 3px solid #3F0A5E;
-      border-top: 3px solid #BE60EE;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 10px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* ======================================= */
-    /* YOUTUBE DOWNLOADER STYLES */
-    /* ======================================= */
-    .youtube-downloader {
-        display: none;
-    }
-
-    .youtube-downloader.active {
-        display: block;
-    }
-
-    .search-result-item {
-      display: flex;
-      align-items: center;
-      background: #2D0842;
-      border-radius: 10px;
-      margin: 10px 0;
-      cursor: pointer;
-      padding: 12px;
-      transition: 0.3s;
-      border: 1px solid #3F0A5E;
-    }
-
-    .search-result-item:hover {
-      background: #3A0A55;
-      border-color: #BE60EE;
-    }
-
-    .search-result-item img {
-      width: 80px;
-      height: 60px;
-      border-radius: 6px;
-      margin-right: 12px;
-      border: 1px solid #BE60EE;
-    }
-
-    .search-result-info {
-      text-align: left;
-      flex: 1;
-    }
-
-    .search-result-info h5 {
-      color: #E0E0E0;
-      font-size: 14px;
-      margin-bottom: 5px;
-      font-weight: 600;
-    }
-
-    .search-result-info p {
-      color: #9A9A9A;
-      font-size: 12px;
-      margin: 0;
-    }
-
-    .status-indicator {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 5px;
-    }
-
-    .status-processing { background: #FFA500; }
-    .status-success { background: #00ff5e; }
-    .status-error { background: #ff4444; }
-
-    .youtube-player {
-      background: #2D0842;
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 20px;
-      border: 1px solid #3F0A5E;
-      display: none;
-    }
-
-    .youtube-player.active {
-      display: block;
-    }
-
-    .youtube-player h3 {
-      color: #BE60EE;
-      font-family: 'Orbitron', sans-serif;
-      margin-bottom: 10px;
-    }
-
-    .youtube-player p {
-      color: #9A9A9A;
-      margin-bottom: 15px;
-    }
-
-    .youtube-audio {
-      width: 100%;
-      margin: 15px 0;
-    }
-
-    .youtube-controls {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 15px;
-    }
-
-    .youtube-controls button {
-      background: #BE60EE;
-      color: #1A0526;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 15px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .youtube-controls button:hover {
-      background: #9a4ed1;
-    }
-
-    /* ======================================= */
-    /* CHAT AI DASHBOARD STYLES - UPDATED */
-    /* ======================================= */
-    .chat-ai-dashboard {
-        display: none;
-    }
-
-    .chat-ai-dashboard.active {
-        display: block;
-    }
-
-    .chat-container {
-      background: #2D0842;
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 20px;
-      border: 1px solid #3F0A5E;
-      max-height: 450px; /* Diperbesar */
-      min-height: 450px; /* Diperbesar */
-      overflow-y: auto;
-    }
-
-    .chat-message {
-      margin-bottom: 15px;
-      padding: 12px;
-      border-radius: 10px;
-      max-width: 85%;
-      word-wrap: break-word;
-    }
-
-    .user-message {
-      background: #3A0A55;
-      border: 1px solid #BE60EE;
-      margin-left: auto;
-      text-align: right;
-    }
-
-    .ai-message {
-      background: #1A0526;
-      border: 1px solid #3F0A5E;
-      margin-right: auto;
-    }
-
-    .message-sender {
-      font-weight: 600;
-      margin-bottom: 5px;
-      font-size: 12px;
-      color: #BE60EE;
-    }
-
-    .message-content {
-      font-size: 14px;
-      line-height: 1.4;
-    }
-
-    .chat-input-container {
-  display: flex;
-  gap: 8px;
-  margin-top: 15px;
-  align-items: center; /* ✅ sejajarkan tombol dengan input */
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VidStream - Platform Video Streaming</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --accent-color: #f59e0b;
+            --background-dark: #0f172a;
+            --background-light: #1e293b;
+            --card-background: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --hover-color: #475569;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-secondary: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+            --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+       .logo {
+    font-size: 2.2rem;
+    font-weight: 900;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-    .chat-input {
-  flex: 1;
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: #2D0842;
-  border: 1px solid #BE60EE;
-  color: #E0E0E0;
-  font-family: 'Montserrat', sans-serif;
-  resize: none;
-  min-height: 45px; /* ✅ samakan dengan tombol */
-  outline: none;
-  font-size: 14px;
+        .upload-button {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+      
+
+
+       
+
+        .popup-close:hover {
+            transform: scale(1.1);
+        }
+
+
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Banner Styles */
+        .donation-banner {
+            background: var(--gradient-secondary);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .donation-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .donation-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .donation-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .donation-text h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .donation-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .donation-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+.custom-btn {
+  font-size: 1.3rem;       /* agak besar */
+  color: #000;             /* hitam */
+  font-weight: 800;        /* tebal */
+  background: #fff;        /* putih polos */
+  border: 2px solid #000;  /* garis hitam */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-.send-button {
-  background: #BE60EE;
-  color: #1A0526;
-  border: none;
-  border-radius: 10px;
-  padding: 0 18px; /* ✅ biar tinggi tombol proporsional */
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 45px; /* ✅ sejajar dengan input */
-  font-size: 14px;
+.custom-btn:hover {
+  background: #000;
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
 }
 
-    .send-button:hover {
-      background: #9a4ed1;
-    }
+        /* Section Header */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
-    .send-button:disabled {
-      background: #4A1B6B;
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-    .typing-indicator {
-      display: none;
-      color: #BE60EE;
-      font-style: italic;
-      margin: 10px 0;
-      text-align: left;
-    }
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--background-light);
+            padding: 0.25rem;
+            border-radius: 50px;
+            box-shadow: var(--shadow-light);
+        }
 
-    .typing-indicator.active {
-      display: block;
-    }
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
 
-    .clear-chat-btn {
-      background: rgba(255, 68, 68, 0.1);
-      border: 1px solid #ff4444;
-      color: #ff4444;
-      border-radius: 8px;
-      padding: 8px 15px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: 0.3s;
-      margin-top: 10px;
-    }
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--gradient-primary);
+            color: white;
+            transform: translateY(-1px);
+        }
 
-    .clear-chat-btn:hover {
-      background: #ff4444;
-      color: #1A0526;
-    }
+        /* Video Grid */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
 
-    .api-status {
-      font-size: 12px;
-      color: #00ff5e;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-  </style>
+        .video-card {
+            background: var(--card-background);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+
+        .video-card:hover .video-thumbnail img {
+            transform: scale(1.05);
+        }
+
+        .video-thumbnail::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 100%);
+        }
+
+        .video-info {
+            padding: 1.25rem;
+        }
+
+        .video-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .duration {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Pagination */
+        .pagination-bottom {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-light);
+        }
+
+        .pagination-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .page-info {
+            background: var(--background-light);
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: var(--card-background);
+            margin: 5% auto;
+            padding: 2rem;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            background: var(--gradient-secondary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .nav {
+            
+                padding: 0.75rem 1rem;
+                justify-content: flex-start;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .section-header {
+                flex-direction: row;
+                text-align: left;
+                justify-content: space-between;
+                align-items: flex-start;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+                flex-shrink: 0;
+            }
+
+            .filter-buttons {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+                gap: 0.25rem;
+                padding: 0.2rem;
+            }
+
+            .filter-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+
+            .video-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.75rem;
+            }
+
+            .video-card {
+                border-radius: 10px;
+            }
+
+            .video-info {
+                padding: 0.75rem;
+            }
+
+            .video-title {
+                font-size: 0.85rem;
+                line-height: 1.3;
+                margin-bottom: 0.5rem;
+            }
+
+            .video-meta {
+                font-size: 0.7rem;
+            }
+
+            .duration {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.4rem;
+            }
+
+            .donation-banner {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .donation-text h3 {
+                font-size: 1rem;
+            }
+
+            .donation-text p {
+                font-size: 0.85rem;
+                margin-bottom: 1rem;
+            }
+
+            .donation-icon {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .donation-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.85rem;
+            }
+
+            .pagination-bottom {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .pagination-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.85rem;
+            }
+
+            .page-info {
+                padding: 0.75rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .popup-content {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav {
+                padding: 0.5rem 0.75rem;
+            }
+
+            .logo {
+                font-size: 1.6rem;
+            }
+
+            .container {
+                padding: 0.75rem;
+            }
+
+            .section-title {
+                font-size: 1rem;
+            }
+
+            .filter-btn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.7rem;
+            }
+
+            .video-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
+            }
+
+            .video-info {
+                padding: 0.5rem;
+            }
+
+            .video-title {
+                font-size: 0.75rem;
+                line-height: 1.2;
+                -webkit-line-clamp: 3;
+            }
+
+            .video-meta {
+                font-size: 0.65rem;
+            }
+
+            .duration {
+                font-size: 0.6rem;
+                padding: 0.15rem 0.3rem;
+            }
+
+            .donation-banner {
+                padding: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .donation-text h3 {
+                font-size: 0.9rem;
+            }
+
+            .donation-text p {
+                font-size: 0.75rem;
+            }
+
+            .donation-icon {
+                font-size: 1.2rem;
+            }
+
+            .donation-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.75rem;
+            }
+
+            .pagination-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.75rem;
+            }
+
+            .page-info {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading {
+            animation: pulse 2s infinite;
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+    </style>
 </head>
 <body>
-<!-- ======= Bottom Navigation (Tema Ungu Glow, Transisi Halus) ======= -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">
+                <i class="fas fa-play-circle"></i> VideyStream
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Banner Promosi -->
+        <div class="donation-banner">
+            <div class="donation-content">
+                <div class="donation-icon">ℹ️ℹ️ℹ️</div>
+                <div class="donation-text">
+                    <h3>WELCOME WEBSITE NEW</h3>
+                    <p>Discover popular videos. Stream them, and share them...</p>
+                </div>
+                <button class="donation-btn custom-btn" onclick="window.location.href='https://videy.design'">
+    <b>New website, Let's Go!!!</b>
+</button>
+
+            </div>
+        </div>
+
+        <!-- Section Header -->
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-video"></i> Video Collection
+            </h2>
+            <div class="filter-buttons">
+                <a href="?sort=terbaru" class="filter-btn active">
+                    <i class="fas fa-clock"></i> New
+                </a>
+                <a href="?sort=trending" class="filter-btn ">
+                    <i class="fas fa-fire"></i> Trending
+                </a>
+                <a href="?sort=lama" class="filter-btn ">
+                    <i class="fas fa-history"></i> Oldest
+                </a>
+            </div>
+        </div>
+
+        <!-- Video Grid -->
+        <div class="video-grid">
+                            <div class="video-card">
+                    <a href="watch.php?id=1652">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765108913_69356cb178e39.jpg" 
+                                 alt="Ping pulen pidoe ekslusif" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Ping pulen pidoe ekslusif</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 2,043</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 06:56                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1651">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765091359_6935281ff06df.jpg" 
+                                 alt="tkw" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">tkw</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 14,851</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 03:20                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1650">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765080058_6934fbfa12c9a.jpg" 
+                                 alt="ESTEHWEH T3T4N994 BARV" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">ESTEHWEH T3T4N994 BARV</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 19,280</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 08:11                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1649">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765066557_6934c73dca0e9.jpg" 
+                                 alt="PCH PRWN" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">PCH PRWN</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 32,843</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:19                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1648">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765066483_6934c6f3cb048.jpg" 
+                                 alt="KAKAK YG BAIK" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">KAKAK YG BAIK</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 29,679</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 02:49                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1647">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765066258_6934c6124d7a1.jpg" 
+                                 alt="JILBAB HITAM" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">JILBAB HITAM</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 27,468</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 09:34                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1646">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765066169_6934c5b9d3532.jpg" 
+                                 alt="MUKA PANIK" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">MUKA PANIK</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 33,158</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 02:20                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1645">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765065919_6934c4bf750ce.jpg" 
+                                 alt="BLONDE" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">BLONDE</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 24,326</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:55                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1644">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765061141_6934b2150ece7.jpg" 
+                                 alt="Dokter dari Afrika" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Dokter dari Afrika</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 20,721</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 25:55                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1643">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765060968_6934b1687c5f5.jpg" 
+                                 alt="Tante tiba masuk kamarku" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Tante tiba masuk kamarku</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 20,327</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 13:41                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1642">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765060797_6934b0bdd7864.jpg" 
+                                 alt="Katanya sayu bgt" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Katanya sayu bgt</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 27,314</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:14                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1641">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765060680_6934b0480efa9.jpg" 
+                                 alt="Ughty agresif" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Ughty agresif</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 19,141</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 09:34                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1640">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765060530_6934afb2da612.jpg" 
+                                 alt="Ugthy" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Ugthy</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 28,073</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:11                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1639">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765040016_69345f9080cf8.jpg" 
+                                 alt="OFICIAL VIDER" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">OFICIAL VIDER</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 31,553</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 03:00                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1638">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765023768_693420189ffc4.jpg" 
+                                 alt="Mobilkyy jadi saksi" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Mobilkyy jadi saksi</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 31,531</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:10                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1637">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765023649_69341fa1415ce.jpg" 
+                                 alt="Xpresimu" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Xpresimu</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 43,462</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:08                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1636">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765023527_69341f272dc93.jpg" 
+                                 alt="Jilbab dikasarin" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Jilbab dikasarin</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 55,467</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 07:14                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1635">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765023402_69341eaa18693.jpg" 
+                                 alt="Gede bgt pepayanya" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Gede bgt pepayanya</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 49,102</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 03:33                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1634">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765023280_69341e3030e1a.jpg" 
+                                 alt="Gemoy dienakin c0w0knya" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Gemoy dienakin c0w0knya</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 29,083</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 12:10                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1633">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765017847_693408f78bd50.jpg" 
+                                 alt="TOBRTT" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">TOBRTT</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 53,375</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 02:24                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1632">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765017691_6934085b4ad45.jpg" 
+                                 alt="CANTIK NYA" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">CANTIK NYA</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 42,164</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 05:45                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1631">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765017001_693405a9bd722.jpg" 
+                                 alt="BANJIR" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">BANJIR</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 46,773</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:46                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1630">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765015127_6933fe5737ee5.jpg" 
+                                 alt="NGOPI DULU" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">NGOPI DULU</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 54,101</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 14:19                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1629">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765014956_6933fdaceb9d2.jpg" 
+                                 alt="TANTEE" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">TANTEE</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 38,922</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:32                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1628">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765007323_6933dfdbcaeac.jpg" 
+                                 alt="Mobil" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Mobil</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 56,319</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 08:00                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1627">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1765005404_6933d85cf2d2c.jpg" 
+                                 alt="kvli" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">kvli</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 47,359</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 04:39                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1626">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764992238_6933a4eeec0cc.jpg" 
+                                 alt="ESTEHWEH P45VTR1 G3NDVTH" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">ESTEHWEH P45VTR1 G3NDVTH</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 30,670</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 09:06                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1625">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764944570_6932eaba63952.jpg" 
+                                 alt="VIDEY ONLY" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">VIDEY ONLY</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 65,653</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 03:00                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1624">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764935067_6932c59b101cc.jpg" 
+                                 alt="Sebelum casting" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Sebelum casting</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 75,526</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:09                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1623">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764934907_6932c4fbd9952.jpg" 
+                                 alt="Viral baju merah" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Viral baju merah</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 57,876</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 08:03                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1622">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764934746_6932c45a924ae.jpg" 
+                                 alt="Sampe mau nangis" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Sampe mau nangis</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 92,180</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 03:31                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1621">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764934557_6932c39d39e83.jpg" 
+                                 alt="Tante minta lebih" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Tante minta lebih</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 93,697</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 03:22                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1620">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764934379_6932c2ebaf496.jpg" 
+                                 alt="Ughty gemoy" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Ughty gemoy</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 65,853</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 03:06                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1619">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764933193_6932be4954cd9.jpg" 
+                                 alt="MALAM PERTAMA " 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">MALAM PERTAMA </div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 81,670</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 02:18                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1618">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764933149_6932be1d477de.jpg" 
+                                 alt="INI YG LAGI VIRAL" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">INI YG LAGI VIRAL</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 78,691</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:40                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1617">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764933069_6932bdcdd7633.jpg" 
+                                 alt="BERDUA D APARTEMEN " 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">BERDUA D APARTEMEN </div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 76,550</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 12:22                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1616">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764932961_6932bd6100a1f.jpg" 
+                                 alt="CANDAK TALI GOCINE !! " 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">CANDAK TALI GOCINE !! </div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 74,768</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:32                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1615">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764932859_6932bcfb89cb0.jpg" 
+                                 alt="JANGAN CEPET CEPETT" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">JANGAN CEPET CEPETT</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 69,109</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:06                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1614">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764923578_693298bad9024.jpg" 
+                                 alt="mntp" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">mntp</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 77,256</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 11:20                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1613">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764921534_693290be8ea20.jpg" 
+                                 alt="Doge" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Doge</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 71,099</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 08:00                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1612">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764919179_6932878b21d6c.jpg" 
+                                 alt="Cwe penyuka blak mamba" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Cwe penyuka blak mamba</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 60,696</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 03:13                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1611">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764919063_69328717d9df1.jpg" 
+                                 alt="Chindoy enk bening" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Chindoy enk bening</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 101,897</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 06:05                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1610">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764918910_6932867ec2507.jpg" 
+                                 alt="Enk pvlen bnget bjirr" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Enk pvlen bnget bjirr</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 88,239</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 03:37                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1609">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764905853_6932537d453ec.jpg" 
+                                 alt="ESTEHWEH TVDVN9 G3NDVTH" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">ESTEHWEH TVDVN9 G3NDVTH</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 34,281</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 05:01                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1608">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764858852_69319be40024b.jpg" 
+                                 alt="OFICIAL VIDEY" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">OFICIAL VIDEY</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 69,302</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 03:00                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1607">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764848046_693171ae79628.jpg" 
+                                 alt="Jilbab di mobil" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Jilbab di mobil</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 68,893</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 02:25                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1606">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764847684_69317044ba9c6.jpg" 
+                                 alt="Tante pirang" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Tante pirang</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 63,533</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 03:58                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1605">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764847547_69316fbb2ddf9.jpg" 
+                                 alt="Body goal" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Body goal</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 89,284</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 02:15                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1604">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764847069_69316ddd474b7.jpg" 
+                                 alt="Pake daster biar apa" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Pake daster biar apa</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 73,325</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 10:06                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1603">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764846393_69316b39bce0e.jpg" 
+                                 alt="Hijab gemoy" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Hijab gemoy</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 75,775</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 15:26                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1602">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764843651_69316083ce192.jpg" 
+                                 alt="GEDE BNGT" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">GEDE BNGT</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 98,980</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:01                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1601">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764843566_6931602e841c4.jpg" 
+                                 alt="SUKA YA KAK" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">SUKA YA KAK</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 87,459</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 05:32                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1600">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764843438_69315fae8ada8.jpg" 
+                                 alt="JILBAB UNGU" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">JILBAB UNGU</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 62,137</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 04:02                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1599">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764843345_69315f514ed09.jpg" 
+                                 alt="PECAH PRW" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">PECAH PRW</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 61,924</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:37                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1598">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764843268_69315f0483c4b.jpg" 
+                                 alt="BARU PERTAMA MASH PINK" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">BARU PERTAMA MASH PINK</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 88,731</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 2:00                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1597">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764838405_69314c055d991.jpg" 
+                                 alt="asik" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">asik</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 91,692</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 09:58                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1596">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764837559_693148b712f86.jpg" 
+                                 alt="Enak" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Enak</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 60,527</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 06:00                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1595">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764818621_6930febdcb1db.jpg" 
+                                 alt="ESTEHWEH TV4 B3N1N9" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">ESTEHWEH TV4 B3N1N9</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 47,439</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 10:38                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1594">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764773462_69304e56832c4.jpg" 
+                                 alt="WOT" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">WOT</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 92,630</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 06:00                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1593">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764772651_69304b2b00110.jpg" 
+                                 alt="OFICIAL VIDEY" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">OFICIAL VIDEY</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 73,640</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 03:00                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1592">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764762353_693022f1f00b0.jpg" 
+                                 alt="Jilbab pink malu2" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Jilbab pink malu2</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 109,534</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 02:16                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1591">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764762235_6930227b26e7b.jpg" 
+                                 alt="Obrolan seru" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Obrolan seru</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 99,525</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 06:11                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1590">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764762054_693021c69452d.jpg" 
+                                 alt="Sampe di tutup bantal " 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Sampe di tutup bantal </div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 81,543</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:20                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1589">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764761868_6930210c667a1.jpg" 
+                                 alt="Begitu menikmati" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Begitu menikmati</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 54,117</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 06:41                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1588">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764761720_69302078d775b.jpg" 
+                                 alt="Tante chindo" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">Tante chindo</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 76,242</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 06:10                            </span>
+                        </div>
+                    </div>
+                </div>
+                            <div class="video-card">
+                    <a href="watch.php?id=1586">
+                        <div class="video-thumbnail">
+                            <img src="uploads/thumbnails/thumb_1764751022_692ff6aeb0e96.jpg" 
+                                 alt="ATAS ATAS" 
+                                 loading="lazy">
+                        </div>
+                    </a>
+                    <div class="video-info">
+                        <div class="video-title">ATAS ATAS</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-eye"></i> 77,663</span>
+                            <span class="duration">
+                                <i class="fas fa-play"></i> 01:09                            </span>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+
+        <!-- Pagination -->
+        <div class="pagination-bottom">
+            
+            <span class="page-info">
+                </i> 1 Or 14            </span>
+
+                            <a class="pagination-btn" href="?page=2&sort=terbaru">
+                    Next... <i class="fas fa-chevron-right"></i>
+                </a>
+                    </div>
+    </div>
+
+    <!-- Video Modal -->
+    <div class="modal" id="videoModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-video"></div>
+            <div class="modal-info">
+                <h3 id="modalTitle">Judul Video</h3>
+                <div class="video-meta">
+                    <span id="modalViews">1.2M ditonton</span>
+                    <span id="modalDate">2 hari yang lalu</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+       
+        // Lazy loading for images
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src || img.src;
+                        img.classList.remove('loading');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+
+            document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+                img.classList.add('loading');
+                imageObserver.observe(img);
+            });
+        }
+
+        // Smooth scroll to top
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Add scroll to top button
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                if (!document.querySelector('.scroll-top')) {
+                    const scrollBtn = document.createElement('button');
+                    scrollBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+                    scrollBtn.className = 'scroll-top';
+                    scrollBtn.style.cssText = `
+                        position: fixed;
+                        bottom: 2rem;
+                        right: 2rem;
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 50%;
+                        background: var(--gradient-primary);
+                        color: white;
+                        border: none;
+                        cursor: pointer;
+                        z-index: 1000;
+                        box-shadow: var(--shadow-medium);
+                        transition: all 0.3s ease;
+                    `;
+                    scrollBtn.addEventListener('click', scrollToTop);
+                    scrollBtn.addEventListener('mouseover', () => {
+                        scrollBtn.style.transform = 'scale(1.1)';
+                    });
+                    scrollBtn.addEventListener('mouseout', () => {
+                        scrollBtn.style.transform = 'scale(1)';
+                    });
+                    document.body.appendChild(scrollBtn);
+                }
+            } else {
+                const scrollBtn = document.querySelector('.scroll-top');
+                if (scrollBtn) {
+                    scrollBtn.remove();
+                }
+            }
+        });
+    </script>
+<!-- ====== POPUP PROMO MODERN START ====== -->
 <style>
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: rgba(26, 5, 38, 0.95);
-    border-top: 1px solid #3F0A5E;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 10px 0;
-    z-index: 1200;
-    backdrop-filter: blur(6px);
-  }
+.popup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeInBg 0.4s ease;
+}
 
-  .bottom-nav button {
-    background: none;
-    border: none;
-    color: #C0A8D8;
-    text-align: center;
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    position: relative;
-    transition: all 0.3s ease;
-  }
+@keyframes fadeInBg {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
-  .bottom-nav button i {
-    font-size: 20px;
-    transition: all 0.3s ease;
-  }
+.popup-content {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 22px 20px;
+  border-radius: 18px;
+  text-align: center;
+  width: 90%;
+  max-width: 380px;
+  position: relative;
+  box-shadow: 0 8px 35px rgba(0,0,0,0.4);
+  transform: scale(0.7);
+  opacity: 0;
+  animation: popupShow 0.45s ease forwards;
+}
 
-  /* Efek Tombol Aktif (Glow Ungu Lembut seperti Tema Aplikasi) */
-  .bottom-nav button.active {
-    color: #BE60EE;
-    text-shadow: 0 0 8px rgba(190, 96, 238, 0.8);
-    transform: translateY(-3px);
-  }
+@keyframes popupShow {
+  to { transform: scale(1); opacity: 1; }
+}
 
-  .bottom-nav button.active i {
-    color: #BE60EE;
-    text-shadow: 0 0 12px rgba(190, 96, 238, 0.8);
-  }
+.close-btn {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(145deg, #ff004c, #ff7b00);
+  color: #fff;
+  font-size: 22px;
+  font-weight: bold;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(255, 0, 80, 0.55);
+  transition: 0.25s ease;
+  z-index: 10;
+}
 
-  .bottom-nav button.active::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 55px;
-    height: 55px;
-    background: radial-gradient(circle, rgba(190,96,238,0.35) 0%, rgba(190,96,238,0) 70%);
-    border-radius: 50%;
-    z-index: -1;
-    filter: blur(4px);
-    transition: opacity 0.3s ease;
-  }
+.close-btn:hover {
+  transform: scale(1.15) rotate(12deg);
+  box-shadow: 0 6px 16px rgba(255, 72, 0, 0.65);
+  background: linear-gradient(145deg, #ff006b, #ffaa00);
+}
 
-  .bottom-nav button:active {
-    transform: scale(0.96);
-    opacity: 0.9;
-  }
 
-  @media (max-width: 400px) {
-    .bottom-nav button i { font-size: 18px; }
-    .bottom-nav button span { font-size: 11px; }
-  }
+.popup-image {
+  width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+  margin-bottom: 12px;
+}
+
+.popup-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: #fff;
+  letter-spacing: 0.4px;
+}
+
+.popup-button {
+  display: inline-block;
+  margin-top: 14px;
+  background: linear-gradient(135deg, #e8006d, #ff3131);
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 14px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 16px;
+  transition: 0.3s;
+  box-shadow: 0 5px 15px rgba(255, 21, 84, 0.45);
+}
+.popup-button:hover {
+  transform: scale(1.08);
+  background: linear-gradient(135deg, #ff0055, #ff5252);
+}
+
+@media (max-width: 600px) {
+  .popup-content { max-width: 330px; }
+  .popup-title { font-size: 18px; }
+  .popup-button { font-size: 15px; padding: 10px 18px; }
+}
 </style>
 
-<div class="bottom-nav" id="bottomNav">
-  <button id="navAttackBtn" class="active" title="DASBOARD (Attack Menu)">
-    <i class="fas fa-bolt"></i>
-    <span>DASBOARD</span>
-  </button>
+<!-- ===== POPUP A ===== -->
+<div id="popupA" class="popup-overlay">
+  <div class="popup-content">
+    <span class="close-btn">&times;</span>
 
-  <button id="navMusicBtn" title="MUSIK (Play Lagu)">
-    <i class="fas fa-music"></i>
-    <span>MUSIK</span>
-  </button>
+    <h2 class="popup-title">Sesui Thumnail/Foto😋</h2>
 
-  <button id="navIpCheckBtn" title="CEK IP (IP Information)">
-    <i class="fas fa-globe"></i>
-    <span>CEK IP</span>
-  </button>
+    <img src="uploads/6172404583666224738.jpg" alt="Promo A" class="popup-image">
 
-  <button id="navYoutubeBtn" title="YOUTUBE (Downloader)">
-    <i class="fab fa-youtube"></i>
-    <span>YOUTUBE</span>
-  </button>
+    <a href="https://videy-stream.online/" class="popup-button" target="_blank">
+      Tonton Video Sekarang
+    </a>
+  </div>
+</div>
 
-  <button id="navChatAiBtn" title="CHAT AI (AI Assistant)">
-    <i class="fas fa-robot"></i>
-    <span>CHAT AI</span>
-  </button>
+<!-- ===== POPUP B ===== -->
+<div id="popupB" class="popup-overlay">
+  <div class="popup-content">
+    <span class="close-btn">&times;</span>
+
+    <h2 class="popup-title">Sesui Thumnail/Foto😋</h2>
+
+    <img src="uploads/6172404583666224731.jpg" alt="Promo B" class="popup-image">
+
+    <a href="https://videy-stream.online/Popup2.php" class="popup-button" target="_blank">
+      Tonton Video Sekarang
+    </a>
+  </div>
 </div>
 
 <script>
-  const navAttackBtn = document.getElementById('navAttackBtn');
-  const navMusicBtn = document.getElementById('navMusicBtn');
-  const navIpCheckBtn = document.getElementById('navIpCheckBtn');
-  const navYoutubeBtn = document.getElementById('navYoutubeBtn');
-  const navChatAiBtn = document.getElementById('navChatAiBtn');
 
-  function setActive(btn) {
-    document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+// ====== tampilkan Popup A ======
+function showPopupA() {
+  const popupA = document.getElementById('popupA');
+  popupA.style.display = 'flex';
+
+  popupA.querySelector('.close-btn').onclick = () => {
+    popupA.style.display = 'none';
+    showPopupB();   // setelah popupA ditutup → tampilkan popupB
+  };
+}
+
+// ====== tampilkan Popup B ======
+function showPopupB() {
+  const popupB = document.getElementById('popupB');
+  popupB.style.display = 'flex';
+
+  popupB.querySelector('.close-btn').onclick = () => {
+    popupB.style.display = 'none';
+    localStorage.setItem('popupDone', Date.now());  // selesai dua popup
+  };
+}
+
+// ===== sistem interval ====
+document.addEventListener('DOMContentLoaded', () => {
+  
+  const last = localStorage.getItem('popupDone');
+  const now = Date.now();
+  const delay = 1 * 60 * 1000; // 1 menit
+  
+  // kalau belum pernah muncul atau sudah 1 menit → trigger popup A
+  if (!last || now - last >= delay) {
+    setTimeout(showPopupA, 2000);   // delay 2 detik
   }
 
-  // === Tombol DASBOARD ===
-  navAttackBtn.addEventListener('click', () => {
-    setActive(navAttackBtn);
-    showDashboard('attack');
-  });
+  // setiap 1 menit → reset popup
+  setInterval(() => {
+    localStorage.removeItem('popupDone');
+  }, delay);
 
-  // === Tombol MUSIK ===
-  navMusicBtn.addEventListener('click', () => {
-    setActive(navMusicBtn);
-    showDashboard('music');
-  });
+});
 
-  // === Tombol CEK IP ===
-  navIpCheckBtn.addEventListener('click', () => {
-    setActive(navIpCheckBtn);
-    showDashboard('ipcheck');
-  });
-
-  // === Tombol YOUTUBE ===
-  navYoutubeBtn.addEventListener('click', () => {
-    setActive(navYoutubeBtn);
-    showDashboard('youtube');
-  });
-
-  // === Tombol CHAT AI ===
-  navChatAiBtn.addEventListener('click', () => {
-    setActive(navChatAiBtn);
-    showDashboard('chat-ai');
-  });
 </script>
-<!-- ======= End Bottom Navigation ======= -->
-  <!-- Asep Rokok Background -->
-  <div id="smoke-background"></div>
-  
-  <button id="openSidebarBtn"><i class="fas fa-bars"></i></button>
-  
-  <!-- Profile Icon di Kanan Atas -->
-  <div id="profileIcon">
-    <i class="fas fa-user"></i>
-  </div>
-
-  <!-- Profile Info Panel -->
-  <div id="overlay"></div>
-  <div id="profileInfoPanel">
-    <div class="profile-info-header">
-      <div class="profile-info-title">Account Information</div>
-      <button id="closeProfileInfoBtn"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="profile-info-content">
-      <img src="https://files.catbox.moe/gc7j7o.jpg" alt="Profile Avatar" class="profile-info-avatar" />
-      <div class="profile-info-username">K7N</div>
-      <div class="profile-info-details">
-    <div class="profile-info-item">
-        <span class="profile-info-label">Username:</span>
-        <span class="profile-info-value">K7N</span>
-    </div>
-    <div class="profile-info-item">
-        <span class="profile-info-label">Password:</span>
-        <span class="profile-info-value">kiya</span> <!-- ✅ INI YANG BENAR -->
-    </div>
-    <div class="profile-info-item">
-        <span class="profile-info-label">Role:</span>
-        <span class="profile-info-value">OWNER</span>
-    </div>
-    <div class="profile-info-item">
-        <span class="profile-info-label">Expired:</span>
-        <span class="profile-info-value">05/01/26, 14.08</span>
-    </div>
-    <div class="profile-info-item">
-        <span class="profile-info-label">Status:</span>
-        <span class="profile-info-value">Active</span>
-    </div>
-</div>
-    </div>
-  </div>
-
-  <div class="app-wrapper">
-    <h1 class="main-title">PARADOX EFSANESI V1</h1>
-
-    <!-- Dashboard Attack Menu -->
-    <div id="attackDashboard" class="dashboard-page active">
-        <div class="container profile-card">
-            <img src="https://files.catbox.moe/gc7j7o.jpg" alt="Logo" class="profile-logo" />
-            <div class="profile-username">K7N</div>
-            <div class="profile-details">
-          Role: <span>OWNER</span> • Exp: <span>05/01/26, 14.08</span></div>
-        </div>
-
-        <div class="container">
-            <div class="section-title">Target Number</div>
-            <input type="text" id="targetNumberInput" placeholder="e.g. 628xxxxxxxxxx" />
-
-            <div class="section-title">Select Bug</div>
-            <select id="bugSelect">
-                <option value="" disabled selected>Select Bug...</option>
-                <option value="blank">DELAY ANDRO</option>
-                <option value="blankios">DELAY IPHONE</option>
-                <option value="invis">BULLDOZER</option>
-            </select>
-
-            <button class="execute-button" id="executeBtn"><i class="fas fa-bug"></i> SEND BUG</button>
-
-            <!-- Footer action dihapus sesuai permintaan -->
-        </div>
-    </div>
-    
-    <!-- Dashboard Music Player -->
-    <div id="musicDashboard" class="dashboard-page container music-player-dashboard">
-        <div class="section-title">Music Player</div>
-
-        <div class="song-title" id="songTitle">
-            <i class="fas fa-headphones-alt"></i> Lagu: Chill House Mix
-        </div>
-
-        <div class="player-controls">
-            <button id="playPauseBtn"><i class="fas fa-play"></i></button>
-            <button id="stopBtn"><i class="fas fa-stop"></i></button>
-        </div>
-
-        <div id="progressContainer">
-            <div id="progressBar"></div>
-        </div>
-
-        <div class="time-display">
-            <span id="currentTime">0:00</span>
-            <span id="duration">0:00</span>
-        </div>
-    </div>
-
-    <!-- Dashboard Cek IP -->
-    <div id="ipCheckDashboard" class="dashboard-page container">
-        <div class="section-title">Cek Informasi IP</div>
-        
-        <input type="text" id="ipAddressInput" placeholder="Masukkan IP Address (kosongkan untuk IP Anda)" />
-        
-        <button class="execute-button" id="checkIpBtn">
-            <i class="fas fa-search"></i> CEK INFORMASI IP
-        </button>
-
-        <div class="loading-spinner" id="ipLoading">
-            <div class="spinner"></div>
-            <div>Mencari informasi IP...</div>
-        </div>
-
-        <div class="ip-info-result" id="ipInfoResult">
-            <div class="ip-info-item">
-                <span class="ip-info-label">IP Address:</span>
-                <span class="ip-info-value" id="ipAddress">-</span>
-            </div>
-            <div class="ip-info-item">
-                <span class="ip-info-label">Kota:</span>
-                <span class="ip-info-value" id="ipCity">-</span>
-            </div>
-            <div class="ip-info-item">
-                <span class="ip-info-label">Region:</span>
-                <span class="ip-info-value" id="ipRegion">-</span>
-            </div>
-            <div class="ip-info-item">
-                <span class="ip-info-label">Negara:</span>
-                <span class="ip-info-value" id="ipCountry">-</span>
-            </div>
-            <div class="ip-info-item">
-                <span class="ip-info-label">Kode Negara:</span>
-                <span class="ip-info-value" id="ipCountryCode">-</span>
-            </div>
-            <div class="ip-info-item">
-                <span class="ip-info-label">Zona Waktu:</span>
-                <span class="ip-info-value" id="ipTimezone">-</span>
-            </div>
-            <div class="ip-info-item">
-                <span class="ip-info-label">ISP:</span>
-                <span class="ip-info-value" id="ipIsp">-</span>
-            </div>
-            <div class="ip-info-item">
-                <span class="ip-info-label">Organisasi:</span>
-                <span class="ip-info-value" id="ipOrg">-</span>
-            </div>
-            <div class="ip-info-item">
-                <span class="ip-info-label">Latitude:</span>
-                <span class="ip-info-value" id="ipLat">-</span>
-            </div>
-            <div class="ip-info-item">
-                <span class="ip-info-label">Longitude:</span>
-                <span class="ip-info-value" id="ipLon">-</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Dashboard YouTube Downloader -->
-    <div id="youtubeDashboard" class="dashboard-page container youtube-downloader">
-        <div class="section-title">YouTube Downloader</div>
-        
-        <input type="text" id="youtubeQuery" placeholder="Masukkan judul atau link YouTube..." />
-        
-        <button class="execute-button" id="searchYoutubeBtn">
-            <i class="fas fa-search"></i> CARI VIDEO
-        </button>
-
-        <div id="youtubeStatus" style="margin: 15px 0; min-height: 20px;"></div>
-
-        <div id="youtubeResults"></div>
-
-        <div class="youtube-player" id="youtubePlayer">
-            <h3 id="youtubeTitle"></h3>
-            <p id="youtubeChannel"></p>
-            <p id="youtubeDuration"></p>
-            <audio class="youtube-audio" id="youtubeAudio" controls></audio>
-            <div class="youtube-controls">
-                <button id="youtubePlayPauseBtn" onclick="toggleYoutubePlayPause()">
-                    <i class="fas fa-play"></i> Play
-                </button>
-                <button onclick="downloadYoutubeMusic()">
-                    <i class="fas fa-download"></i> Download
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Dashboard Chat AI -->
-    <div id="chatAiDashboard" class="dashboard-page container chat-ai-dashboard">
-        <div class="section-title">PARADOX EFSANESI V1</div>
-        
-        <div class="api-status">
-            <i class="fas fa-check-circle"></i> Gemini 2.5 Flash - Siap digunakan!
-        </div>
-
-        <div class="chat-container" id="chatContainer">
-            <div class="chat-message ai-message">
-                <div class="message-sender">PARADOX EFSANESI V1</div>
-                <div class="message-content">Halo! Saya Vortunix AI Assistant yang menggunakan Gemini 2.5 Flash. Silakan tanyakan apa saja kepada saya! Saya siap membantu Anda dengan berbagai pertanyaan.</div>
-            </div>
-        </div>
-
-        <div class="typing-indicator" id="typingIndicator">
-            <i class="fas fa-robot"></i> PARADOX EFSANESI V1 sedang mengetik...
-        </div>
-
-        <div class="chat-input-container">
-            <textarea class="chat-input" id="chatInput" placeholder="Ketik pertanyaan Anda di sini..." rows="3"></textarea>
-            <button class="send-button" id="sendMessageBtn">
-                <i class="fas fa-paper-plane"></i>
-            </button>
-        </div>
-
-        <button class="clear-chat-btn" onclick="clearChat()">
-            <i class="fas fa-trash"></i> Hapus Percakapan
-        </button>
-    </div>
-
-<div id="darkverseDashboard" class="dashboard-page darkverse-dashboard">
-  <div class="container" style="background:transparent; border:none; box-shadow:none; padding:0;">
-
-    <!-- 🖼️ SLIDER FOTO + TEKS DI ATAS FOTO - FIXED SIZE -->
-    <div class="darkverse-slider">
-      <div class="slide-track">
-        <img src="https://k.top4top.io/p_358731jod0.jpeg" alt="">
-        <img src="https://c.top4top.io/p_3588hp4sk0.jpeg" alt="">
-      </div>
-      <div class="darkverse-text-overlay">
-        <h2>PARADOX EFSANESI V1</h2>
-        <p>Buy Acces Chat <span>@lanzytq</span></p>
-      </div>
-    </div>
-
-    <style>
-      .darkverse-slider {
-        position: relative;
-        width: 100%;
-        height: 180px; /* Diperkecil dari 200px */
-        overflow: hidden;
-        border-radius: 18px;
-        margin-bottom: 20px;
-        border: 1px solid #3F0A5E;
-        box-shadow: 0 0 20px rgba(190,96,238,0.3);
-      }
-      .darkverse-slider .slide-track {
-        display: flex;
-        width: 300%;
-        height: 100%;
-        transition: transform 0.8s ease;
-      }
-      .darkverse-slider img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;            /* Isi penuh frame */
-  object-position: center center; /* Fokus di tengah gambar */
-  transform: scale(1.10);       /* 🔍 Sedikit zoom biar pas tapi tidak kepotong */
-  flex-shrink: 0;
-  filter: brightness(0.9);
-  border-radius: 18px;
-  transition: transform 0.5s ease, filter 0.5s ease;
-}
-
-      /* 🔮 TEKS DI ATAS FOTO */
-      .darkverse-text-overlay {
-        position: absolute;
-        bottom: 15px; /* Diperkecil dari 20px */
-        left: 15px; /* Diperkecil dari 20px */
-        z-index: 5;
-        text-shadow: 0 0 12px rgba(190, 96, 238, 0.8);
-      }
-      .darkverse-text-overlay h2 {
-        font-family: 'Orbitron', sans-serif;
-        font-size: 20px; /* Diperkecil dari 22px */
-        color: #E0E0E0;
-        margin: 0;
-      }
-      .darkverse-text-overlay p {
-        color: #ccc;
-        font-size: 12px; /* Diperkecil dari 13px */
-        margin: 5px 0 0;
-      }
-      .darkverse-text-overlay span {
-        color: #BE60EE;
-        font-weight: 600;
-      }
-    </style>
-
-    <script>
-      const track = document.querySelector(".darkverse-slider .slide-track");
-      const slides = document.querySelectorAll(".darkverse-slider img");
-      let index = 0;
-      let startX = 0;
-      let isDragging = false;
-      let autoSlide;
-
-      function autoNext() {
-        index = (index + 1) % slides.length;
-        updateSlide();
-      }
-
-      function updateSlide() {
-        track.style.transform = `translateX(-${index * 100}%)`;
-      }
-
-      function startAutoSlide() {
-        autoSlide = setInterval(autoNext, 4000);
-      }
-
-      function stopAutoSlide() {
-        clearInterval(autoSlide);
-      }
-
-      // Geser manual (swipe HP)
-      track.addEventListener("touchstart", (e) => {
-        stopAutoSlide();
-        isDragging = true;
-        startX = e.touches[0].clientX;
-      });
-
-      track.addEventListener("touchmove", (e) => {
-        if (!isDragging) return;
-        const moveX = e.touches[0].clientX - startX;
-        track.style.transform = `translateX(calc(-${index * 100}% + ${moveX}px))`;
-      });
-
-      track.addEventListener("touchend", (e) => {
-        isDragging = false;
-        const diff = e.changedTouches[0].clientX - startX;
-        if (Math.abs(diff) > 50) {
-          if (diff > 0) index = Math.max(0, index - 1);
-          else index = Math.min(slides.length - 1, index + 1);
-        }
-        updateSlide();
-        startAutoSlide();
-      });
-
-      startAutoSlide();
-    </script>
-
-    <!-- MENU UTAMA YANG DIPERBAIKI -->
-    <div style="display:flex; justify-content:space-around; flex-wrap:wrap; margin-bottom:25px;">
-      <div style="width:75px; text-align:center; color:#E0E0E0; cursor:pointer;" onclick="showDashboard('attack')">
-        <div style="width:65px; height:65px; border-radius:50%; background:#1A0526; border:1px solid #3F0A5E; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(190,96,238,0.3);">
-          <i class="fas fa-bolt" style="color:#BE60EE; font-size:20px;"></i>
-        </div>
-        <div style="font-size:12px;">DASBOARD</div>
-      </div>
-      <div style="width:75px; text-align:center; color:#E0E0E0; cursor:pointer;" onclick="showDashboard('music')">
-        <div style="width:65px; height:65px; border-radius:50%; background:#1A0526; border:1px solid #3F0A5E; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(190,96,238,0.3);">
-          <i class="fas fa-music" style="color:#BE60EE; font-size:20px;"></i>
-        </div>
-        <div style="font-size:12px;">MUSIK</div>
-      </div>
-      <div style="width:75px; text-align:center; color:#E0E0E0; cursor:pointer;" onclick="showDashboard('ipcheck')">
-        <div style="width:65px; height:65px; border-radius:50%; background:#1A0526; border:1px solid #3F0A5E; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(190,96,238,0.3);">
-          <i class="fas fa-globe" style="color:#BE60EE; font-size:20px;"></i>
-        </div>
-        <div style="font-size:12px;">CEK IP</div>
-      </div>
-      <div style="width:75px; text-align:center; color:#E0E0E0; cursor:pointer;" onclick="showDashboard('youtube')">
-        <div style="width:65px; height:65px; border-radius:50%; background:#1A0526; border:1px solid #3F0A5E; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(190,96,238,0.3);">
-          <i class="fab fa-youtube" style="color:#BE60EE; font-size:20px;"></i>
-        </div>
-        <div style="font-size:12px;">YOUTUBE</div>
-      </div>
-    </div>
-
-    <!-- MENU BARIS KEDUA -->
-    <div style="display:flex; justify-content:space-around; flex-wrap:wrap; margin-bottom:25px;">
-      <div style="width:75px; text-align:center; color:#E0E0E0; cursor:pointer;" onclick="showDashboard('chat-ai')">
-        <div style="width:65px; height:65px; border-radius:50%; background:#1A0526; border:1px solid #3F0A5E; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(190,96,238,0.3);">
-          <i class="fas fa-robot" style="color:#BE60EE; font-size:20px;"></i>
-        </div>
-        <div style="font-size:12px;">CHAT AI</div>
-      </div>
-      <div style="width:75px; text-align:center; color:#E0E0E0; cursor:pointer;" onclick="openProfileInfo()">
-        <div style="width:65px; height:65px; border-radius:50%; background:#1A0526; border:1px solid #3F0A5E; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(190,96,238,0.3);">
-          <i class="fas fa-user" style="color:#BE60EE; font-size:20px;"></i>
-        </div>
-        <div style="font-size:12px;">PROFILE</div>
-      </div>
-      <div style="width:75px; text-align:center; color:#E0E0E0; cursor:pointer;" onclick="window.location.href='https://t.me/GyzenVtx'">
-        <div style="width:65px; height:65px; border-radius:50%; background:#1A0526; border:1px solid #3F0A5E; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(190,96,238,0.3);">
-          <i class="fab fa-telegram" style="color:#BE60EE; font-size:20px;"></i>
-        </div>
-        <div style="font-size:12px;">DEVELOPER</div>
-      </div>
-      <div style="width:75px; text-align:center; color:#E0E0E0; cursor:pointer;" onclick="window.location.href='/logout'">
-        <div style="width:65px; height:65px; border-radius:50%; background:#1A0526; border:1px solid #3F0A5E; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(190,96,238,0.3);">
-          <i class="fas fa-sign-out-alt" style="color:#BE60EE; font-size:20px;"></i>
-        </div>
-        <div style="font-size:12px;">LOGOUT</div>
-      </div>
-    </div>
-
-    <!-- TELEGRAM CHANNEL - PERBAIKAN: LINK YANG DAPAT DIKLIK -->
-    <div style="background:linear-gradient(90deg,#2D0842,#1A0526); border:1px solid #3F0A5E; border-radius:14px; padding:15px; text-align:center; color:#E0E0E0; margin-bottom:20px; cursor: pointer;" onclick="window.open('https://t.me/AboutGyzenLyoraa', '_blank')">
-      <i class="fas fa-fire" style="color:#ff4444; margin-right:8px;"></i>
-      Telegram Channel: <span style="color:#BE60EE;">Join To Get More Info!</span>
-    </div>
-
-    <!-- SERVER STATS -->
-    <div style="background:linear-gradient(180deg,#2D0842,#1A0526); border:1px solid #3F0A5E; border-radius:14px; padding:20px;">
-      <div style="font-family:'Orbitron',sans-serif; color:#BE60EE; font-size:18px; margin-bottom:15px; text-align:center;">
-        <i class="fas fa-chart-bar"></i> Server Stats
-      </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #3F0A5E; padding-top:10px;">
-        <div style="display:flex; align-items:center; gap:8px; color:#9A9A9A; font-size:14px;">
-          <i class="fas fa-user"></i> Online Users
-        </div>
-        <div style="color:#BE60EE; font-family:'Orbitron',sans-serif;">0</div>
-      </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #3F0A5E; padding-top:10px; margin-top:8px;">
-        <div style="display:flex; align-items:center; gap:8px; color:#9A9A9A; font-size:14px;">
-          <i class="fas fa-rocket"></i> Active Sender
-        </div>
-        <div style="color:#BE60EE; font-family:'Orbitron',sans-serif;">0</div>
-      </div>
-    </div>
-
-  </div>
-</div>
-    </div>
-
-  </div> <div id="popup" class="popup">✅ Success Send Bug</div>
-
-  <audio id="backgroundMusic" loop>
-      <source src="https://files.catbox.moe/rm7kaw.mp3" type="audio/mpeg">
-      Your browser does not support the audio element.
-  </audio>
-
-  <script>
-    // =======================================
-    // GEMINI API CONFIGURATION - GEMINI 2.5 FLASH
-    // =======================================
-    const GEMINI_API_KEY = 'AIzaSyB7URXCSpZtdCdKCjBGkvV27nLURDDn1FM'; // Ganti dengan API key Gemini 2.5 Flash Anda
-    const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
-
-    // Utility function to format time (seconds to M:SS)
-    function formatTime(seconds) {
-        if (isNaN(seconds)) return '0:00';
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = Math.floor(seconds % 60);
-        const paddedSeconds = remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
-        
-        return minutes + ':' + paddedSeconds;
-    }
-
-    // =======================================
-    // DOM ELEMENTS
-    // =======================================
-    const targetNumberInput = document.getElementById('targetNumberInput');
-    const bugSelect = document.getElementById('bugSelect');
-    const executeBtn = document.getElementById('executeBtn');
-    const popup = document.getElementById('popup');
-    
-    // Sidebar Elements
-    const openSidebarBtn = document.getElementById('openSidebarBtn');
-
-    // Dashboard Elements
-    const attackDashboard = document.getElementById('attackDashboard');
-    const musicDashboard = document.getElementById('musicDashboard');
-    const ipCheckDashboard = document.getElementById('ipCheckDashboard');
-    const youtubeDashboard = document.getElementById('youtubeDashboard');
-    const chatAiDashboard = document.getElementById('chatAiDashboard');
-    const darkverseDashboard = document.getElementById('darkverseDashboard');
-    
-    // Music Player Elements
-    const backgroundMusic = document.getElementById('backgroundMusic');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const progressBar = document.getElementById('progressBar');
-    const progressContainer = document.getElementById('progressContainer');
-    const currentTimeDisplay = document.getElementById('currentTime');
-    const durationDisplay = document.getElementById('duration');
-    const songTitleDisplay = document.getElementById('songTitle');
-    
-    // Profile Elements
-    const profileIcon = document.getElementById('profileIcon');
-    const profileInfoPanel = document.getElementById('profileInfoPanel');
-    const closeProfileInfoBtn = document.getElementById('closeProfileInfoBtn');
-    const overlay = document.getElementById('overlay');
-    
-    // IP Check Elements
-    const ipAddressInput = document.getElementById('ipAddressInput');
-    const checkIpBtn = document.getElementById('checkIpBtn');
-    const ipLoading = document.getElementById('ipLoading');
-    const ipInfoResult = document.getElementById('ipInfoResult');
-    
-    // YouTube Elements
-    const youtubeQuery = document.getElementById('youtubeQuery');
-    const searchYoutubeBtn = document.getElementById('searchYoutubeBtn');
-    const youtubeStatus = document.getElementById('youtubeStatus');
-    const youtubeResults = document.getElementById('youtubeResults');
-    const youtubePlayer = document.getElementById('youtubePlayer');
-    const youtubeTitle = document.getElementById('youtubeTitle');
-    const youtubeChannel = document.getElementById('youtubeChannel');
-    const youtubeDuration = document.getElementById('youtubeDuration');
-    const youtubeAudio = document.getElementById('youtubeAudio');
-    const youtubePlayPauseBtn = document.getElementById('youtubePlayPauseBtn');
-    
-    // Chat AI Elements
-    const chatContainer = document.getElementById('chatContainer');
-    const chatInput = document.getElementById('chatInput');
-    const sendMessageBtn = document.getElementById('sendMessageBtn');
-    const typingIndicator = document.getElementById('typingIndicator');
-    
-    let isPlaying = false; 
-    let selectedBugMode = ''; 
-    let currentYoutubeAudio = null;
-    let currentYoutubeData = null;
-    let previousDashboard = 'attack'; // Menyimpan dashboard sebelumnya
-
-    // =======================================
-    // CORE APP LOGIC - FIXED VALIDATION
-    // =======================================
-    function isValidNumber(number) {
-      const cleanedNumber = number.replace(/[\s\+\-\(\)]/g, '');
-      const pattern = /^\d{7,15}$/;
-      return pattern.test(cleanedNumber);
-    }
-
-    function updateExecuteButtonState() {
-      const numberValid = isValidNumber(targetNumberInput.value.trim());
-      const bugSelected = selectedBugMode !== '';
-      executeBtn.disabled = !(numberValid && bugSelected);
-    }
-    
-    // Event listener for target number input and bug selection
-    targetNumberInput.addEventListener('input', updateExecuteButtonState);
-    bugSelect.addEventListener('change', () => {
-        selectedBugMode = bugSelect.value;
-        updateExecuteButtonState();
-    });
-
-    // =======================================
-    // DASHBOARD SWITCHING - FIXED FUNCTION
-    // =======================================
-    function showDashboard(dashboardId) {
-        // Simpan dashboard sebelumnya jika bukan darkverse
-        if (dashboardId !== 'darkverse') {
-            previousDashboard = dashboardId;
-        }
-        
-        document.querySelectorAll('.dashboard-page').forEach(el => {
-            el.classList.remove('active');
-        });
-        
-        if (dashboardId === 'music') {
-            musicDashboard.classList.add('active');
-            songTitleDisplay.innerHTML = '<i class="fas fa-headphones-alt"></i> Lagu: Chill House Mix';
-        } else if (dashboardId === 'attack') {
-            attackDashboard.classList.add('active');
-        } else if (dashboardId === 'ipcheck') {
-            ipCheckDashboard.classList.add('active');
-        } else if (dashboardId === 'youtube') {
-            youtubeDashboard.classList.add('active');
-        } else if (dashboardId === 'chat-ai') {
-            chatAiDashboard.classList.add('active');
-        } else if (dashboardId === 'darkverse') {
-            darkverseDashboard.classList.add('active');
-        }
-    }
-
-    // =======================================
-    // TOGGLE DARKVERSE DASHBOARD
-    // =======================================
-    function toggleDarkverseDashboard() {
-        const isDarkverseActive = darkverseDashboard.classList.contains('active');
-        
-        if (isDarkverseActive) {
-            // Kembali ke dashboard sebelumnya
-            showDashboard(previousDashboard);
-        } else {
-            // Tampilkan darkverse dashboard
-            showDashboard('darkverse');
-        }
-    }
-
-    // =======================================
-    // PROFILE INFO PANEL FUNCTIONS
-    // =======================================
-    function openProfileInfo() {
-        profileInfoPanel.classList.add('active');
-        overlay.classList.add('active');
-    }
-
-    function closeProfileInfo() {
-        profileInfoPanel.classList.remove('active');
-        overlay.classList.remove('active');
-    }
-
-    // =======================================
-    // MUSIC PLAYER FUNCTIONS
-    // =======================================
-    
-    function playMusic() {
-        const playPromise = backgroundMusic.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                isPlaying = true;
-                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            }).catch(error => {
-                console.error("Gagal memutar musik:", error);
-                alert("Gagal memutar musik. Silakan coba klik tombol Play lagi.");
-            });
-        }
-    }
-
-    function pauseMusic() {
-        backgroundMusic.pause();
-        isPlaying = false;
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-    }
-
-    function togglePlayPause() {
-        if (backgroundMusic.paused) { 
-            playMusic();
-        } else {
-            pauseMusic();
-        }
-    }
-
-    function stopMusic() {
-        backgroundMusic.pause();
-        backgroundMusic.currentTime = 0; 
-        isPlaying = false;
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        progressBar.style.width = '0%';
-        currentTimeDisplay.textContent = '0:00';
-    }
-    
-    // =======================================
-    // IP CHECK FUNCTIONS
-    // =======================================
-    async function checkIPInfo() {
-        const ipAddress = ipAddressInput.value.trim();
-        ipLoading.classList.add('active');
-        ipInfoResult.classList.remove('active');
-        
-        try {
-            let apiUrl = 'https://ipapi.co/json/';
-            if (ipAddress) {
-                const ipPattern = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-                if (!ipPattern.test(ipAddress)) {
-                    throw new Error('Format IP address tidak valid');
-                }
-                apiUrl = `https://ipapi.co/${ipAddress}/json/`;
-            }
-            
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            
-            if (data.error) {
-                throw new Error(data.reason || 'Gagal mendapatkan informasi IP');
-            }
-            
-            document.getElementById('ipAddress').textContent = data.ip || '-';
-            document.getElementById('ipCity').textContent = data.city || '-';
-            document.getElementById('ipRegion').textContent = data.region || '-';
-            document.getElementById('ipCountry').textContent = data.country_name || '-';
-            document.getElementById('ipCountryCode').textContent = data.country_code || '-';
-            document.getElementById('ipTimezone').textContent = data.timezone || '-';
-            document.getElementById('ipIsp').textContent = data.org || data.asn || '-';
-            document.getElementById('ipOrg').textContent = data.org || '-';
-            document.getElementById('ipLat').textContent = data.latitude || '-';
-            document.getElementById('ipLon').textContent = data.longitude || '-';
-            
-            ipInfoResult.classList.add('active');
-            
-        } catch (error) {
-            alert('Error: ' + error.message);
-            console.error('IP Check Error:', error);
-        } finally {
-            ipLoading.classList.remove('active');
-        }
-    }
-    
-    // =======================================
-    // YOUTUBE DOWNLOADER FUNCTIONS
-    // =======================================
-    function showYoutubePopup(title, message) {
-        popup.innerHTML = `<strong>${title}</strong><br>${message}`;
-        popup.style.display = 'block';
-        setTimeout(() => { popup.style.display = "none"; }, 2500);
-    }
-
-    // 🔍 CARI LAGU / VIDEO YOUTUBE
-    async function searchYoutube() {
-        const query = youtubeQuery.value.trim();
-        if (!query) return showYoutubePopup("Error", "Masukkan kata kunci dulu!");
-
-        youtubeStatus.innerHTML = `<span class="status-indicator status-processing"></span> Mencari...`;
-        youtubeResults.innerHTML = '';
-        youtubePlayer.classList.remove('active');
-
-        try {
-            const res = await fetch(`https://api.siputzx.my.id/api/s/youtube?query=${encodeURIComponent(query)}`);
-            const data = await res.json();
-            const results = data?.data;
-            if (!results || !results.length) {
-                youtubeStatus.innerHTML = `<span class="status-indicator status-error"></span> Tidak ada hasil ditemukan`;
-                return;
-            }
-            displayYoutubeResults(results);
-            youtubeStatus.innerHTML = `<span class="status-indicator status-success"></span> Ditemukan ${results.length} hasil`;
-        } catch (err) {
-            console.error(err);
-            youtubeStatus.innerHTML = `<span class="status-indicator status-error"></span> Gagal mencari: ${err.message}`;
-        }
-    }
-
-    // 🧾 TAMPILKAN HASIL YOUTUBE
-    function displayYoutubeResults(results) {
-  youtubeResults.innerHTML = "";
-
-  results.forEach((res) => {
-    // Ambil durasi dari berbagai kemungkinan struktur data API
-    const durationText =
-      res.duration?.simpleText ||
-      res.duration?.formatted ||
-      res.duration?.text ||
-      res.lengthText ||
-      res.duration ||
-      "??:??";
-
-    const thumbnail =
-      res.thumbnail?.url ||
-      res.thumbnail?.[0]?.url ||
-      res.thumbnails?.[0]?.url ||
-      res.thumbnail ||
-      "https://via.placeholder.com/80x60?text=No+Thumb";
-
-    const item = document.createElement("div");
-    item.className = "search-result-item";
-    item.innerHTML = `
-      <img src="${thumbnail}" alt="thumb">
-      <div class="search-result-info">
-        <h5>${res.title}</h5>
-      </div>
-    `;
-    item.addEventListener("click", () => playYoutubeMusic(res));
-    youtubeResults.appendChild(item);
-  });
-}
-
-    // ▶️ PUTAR AUDIO YOUTUBE
-    async function playYoutubeMusic(data) {
-  youtubeStatus.innerHTML = `<span class="status-indicator status-processing"></span> Mengambil audio...`;
-
-  try {
-    const res = await fetch(`https://restapi-v2.simplebot.my.id/download/ytmp3?url=${encodeURIComponent(data.url)}`);
-    const js = await res.json();
-    const audioUrl = js?.result;
-    if (!audioUrl) throw new Error("URL audio tidak ditemukan");
-
-    currentYoutubeAudio = youtubeAudio;
-    currentYoutubeData = data;
-
-    // Ambil durasi saja (tanpa channel)
-    const durationText =
-      data.duration?.simpleText ||
-      data.duration?.formatted ||
-      data.duration?.text ||
-      data.lengthText ||
-      data.duration ||
-      "-";
-
-    youtubeTitle.textContent = data.title;
-    youtubeChannel.textContent = ""; // ❌ Hapus nama channel, tidak ditampilkan
-    youtubeDuration.textContent = "";
-    youtubeAudio.src = audioUrl;
-    youtubePlayer.classList.add("active");
-    youtubeStatus.innerHTML = `<span class="status-indicator status-success"></span> Siap diputar: ${data.title}`;
-  } catch (err) {
-    console.error(err);
-    youtubeStatus.innerHTML = `<span class="status-indicator status-error"></span> Gagal memutar: ${err.message}`;
-  }
-}
-
-    // ⏯️ PLAY / PAUSE YOUTUBE
-    function toggleYoutubePlayPause() {
-        const btn = youtubePlayPauseBtn;
-        const icon = btn.querySelector('i');
-        if (!currentYoutubeAudio) return;
-        if (currentYoutubeAudio.paused) {
-            currentYoutubeAudio.play();
-            icon.className = 'fas fa-pause';
-            btn.innerHTML = '<i class="fas fa-pause"></i> Pause';
-        } else {
-            currentYoutubeAudio.pause();
-            icon.className = 'fas fa-play';
-            btn.innerHTML = '<i class="fas fa-play"></i> Play';
-        }
-    }
-
-    // 💾 DOWNLOAD MP3 YOUTUBE
-    function downloadYoutubeMusic() {
-        if (!currentYoutubeAudio || !currentYoutubeData) return showYoutubePopup("Error", "Tidak ada lagu yang sedang diputar");
-        const link = document.createElement('a');
-        link.href = currentYoutubeAudio.src;
-        link.download = `${currentYoutubeData.title}.mp3`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        showYoutubePopup("Berhasil", `Mengunduh: ${currentYoutubeData.title}`);
-    }
-
-    // =======================================
-    // CHAT AI FUNCTIONS - GEMINI 2.5 FLASH
-    // =======================================
-    async function sendMessageToAI() {
-        const message = chatInput.value.trim();
-        if (!message) return;
-
-        // Tambahkan pesan user ke chat
-        addMessageToChat('user', message);
-        chatInput.value = '';
-        sendMessageBtn.disabled = true;
-
-        // Tampilkan typing indicator
-        typingIndicator.classList.add('active');
-
-        try {
-            const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: message
-                        }]
-                    }],
-                    generationConfig: {
-                        temperature: 0.7,
-                        topK: 40,
-                        topP: 0.95,
-                        maxOutputTokens: 2048,
-                    }
-                })
-            });
-
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error?.message || 'Terjadi kesalahan pada API Gemini');
-            }
-
-            if (!data.candidates || !data.candidates[0]) {
-                throw new Error('Tidak ada respons dari AI');
-            }
-
-            const aiResponse = data.candidates[0].content.parts[0].text;
-            addMessageToChat('ai', aiResponse);
-
-        } catch (error) {
-            console.error('Error calling Gemini API:', error);
-            addMessageToChat('ai', `Maaf, terjadi kesalahan: ${error.message}. Pastikan API key Gemini 2.5 Flash valid.`);
-        } finally {
-            typingIndicator.classList.remove('active');
-            sendMessageBtn.disabled = false;
-            chatInput.focus();
-        }
-    }
-
-    function addMessageToChat(sender, message) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${sender}-message`;
-        
-        const senderDiv = document.createElement('div');
-        senderDiv.className = 'message-sender';
-        senderDiv.textContent = sender === 'user' ? 'Anda' : 'VORTUNIX AI';
-        
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'message-content';
-        contentDiv.textContent = message;
-        
-        messageDiv.appendChild(senderDiv);
-        messageDiv.appendChild(contentDiv);
-        chatContainer.appendChild(messageDiv);
-        
-        // Scroll ke bawah
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    function clearChat() {
-        chatContainer.innerHTML = `
-            <div class="chat-message ai-message">
-                <div class="message-sender">VORTUNIX AI</div>
-                <div class="message-content">Halo! Saya VORTUNIX AI Assistant yang menggunakan Gemini 2.5 Flash. Silakan tanyakan apa saja kepada saya! Saya siap membantu Anda dengan berbagai pertanyaan.</div>
-            </div>
-        `;
-    }
-    
-    // =======================================
-    // ASEP ROKOK BACKGROUND FUNCTIONS
-    // =======================================
-    function createSmokeParticles() {
-      const smokeBackground = document.getElementById('smoke-background');
-      
-      for (let i = 0; i < 15; i++) {
-        setTimeout(() => {
-          createSmokeParticle(smokeBackground);
-        }, i * 200);
-      }
-      
-      setInterval(() => {
-        createSmokeParticle(smokeBackground);
-      }, 300);
-    }
-    
-    function createSmokeParticle(container) {
-      const particle = document.createElement('div');
-      particle.classList.add('smoke-particle');
-      
-      const leftPosition = Math.random() * 100;
-      particle.style.left = `${leftPosition}%`;
-      
-      const duration = 10 + Math.random() * 20;
-      particle.style.animationDuration = `${duration}s`;
-      
-      const size = 3 + Math.random() * 7;
-      particle.style.width = `${size}px`;
-      particle.style.height = `${size}px`;
-      
-      const red = 200 + Math.floor(Math.random() * 55);
-      const alpha = 0.3 + Math.random() * 0.4;
-      particle.style.backgroundColor = `rgba(${red}, 50, 50, ${alpha})`;
-      
-      container.appendChild(particle);
-      
-      setTimeout(() => {
-        if (particle.parentNode) {
-          particle.parentNode.removeChild(particle);
-        }
-      }, duration * 1000);
-    }
-
-    // =======================================
-    // INITIALIZE EVENT LISTENERS
-    // =======================================
-    function initializeEventListeners() {
-        // Hamburger button event listener - MENGGUNAKAN TOGGLE
-        openSidebarBtn.addEventListener('click', toggleDarkverseDashboard);
-        
-        // Profile info panel event listeners
-        profileIcon.addEventListener('click', openProfileInfo);
-        closeProfileInfoBtn.addEventListener('click', closeProfileInfo);
-        overlay.addEventListener('click', closeProfileInfo);
-        
-        // Music player event listeners
-        playPauseBtn.addEventListener('click', togglePlayPause);
-        stopBtn.addEventListener('click', stopMusic);
-        
-        // Execute button event listener
-        executeBtn.addEventListener('click', () => {
-          const number = targetNumberInput.value.trim();
-          
-          if (!number) {
-            alert("Silakan masukkan nomor target.");
-            return;
-          }
-          
-          if (selectedBugMode === '') {
-              alert("Silakan pilih jenis bug terlebih dahulu.");
-              return;
-          }
-
-          popup.style.display = "block";
-          
-          const cleanNumber = number.replace(/[^\d+]/g, '');
-          
-          window.location.href = '/execution?mode=' + selectedBugMode + '&target=' + encodeURIComponent(cleanNumber);
-          
-          setTimeout(() => { popup.style.display = "none"; }, 2000); 
-        });
-
-        // IP Check event listener
-        checkIpBtn.addEventListener('click', checkIPInfo);
-        
-        // Enter key untuk IP check
-        ipAddressInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                checkIPInfo();
-            }
-        });
-
-        // YouTube event listeners
-        searchYoutubeBtn.addEventListener('click', searchYoutube);
-        
-        // Enter key untuk YouTube search
-        youtubeQuery.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                searchYoutube();
-            }
-        });
-
-        // Chat AI event listeners
-        sendMessageBtn.addEventListener('click', sendMessageToAI);
-        
-        // Enter key untuk Chat AI (Shift+Enter untuk new line)
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessageToAI();
-            }
-        });
-
-        // Auto-resize textarea
-        chatInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
-    }
-
-    // Update progress bar and time display
-    backgroundMusic.addEventListener('timeupdate', () => {
-        
-        if (!backgroundMusic.paused && isPlaying !== true) {
-            isPlaying = true;
-            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        }
-
-        if (!backgroundMusic.duration) return;
-
-        const progressPercent = (backgroundMusic.currentTime / backgroundMusic.duration) * 100;
-        progressBar.style.width = progressPercent + '%'; 
-        currentTimeDisplay.textContent = formatTime(backgroundMusic.currentTime);
-    });
-
-    // Update duration when metadata is loaded
-    backgroundMusic.addEventListener('loadedmetadata', () => {
-        durationDisplay.textContent = formatTime(backgroundMusic.duration);
-    });
-    
-    // Seek functionality (klik di garis progress)
-    progressContainer.addEventListener('click', (e) => {
-        const rect = progressContainer.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const width = rect.width;
-        
-        const duration = backgroundMusic.duration;
-        if (isNaN(duration)) return; 
-
-        const newTime = (clickX / width) * duration;
-        backgroundMusic.currentTime = newTime;
-    });
-
-    // Initialize & Event Listeners
-    document.addEventListener('DOMContentLoaded', () => {
-        bugSelect.value = ''; 
-        updateExecuteButtonState();
-        
-        // Initialize all event listeners
-        initializeEventListeners();
-        
-        // Initialize smoke background
-        createSmokeParticles();
-    });
-  </script>
 </body>
-  </html>
+</html>
+<div id="floatingMessage" class="floating-message" onclick="openPopup()">
+            <img src="646455.png" alt="Pesan" class="floating-icon"> <!-- Ganti dengan gambar ikon -->
+      </div><div id="popupForm" class="popup">
+            <button id="closeMessage" onclick="closePopup()">X</button>
+            <h1>Report Content</h1>
+            <p>If you notice illegal or harmful content, please fill out this form. Your report will be sent directly to our email.</p>
+            <form action="https://formspree.io/f/manrjaak" method="POST">
+                <input type="text" name="name" placeholder="Your Name" required>
+                <input type="email" name="email" placeholder="Your Email" required>
+                <input type="text" name="url" placeholder="Content URL" required>
+                <textarea name="description" rows="5" placeholder="Report Description" required></textarea>
+                <button type="submit">Submit Report</button>
+            </form>
+        </div><style>
+    /* Floating Message */
+    .floating-message {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background-color: rgba(0, 0, 0, 0.3); /* Warna hitam lebih transparan (lebih tipis) */
+        padding: 10px;
+        border-radius: 50%; /* Membuatnya bulat */
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); /* Bayangan lebih lembut */
+        cursor: pointer;
+        z-index: 1000;
+        user-select: none;
+        touch-action: none;
+    }
+
+    /* Ukuran icon */
+    .floating-icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    /* Tombol Close */
+    #closeMessage {
+        position: absolute;
+        top: -5px;   /* Menyesuaikan dengan posisi lebih pas di atas */
+        right: -5px;  /* Agar lebih sedikit terpisah dari tepi */
+        background-color: #f44336; /* Warna merah */
+        color: white; /* Teks berwarna putih */
+        border: none;
+        border-radius: 50%; /* Membuatnya bulat */
+        font-size: 18px; /* Ukuran font lebih besar */
+        width: 30px;  /* Menyesuaikan dengan gambar icon */
+        height: 30px;  /* Menyesuaikan dengan gambar icon */
+        padding: 0;  /* Menghilangkan padding agar sesuai */
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Efek bayangan */
+        transition: background-color 0.3s, transform 0.2s ease-in-out; /* Transisi untuk hover */
+    }
+
+    /* Efek hover */
+    #closeMessage:hover {
+        background-color: #d32f2f; /* Warna merah lebih gelap saat hover */
+        transform: scale(1.1); /* Sedikit membesar saat hover */
+    }
+
+    /* Popup Form */
+    .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+        z-index: 1001;
+        width: 90%;
+        max-width: 400px;
+    }
+
+    .popup h1 {
+        margin-bottom: 15px;
+        text-align: center;
+        color: black; /* Ubah warna judul menjadi hitam */
+    }
+
+    .popup p {
+        color: black; /* Ubah warna teks deskripsi menjadi hitam */
+    }
+
+    .popup input, .popup textarea {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        color: black; /* Ubah warna teks input menjadi hitam */
+    }
+
+    .popup button {
+        margin-top: 20px;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 6px;
+        background-color: #1e1e2f;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .popup button:hover {
+        background-color: #ffcc00;
+        color: #000;
+    }
+
+    /* Responsive Styles for Mobile */
+    @media (max-width: 768px) {
+        .popup {
+            padding: 20px;
+            max-width: 320px;
+        }
+
+        .popup h1 {
+            font-size: 18px;
+        }
+
+        .popup input, .popup textarea {
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        .popup button {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+    }
+</style><script>
+    let floatingMessage = document.getElementById("floatingMessage");
+    let popupForm = document.getElementById("popupForm");
+
+    // Function to open the popup
+    function openPopup() {
+        popupForm.style.display = "block";
+        floatingMessage.style.display = "none";
+    }
+
+    // Function to close the popup
+    function closePopup() {
+        popupForm.style.display = "none";
+        floatingMessage.style.display = "block";
+    }
+
+    // Draggable floating message
+    let offsetX, offsetY;
+
+    floatingMessage.onmousedown = function(e) {
+        offsetX = e.clientX - floatingMessage.getBoundingClientRect().left;
+        offsetY = e.clientY - floatingMessage.getBoundingClientRect().top;
+        
+        document.onmousemove = function(e) {
+            floatingMessage.style.left = e.clientX - offsetX + "px";
+            floatingMessage.style.top = e.clientY - offsetY + "px";
+        };
+
+        document.onmouseup = function() {
+            document.onmousemove = null;
+            document.onmouseup = null;
+        };
+
+        return false;
+    };
+</script>
+<footer style="background:#1e1e2f; color:#fff; padding:20px 0; font-family:Arial, sans-serif;">
+    <div style="max-width:1100px; margin:auto; text-align:center;">
+        <div style="margin-bottom:15px;">
+            <a href="terms.php" style="margin:0 10px; color:#ffcc00; text-decoration:none;">Terms & Conditions</a>
+            <a href="2257-compliance.php" style="margin:0 10px; color:#ffcc00; text-decoration:none;">18 U.S.C 2257</a>
+            <a href="report.php" style="margin:0 10px; color:#ffcc00; text-decoration:none;">Report Content</a>
+            <a href="dmca.php" style="margin:0 10px; color:#ffcc00; text-decoration:none;">DMCA Policy</a>
+            <a href="privacy.php" style="margin:0 10px; color:#ffcc00; text-decoration:none;">Privacy Policy</a>
+            <a href="about.php" style="margin:0 10px; color:#ffcc00; text-decoration:none;">About Us</a>
+        </div>
+        <div style="font-size:14px;">© 2025 videy-stream</div>
+    </div>
+</footer>
+<style>
+    @media (max-width:600px) {
+        footer div a {
+            display:block;
+            margin:5px 0 !important;
+        }
+    }
+</style>
+
