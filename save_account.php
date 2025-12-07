@@ -16,9 +16,11 @@ $username = strtolower(trim($data["username"]));
 // cek duplikat
 foreach($db["accounts"] as $acc){
 
-    if(strtolower(trim($acc["username"])) === $username){
-        echo json_encode(["error"=>"Username sudah ada"]);
-        exit;
+    // prevent duplicate username + password
+if (db.accounts.find(a => a.username === u && a.password === p)) {
+  alert("Akun dengan username & password yang sama sudah ada.");
+  return;
+}
     }
 }
 
