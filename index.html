@@ -2192,7 +2192,35 @@ a.k7n-add-account-btn, .k7n-sidebar-entry { color: #00111a; background: linear-g
   }
 
   // Add Account panel control
-      function openAddAccount(){
+      <script>
+
+// ========= DATABASE FUNCTIONS (WAJIB ADA) ========= //
+
+const DB_KEY = "k7n_database";
+
+function initK7NDB(){
+    let raw = localStorage.getItem(DB_KEY);
+
+    if(!raw){
+        let db = { accounts: [] };
+        localStorage.setItem(DB_KEY, JSON.stringify(db));
+        return db;
+    }
+    return JSON.parse(raw);
+}
+
+function saveK7NDB(db){
+    localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+
+// ========= END DATABASE FUNCTIONS ==========
+
+
+// ================= SCRIPT KAMU MULAI DISINI ================ //
+
+
+// Add Account panel control
+function openAddAccount(){
     const sess = getSession();
     if (!sess || sess.username !== "K7N") {
       alert("Hanya akun K7N yang dapat menggunakan fitur ini.");
@@ -2213,21 +2241,12 @@ async function saveAccount(){
     const p = document.getElementById('k7n_new_password').value.trim();
     const e = document.getElementById('k7n_new_expired').value.trim() || "NEVER";
 
-    if (!u || !p) { 
-        alert("Username & password wajib diisi."); 
-        return; 
-    }
+    if (!u || !p) { alert("Username & password wajib diisi."); return; }  
 
     const db = initK7NDB();
 
-    // ✅ username boleh sama, maka tidak perlu cek duplicate
-
-    db.accounts.push({
-        username: u,
-        password: p,
-        role: "USER",
-        expired: e
-    });
+    // username boleh sama (sesuai perintah terbaru)
+    db.accounts.push({ username: u, password: p, role: "USER", expired: e });
 
     saveK7NDB(db);
 
@@ -2235,16 +2254,15 @@ async function saveAccount(){
     closeAddAccount();
 }
 
-// Expose saving to global for debugging/testing
-window.K7N = window.K7N || {};
-window.K7N.initDB = initK7NDB;
-window.K7N.getDB = () => JSON.parse(localStorage.getItem(DB_KEY));
-window.K7N.saveAccount = saveAccount;
 
+// DOM ready
 document.addEventListener('DOMContentLoaded', function(){
-
     const sess = getSession();
     if (!sess) { window.location.href = LOGIN_PAGE; return; }
+});
+
+// ================= SCRIPT SELESAI ================ //
+
 
     if (sess.username === "K7N") {
       insertSidebarEntry();
