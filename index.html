@@ -1,638 +1,147 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K7N</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        /* --- SETUP WARNA TEMA (VIOLET / CYBERPUNK) --- */
-        :root {
-            --bg-deep: #05020a;       /* Hitam agak ungu sangat gelap */
-            --bg-card: rgba(20, 10, 30, 0.6); /* Transparan Ungu Gelap */
-            
-            --text-main: #ffffff;
-            --text-muted: #bbb5c9;
-            
-            /* Warna Aksen diambil dari Foto */
-            --primary-purple: #7000ff;
-            --neon-pink: #ff007f;
-            --cyan-glow: #00e5ff;
-            
-            --gradient-main: linear-gradient(135deg, #7000ff 0%, #ff007f 100%);
-            --gradient-text: linear-gradient(90deg, #00e5ff, #ff007f);
-            
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glow-strong: rgba(112, 0, 255, 0.4);
-        }
+<meta charset="UTF-8">
+<title>k7n App Builder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'Rajdhani', sans-serif; /* Font lebih techy */
-            background-color: var(--bg-deep);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 20px;
-            padding-bottom: 100px;
-            overflow-x: hidden;
-            /* Background pattern halus */
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(255, 0, 127, 0.15) 0%, transparent 40%);
-        }
-
-        /* --- ANIMASI FADE IN SAAT LOAD --- */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-        }
-
-        /* --- HEADER & GREETING --- */
-        .user-greeting {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            margin-bottom: 30px;
-        }
-
-        .greeting-text h2 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-        
-        .greeting-text span {
-            background: var(--gradient-text);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 800;
-            filter: drop-shadow(0 0 15px rgba(112,0,255,0.5));
-        }
-
-        .greeting-text p {
-            font-size: 14px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .user-avatar {
-            width: 55px;
-            height: 55px;
-            border-radius: 18px;
-            /* Border gradient */
-            background: padding-box, border-box var(--gradient-main);
-            border: 2px solid transparent; 
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 20px var(--glow-strong);
-        }
-
-        .user-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 16px;
-        }
-
-        /* --- STATS GRID (KOTAK DATA) --- */
-        .stats-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            padding: 15px;
-            position: relative;
-            overflow: hidden;
-            transition: 0.3s;
-        }
-        
-        /* Efek garis bersinar di atas kartu */
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--neon-pink), transparent);
-            opacity: 0.5;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-            border-color: rgba(255, 0, 127, 0.3);
-        }
-
-        .stat-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 12px;
-            font-size: 16px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-        }
-        
-        /* Warna icon spesifik */
-        .icon-crown { color: #FFD700; text-shadow: 0 0 10px #FFD700; }
-        .icon-vip { 
-            background: linear-gradient(135deg, #ff00aa 0%, #ffd700 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 10px rgba(255, 0, 170, 0.5);
-        }
-        .icon-user { 
-            color: var(--cyan-glow); 
-            text-shadow: 0 0 10px var(--cyan-glow); 
-        }
-        .icon-clock { color: var(--cyan-glow); text-shadow: 0 0 10px var(--cyan-glow); }
-        .icon-plane { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); }
-        .icon-globe { color: #be00ff; text-shadow: 0 0 10px #be00ff; }
-
-        .stat-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 2px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Role badge styling */
-        .role-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        .owner { background: #f59e0b; color: #000; }
-        .vip { 
-            background: linear-gradient(135deg, #ff00aa 0%, #ffd700 100%);
-            color: #000; 
-            font-weight: 800;
-        }
-        .user { 
-            background: linear-gradient(135deg, #00e5ff 0%, #0088ff 100%);
-            color: #000; 
-            font-weight: 800;
-        }
-
-        /* --- HERO CARD --- */
-        .hero-card {
-            width: 100%;
-            height: 180px;
-            border-radius: 25px;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .hero-bg {
-            width: 100%;
-            height: 100%;
-            /* Menggunakan URL gambar user */
-            background-image: url('https://files.catbox.moe/o2tp6b.jpg'); 
-            background-size: cover;
-            background-position: center 30%; /* Sedikit digeser agar fokus */
-            filter: brightness(0.8);
-            transition: transform 5s ease;
-        }
-        
-        /* Overlay gradient agar text terbaca & menyatu dengan tema */
-        .hero-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to right, rgba(5, 2, 10, 0.9), rgba(5, 2, 10, 0.2));
-            z-index: 1;
-        }
-
-        .hero-card:hover .hero-bg {
-            transform: scale(1.1);
-        }
-
-        .hero-content {
-            position: absolute;
-            bottom: 25px;
-            left: 25px;
-            z-index: 2;
-        }
-
-        .hero-tag {
-            background: var(--gradient-main);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 800;
-            display: inline-block;
-            margin-bottom: 10px;
-            box-shadow: 0 0 15px var(--glow-strong);
-            letter-spacing: 1px;
-        }
-
-        .hero-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 20px;
-            font-weight: 800;
-            color: white;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-            line-height: 1.3;
-            margin-bottom: 5px;
-        }
-        
-        /* Teks copyright baru */
-        .hero-copyright {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.7);
-            letter-spacing: 0.5px;
-            text-shadow: 0 1px 5px rgba(0,0,0,0.5);
-            font-weight: 500;
-        }
-
-        /* --- ROLE STATUS CARD --- */
-        .role-status-card {
-            background: var(--bg-card);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(15px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .role-status-content {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .role-status-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .vip-icon {
-            background: linear-gradient(135deg, #ff00aa 0%, #ffd700 100%);
-            color: #000;
-        }
-
-        .user-icon {
-            background: linear-gradient(135deg, #00e5ff 0%, #0088ff 100%);
-            color: #000;
-        }
-
-        .role-status-text h4 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .role-status-text p {
-            font-size: 12px;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-
-        /* --- SERVER LIST --- */
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 15px;
-            padding: 0 5px;
-        }
-        
-        .section-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background: #00ff88;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #00ff88;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.7; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.7; }
-        }
-
-        .list-card {
-            background: var(--bg-card);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            backdrop-filter: blur(20px);
-            overflow: hidden;
-        }
-
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            transition: background 0.2s;
-        }
-
-        .list-item:active {
-            background: rgba(255,255,255,0.05);
-        }
-
-        .list-item:last-child {
-            border-bottom: none;
-        }
-
-        .item-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .item-icon-box {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.03);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            font-size: 18px;
-        }
-
-        .item-text h4 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .item-text p {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-        
-        .status-badge {
-            font-size: 10px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            background: rgba(0, 255, 136, 0.1);
-            color: #00ff88;
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            font-weight: 600;
-        }
-
-        /* --- FLOATING ACTION BUTTON (FAB) --- */
-        .fab-wrapper {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-        }
-
-        .fab-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 20px;
-            /* Gradient Pink Ungu */
-            background: var(--gradient-main);
-            border: none;
-            color: white;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(255, 0, 127, 0.4);
-            cursor: pointer;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        /* Kilauan pada tombol */
-        .fab-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-            transform: rotate(45deg);
-            animation: shine 3s infinite;
-        }
-        
-        @keyframes shine {
-            0% { left: -100%; top: -100%; }
-            20% { left: 100%; top: 100%; }
-            100% { left: 100%; top: 100%; }
-        }
-
-        .fab-btn:active { transform: scale(0.9); }
-        .fab-btn.active { transform: rotate(45deg); background: #fff; color: #000; }
-
-        /* --- MENU OVERLAY --- */
-        .menu-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(5, 2, 10, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 90;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.4s ease;
-        }
-
-        .menu-overlay.active { opacity: 1; visibility: visible; }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            padding: 20px;
-            width: 100%;
-            max-width: 380px;
-        }
-
-        .menu-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: white;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: 0.3s;
-        }
-        
-        .menu-overlay.active .menu-item { opacity: 1; transform: translateY(0); }
-        /* Staggered delay */
-        .menu-item:nth-child(1) { transition-delay: 0.1s; }
-        .menu-item:nth-child(2) { transition-delay: 0.15s; }
-        .menu-item:nth-child(3) { transition-delay: 0.2s; }
-        .menu-item:nth-child(4) { transition-delay: 0.25s; }
-        .menu-item:nth-child(5) { transition-delay: 0.3s; }
-        .menu-item:nth-child(6) { transition-delay: 0.35s; }
-
-        .menu-icon-box {
-            width: 65px;
-            height: 65px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            transition: 0.3s;
-        }
-
-        .menu-item:hover .menu-icon-box {
-            background: var(--gradient-main);
-            color: white;
-            box-shadow: 0 0 20px var(--neon-pink);
-            transform: translateY(-5px);
-            border: none;
-        }
-
-        .menu-name {
-            font-size: 11px;
-            letter-spacing: 1px;
-            font-family: 'Orbitron', sans-serif;
-            color: var(--text-muted);
-        }
-        .menu-item:hover .menu-name { color: white; }
-
-        /* Loading animation */
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-    </style>
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#4f46e5,#06b6d4);
+  color:#fff;
+}
+.container{
+  max-width:500px;
+  margin:40px auto;
+  background:#111827;
+  border-radius:16px;
+  padding:25px;
+  box-shadow:0 20px 40px rgba(0,0,0,.4);
+}
+h1{
+  text-align:center;
+  margin-bottom:20px;
+}
+label{
+  display:block;
+  margin-top:15px;
+  font-weight:bold;
+}
+input, textarea, select{
+  width:100%;
+  margin-top:6px;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  outline:none;
+}
+textarea{resize:vertical;}
+button{
+  width:100%;
+  margin-top:25px;
+  padding:14px;
+  font-size:16px;
+  font-weight:bold;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:#fff;
+  cursor:pointer;
+}
+button:hover{opacity:.9}
+.hidden{display:none}
+.footer{
+  text-align:center;
+  margin-top:20px;
+  font-size:12px;
+  opacity:.7;
+}
+</style>
 </head>
 <body>
 
-    <div class="user-greeting fade-in" style="animation-delay: 0.1s;">
-        <div class="greeting-text">
-            <p>Welcome back di k7n,</p>
-            <h2>Hi, <span id="username">Loading...</span></h2>
-        </div>
-        <div class="user-avatar">
-            <img src="https://files.catbox.moe/f6eg24.jpeg" alt="Profile">
-        </div>
-    </div>
+<div class="container">
+<h1>🚀 Free App Builder</h1>
 
-    <div class="stats-container fade-in" style="animation-delay: 0.2s;">
-        <div class="stat-card">
-            <div class="stat-icon" id="roleIcon"><i class="fas fa-user"></i></div>
-            <div class="stat-value" id="userRole">LOADING</div>
-            <div class="stat-label">Access Plan</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon icon-clock"><i class="fas fa-hourglass-half"></i></div>
-            <div class="stat-value" id="daysLeft">0</div>
-            <div class="stat-label">Days Left</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon icon-plane"><i class="fa-solid fa-sim-card"></i></div>
-            <div class="stat-value" id="activeSenders">0</div>
-            <div class="stat-label">Active Sender</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon icon-globe"><i class="fas fa-globe-asia"></i></div>
-            <div class="stat-value">ID</div>
-            <div class="stat-label">Server Reg</div>
-        </div>
-    </div>
+<label>Nama Aplikasi</label>
+<input id="appName" placeholder="Contoh: MyApp">
 
-    <!-- ✅ ROLE STATUS CARD -->
-    <div class="role-status-card fade-in" style="animation-delay: 0.25s;" id="roleStatusCard">
-        <div class="role-status-content">
-            <div class="role-status-icon" id="roleStatusIcon">
-                <i class="fas fa-user"></i>
-            </div>
-            <div class="role-status-text">
-                <h4 id="roleStatusTitle">Loading Role...</h4>
-                <p id="roleStatusDesc">Checking your account privileges...</p>
-            </div>
-        </div>
-    </div>
+<label>Sumber Aplikasi</label>
+<select id="sourceType" onchange="toggleSource()">
+  <option value="link">Dari Link Website</option>
+  <option value="html">HTML Sendiri</option>
+</select>
 
-    <div class="hero-card fade-in" style="animation-delay: 0.3s;">
-        <div class="hero-bg"></div>
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <!-- TETAP V4.0 PRO+ TANPA PERUBAHAN -->
-            <span class="hero-tag">V2.0 PRO+</span>
-            <div class="hero-title">K7N NEW VERSION V2</div>
-            <div class="hero-copyright">© Copyright by @k7n</div>
-        </div>
-    </div>
+<div id="linkBox">
+  <label>Link Website</label>
+  <input id="appLink" placeholder="https://example.com">
+</div>
 
-    <div class="section-header fade-in" style="animation-delay: 0.4s;">
-        <div class="section-title">
-            <span class="pulse-dot"></span> System Status
-        </div>
-        <span style="font-size: 11px; color: var(--text-muted);">Realtime Check</span>
-    </div>
-    
-    <div class="list-card fade-in" style="animation-delay: 0.5s;">
-        <div class="list-item">
-            <div class="item-left">
-                <div class="item-icon-box"><i class="fas fa-database" style="color: #be00ff;"></i></div>
-                <div class="item-text">
-                
+<div id="htmlBox" class="hidden">
+  <label>Kode HTML</label>
+  <textarea id="htmlCode" rows="6" placeholder="<h1>Hello App</h1>"></textarea>
+</div>
+
+<label>Warna Tema</label>
+<input type="color" id="themeColor" value="#22c55e">
+
+<button onclick="buildApp()">Buat Aplikasi & Download</button>
+
+<div class="footer">
+  Gratis • Tanpa Login • Client Side
+</div>
+</div>
+
+<script>
+function toggleSource(){
+  const type=document.getElementById("sourceType").value;
+  document.getElementById("linkBox").classList.toggle("hidden",type!=="link");
+  document.getElementById("htmlBox").classList.toggle("hidden",type!=="html");
+}
+
+function buildApp(){
+  const name=document.getElementById("appName").value || "MyApp";
+  const type=document.getElementById("sourceType").value;
+  const link=document.getElementById("appLink").value;
+  const html=document.getElementById("htmlCode").value;
+  const color=document.getElementById("themeColor").value;
+
+  let content="";
+  if(type==="link"){
+    content=`<!DOCTYPE html>
+<html>
+<head>
+<title>${name}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0">
+<iframe src="${link}" style="border:none;width:100vw;height:100vh;"></iframe>
+</body>
+</html>`;
+  }else{
+    content=`<!DOCTYPE html>
+<html>
+<head>
+<title>${name}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="background:${color};color:white;">
+${html}
+</body>
+</html>`;
+  }
+
+  const zip=new Blob([content],{type:"text/html"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(zip);
+  a.download=name+".html";
+  a.click();
+
+  alert("Aplikasi berhasil dibuat!\nSilakan download dan gunakan.");
+}
+</script>
+
+</body>
+</html>
