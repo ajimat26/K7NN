@@ -2,172 +2,141 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>APK Builder Gratis</title>
+<title>Universal Downloader</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+:root{
+  --bg:#0f172a;
+  --card:#020617;
+  --accent:#22c55e;
+}
+*{box-sizing:border-box}
 body{
   margin:0;
-  font-family:'Segoe UI',sans-serif;
-  background:linear-gradient(135deg,#6366f1,#06b6d4);
+  font-family:Inter,system-ui;
+  background:linear-gradient(135deg,#020617,#0f172a);
+  color:#fff;
   min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+}
+.app{
+  max-width:520px;
+  margin:auto;
+  padding:20px;
 }
 .card{
-  width:420px;
-  background:rgba(15,23,42,.85);
-  backdrop-filter:blur(14px);
-  padding:25px;
-  border-radius:18px;
-  color:#fff;
-  box-shadow:0 25px 60px rgba(0,0,0,.4);
-}
-h1{
-  text-align:center;
+  background:rgba(2,6,23,.9);
+  border-radius:16px;
+  padding:20px;
   margin-bottom:20px;
+  box-shadow:0 20px 40px rgba(0,0,0,.5);
 }
-label{
-  font-size:14px;
-  margin-top:12px;
-  display:block;
-}
+h1{text-align:center}
 input,textarea,select{
   width:100%;
-  margin-top:6px;
-  padding:10px;
+  padding:12px;
+  border-radius:12px;
   border:none;
-  border-radius:10px;
+  margin-top:8px;
   outline:none;
 }
-textarea{resize:none}
 button{
-  margin-top:20px;
   width:100%;
   padding:14px;
-  font-size:16px;
+  border-radius:14px;
   border:none;
-  border-radius:12px;
-  cursor:pointer;
+  margin-top:12px;
   background:linear-gradient(135deg,#22c55e,#16a34a);
-  color:white;
-  font-weight:bold;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
 }
-button:hover{opacity:.9}
-.hidden{display:none}
-.small{
-  font-size:12px;
-  opacity:.7;
-  text-align:center;
+button:active{transform:scale(.98)}
+.result{
+  margin-top:15px;
+  font-size:14px;
+}
+.qr{
+  display:flex;
+  justify-content:center;
   margin-top:15px;
 }
+.hidden{display:none}
 </style>
 </head>
 <body>
 
+<div class="app">
+<h1>⬇ Downloader & QR</h1>
+
+<!-- DOWNLOADER -->
 <div class="card">
-<h1>📱 APK Builder</h1>
-
-<label>Nama Aplikasi</label>
-<input id="appName" placeholder="Contoh: My APK">
-
-<label>Icon APK</label>
-<input type="file" id="icon" accept="image/*">
-
-<label>Sumber Aplikasi</label>
-<select id="source" onchange="toggleSource()">
-  <option value="link">Link Website</option>
-  <option value="html">HTML Sendiri</option>
+<h3>🎥 Downloader</h3>
+<input id="link" placeholder="Tempel link YouTube / TikTok">
+<select id="type">
+  <option value="video">Video</option>
+  <option value="audio">Musik</option>
+  <option value="thumbnail">Thumbnail</option>
 </select>
-
-<div id="linkBox">
-  <label>Link Website</label>
-  <input id="appLink" placeholder="https://example.com">
+<button onclick="download()">Proses</button>
+<div class="result" id="downResult"></div>
 </div>
 
-<div id="htmlBox" class="hidden">
-  <label>Kode HTML</label>
-  <textarea id="htmlCode" rows="4"></textarea>
-</div>
-
-<label>Link YouTube (Backsound)</label>
-<input id="yt" placeholder="https://youtube.com/watch?v=xxxx">
-
-<button onclick="build()">Buat APK</button>
-
-<div class="small">
-Gratis • Android • WebView APK
+<!-- QR GENERATOR -->
+<div class="card">
+<h3>🔳 QR Generator</h3>
+<textarea id="qrText" placeholder="Link atau teks"></textarea>
+<button onclick="makeQR()">Buat QR</button>
+<div class="qr" id="qrBox"></div>
 </div>
 </div>
 
 <script>
-function toggleSource(){
-  source.value==="html"
-  ? htmlBox.classList.remove("hidden")
-  : htmlBox.classList.add("hidden");
-  source.value==="link"
-  ? linkBox.classList.remove("hidden")
-  : linkBox.classList.add("hidden");
+/* =====================
+   PREVENT REFRESH
+===================== */
+window.addEventListener("keydown",e=>{
+  if(e.key==="F5"||(e.ctrlKey&&e.key==="r")){
+    e.preventDefault();
+  }
+});
+window.onbeforeunload=()=>true;
+
+/* =====================
+   DOWNLOADER (API BASED)
+===================== */
+const API_URL="https://API-DOWNLOADER-KAMU.com/api"; // GANTI
+
+async function download(){
+  const link=document.getElementById("link").value;
+  const type=document.getElementById("type").value;
+  downResult.textContent="⏳ Memproses...";
+
+  try{
+    const res=await fetch(`${API_URL}?url=${encodeURIComponent(link)}&type=${type}`);
+    const data=await res.json();
+
+    downResult.innerHTML=`
+      ✅ Berhasil<br>
+      <a href="${data.download}" download style="color:#22c55e">
+        Klik untuk download
+      </a>
+    `;
+  }catch(e){
+    downResult.textContent="❌ Gagal atau API belum tersedia";
+  }
 }
 
-function build(){
-  const name=appName.value||"MyAPK";
-  const src=source.value;
-  const link=appLink.value;
-  const html=htmlCode.value;
-  const ytLink=yt.value;
-
-  // Buat halaman app
-  let page=`
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body,html{margin:0;padding:0;height:100%}
-iframe{border:none;width:100%;height:100%}
-</style>
-</head>
-<body>
-
-<iframe src="${src==="link"?link:"data:text/html;base64,"+btoa(html)}"></iframe>
-
-<iframe width="0" height="0"
-src="https://www.youtube.com/embed/${getYT(ytLink)}?autoplay=1&loop=1&playlist=${getYT(ytLink)}"
-allow="autoplay">
-</iframe>
-
-</body>
-</html>`;
-
-  download(page,`${name}.html`);
-
-  alert(
-`APK siap dibuat!
-
-Langkah selanjutnya:
-1. Upload file HTML ke WebView APK Builder
-2. Pasang icon & nama APK
-3. Download APK
-
-Saya akan arahkan sekarang 🙂`
-  );
-
-  window.open("https://websitetoapk.com","_blank");
-}
-
-function getYT(url){
-  const p=new URL(url).searchParams;
-  return p.get("v")||"";
-}
-
-function download(data,name){
-  const blob=new Blob([data],{type:"text/html"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download=name;
-  a.click();
+/* =====================
+   QR GENERATOR
+===================== */
+function makeQR(){
+  const text=qrText.value.trim();
+  qrBox.innerHTML="";
+  if(!text)return;
+  const img=document.createElement("img");
+  img.src=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
+  qrBox.appendChild(img);
 }
 </script>
 
