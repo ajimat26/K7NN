@@ -2,75 +2,82 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>k7n App Builder</title>
+<title>APK Builder Gratis</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
   margin:0;
-  font-family:Arial, sans-serif;
-  background:linear-gradient(135deg,#4f46e5,#06b6d4);
-  color:#fff;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#6366f1,#06b6d4);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
-.container{
-  max-width:500px;
-  margin:40px auto;
-  background:#111827;
-  border-radius:16px;
+.card{
+  width:420px;
+  background:rgba(15,23,42,.85);
+  backdrop-filter:blur(14px);
   padding:25px;
-  box-shadow:0 20px 40px rgba(0,0,0,.4);
+  border-radius:18px;
+  color:#fff;
+  box-shadow:0 25px 60px rgba(0,0,0,.4);
 }
 h1{
   text-align:center;
   margin-bottom:20px;
 }
 label{
+  font-size:14px;
+  margin-top:12px;
   display:block;
-  margin-top:15px;
-  font-weight:bold;
 }
-input, textarea, select{
+input,textarea,select{
   width:100%;
   margin-top:6px;
   padding:10px;
-  border-radius:8px;
-  border:none;
-  outline:none;
-}
-textarea{resize:vertical;}
-button{
-  width:100%;
-  margin-top:25px;
-  padding:14px;
-  font-size:16px;
-  font-weight:bold;
   border:none;
   border-radius:10px;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  color:#fff;
+  outline:none;
+}
+textarea{resize:none}
+button{
+  margin-top:20px;
+  width:100%;
+  padding:14px;
+  font-size:16px;
+  border:none;
+  border-radius:12px;
   cursor:pointer;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:white;
+  font-weight:bold;
 }
 button:hover{opacity:.9}
 .hidden{display:none}
-.footer{
-  text-align:center;
-  margin-top:20px;
+.small{
   font-size:12px;
   opacity:.7;
+  text-align:center;
+  margin-top:15px;
 }
 </style>
 </head>
 <body>
 
-<div class="container">
-<h1>🚀 Free App Builder</h1>
+<div class="card">
+<h1>📱 APK Builder</h1>
 
 <label>Nama Aplikasi</label>
-<input id="appName" placeholder="Contoh: MyApp">
+<input id="appName" placeholder="Contoh: My APK">
+
+<label>Icon APK</label>
+<input type="file" id="icon" accept="image/*">
 
 <label>Sumber Aplikasi</label>
-<select id="sourceType" onchange="toggleSource()">
-  <option value="link">Dari Link Website</option>
+<select id="source" onchange="toggleSource()">
+  <option value="link">Link Website</option>
   <option value="html">HTML Sendiri</option>
 </select>
 
@@ -81,65 +88,86 @@ button:hover{opacity:.9}
 
 <div id="htmlBox" class="hidden">
   <label>Kode HTML</label>
-  <textarea id="htmlCode" rows="6" placeholder="<h1>Hello App</h1>"></textarea>
+  <textarea id="htmlCode" rows="4"></textarea>
 </div>
 
-<label>Warna Tema</label>
-<input type="color" id="themeColor" value="#22c55e">
+<label>Link YouTube (Backsound)</label>
+<input id="yt" placeholder="https://youtube.com/watch?v=xxxx">
 
-<button onclick="buildApp()">Buat Aplikasi & Download</button>
+<button onclick="build()">Buat APK</button>
 
-<div class="footer">
-  Gratis • Tanpa Login • Client Side
+<div class="small">
+Gratis • Android • WebView APK
 </div>
 </div>
 
 <script>
 function toggleSource(){
-  const type=document.getElementById("sourceType").value;
-  document.getElementById("linkBox").classList.toggle("hidden",type!=="link");
-  document.getElementById("htmlBox").classList.toggle("hidden",type!=="html");
+  source.value==="html"
+  ? htmlBox.classList.remove("hidden")
+  : htmlBox.classList.add("hidden");
+  source.value==="link"
+  ? linkBox.classList.remove("hidden")
+  : linkBox.classList.add("hidden");
 }
 
-function buildApp(){
-  const name=document.getElementById("appName").value || "MyApp";
-  const type=document.getElementById("sourceType").value;
-  const link=document.getElementById("appLink").value;
-  const html=document.getElementById("htmlCode").value;
-  const color=document.getElementById("themeColor").value;
+function build(){
+  const name=appName.value||"MyAPK";
+  const src=source.value;
+  const link=appLink.value;
+  const html=htmlCode.value;
+  const ytLink=yt.value;
 
-  let content="";
-  if(type==="link"){
-    content=`<!DOCTYPE html>
+  // Buat halaman app
+  let page=`
+<!DOCTYPE html>
 <html>
 <head>
-<title>${name}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body,html{margin:0;padding:0;height:100%}
+iframe{border:none;width:100%;height:100%}
+</style>
 </head>
-<body style="margin:0">
-<iframe src="${link}" style="border:none;width:100vw;height:100vh;"></iframe>
-</body>
-</html>`;
-  }else{
-    content=`<!DOCTYPE html>
-<html>
-<head>
-<title>${name}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="background:${color};color:white;">
-${html}
-</body>
-</html>`;
-  }
+<body>
 
-  const zip=new Blob([content],{type:"text/html"});
+<iframe src="${src==="link"?link:"data:text/html;base64,"+btoa(html)}"></iframe>
+
+<iframe width="0" height="0"
+src="https://www.youtube.com/embed/${getYT(ytLink)}?autoplay=1&loop=1&playlist=${getYT(ytLink)}"
+allow="autoplay">
+</iframe>
+
+</body>
+</html>`;
+
+  download(page,`${name}.html`);
+
+  alert(
+`APK siap dibuat!
+
+Langkah selanjutnya:
+1. Upload file HTML ke WebView APK Builder
+2. Pasang icon & nama APK
+3. Download APK
+
+Saya akan arahkan sekarang 🙂`
+  );
+
+  window.open("https://websitetoapk.com","_blank");
+}
+
+function getYT(url){
+  const p=new URL(url).searchParams;
+  return p.get("v")||"";
+}
+
+function download(data,name){
+  const blob=new Blob([data],{type:"text/html"});
   const a=document.createElement("a");
-  a.href=URL.createObjectURL(zip);
-  a.download=name+".html";
+  a.href=URL.createObjectURL(blob);
+  a.download=name;
   a.click();
-
-  alert("Aplikasi berhasil dibuat!\nSilakan download dan gunakan.");
 }
 </script>
 
