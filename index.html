@@ -53,7 +53,6 @@ canvas{display:block;margin:10px auto}
 <h2>K7N CYBER TOOLS</h2>
 </header>
 
-<!-- QR GENERATOR -->
 <div class="card">
 <h3>🔳 QR Generator</h3>
 
@@ -76,47 +75,58 @@ qrText.style.display = qrType.value==="image"?"none":"block";
 qrImg.style.display  = qrType.value==="image"?"block":"none";
 }
 
+/* fungsi rounded rectangle */
+function roundRect(ctx,x,y,w,h,r){
+ctx.beginPath();
+ctx.moveTo(x+r,y);
+ctx.arcTo(x+w,y,x+w,y+h,r);
+ctx.arcTo(x+w,y+h,x,y+h,r);
+ctx.arcTo(x,y+h,x,y,r);
+ctx.arcTo(x,y,x+w,y,r);
+ctx.closePath();
+}
+
 function makeQR(){
 
 const SIZE = 300;
+const BG_W = 110;   // lebar oval (aman)
+const BG_H = 60;    // tinggi oval
+const RADIUS = 30;  // bikin oval / rounded
 
 const drawQR = (data)=>{
 QRCode.toCanvas(qr,data,{
-width:SIZE,
+width: SIZE,
 errorCorrectionLevel:'H'
 },()=>{
 const c = qr.getContext("2d");
-const center = SIZE / 2;
+const center = SIZE/2;
 
-/* === STEP 1: LUBANGI QR SESUAI HURUF K7N === */
+/* === BACKGROUND PUTIH OVAL === */
 c.save();
 c.translate(center, center);
 c.rotate(-0.35);
 
-c.globalCompositeOperation = "destination-out";
-c.font = "bold 30px Arial Black";
-c.textAlign = "center";
-c.textBaseline = "middle";
-c.fillText("K7N", 0, 0);
+c.fillStyle = "#ffffff";
+roundRect(c, -BG_W/2, -BG_H/2, BG_W, BG_H, RADIUS);
+c.fill();
 
 c.restore();
 
-/* === STEP 2: GAMBAR TEKS K7N DI ATASNYA === */
+/* === TEKS K7N === */
 c.save();
 c.translate(center, center);
 c.rotate(-0.35);
 
-c.globalCompositeOperation = "source-over";
+c.font = "bold 28px Arial Black";
+c.textAlign = "center";
+c.textBaseline = "middle";
 
 /* outline */
 c.lineWidth = 3;
 c.strokeStyle = "#0f172a";
-c.font = "bold 30px Arial Black";
-c.textAlign = "center";
-c.textBaseline = "middle";
 c.strokeText("K7N", 0, 0);
 
-/* gradient isi */
+/* isi gradasi */
 const grad = c.createLinearGradient(-30,0,30,0);
 grad.addColorStop(0,"#22d3ee");
 grad.addColorStop(1,"#22c55e");
