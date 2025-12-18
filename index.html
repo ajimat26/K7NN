@@ -47,10 +47,7 @@ to{opacity:0;visibility:hidden}
 }
 
 /* HEADER */
-header{
-text-align:center;
-padding:20px;
-}
+header{text-align:center;padding:20px}
 header h2{color:#22d3ee}
 
 /* CARD */
@@ -60,11 +57,10 @@ border:1px solid #1e293b;
 border-radius:18px;
 padding:16px;
 margin:12px;
-box-shadow:0 0 25px #020617;
 }
 h3{color:#a855f7}
 
-input{
+input,select{
 width:100%;
 padding:11px;
 margin-top:8px;
@@ -86,10 +82,7 @@ cursor:pointer;
 position:relative;
 overflow:hidden;
 }
-button.loading{
-pointer-events:none;
-opacity:.7;
-}
+button.loading{pointer-events:none;opacity:.7}
 button.loading::after{
 content:"";
 width:22px;height:22px;
@@ -124,6 +117,7 @@ canvas{display:block;margin:10px auto}
 
 <body>
 
+<!-- SPLASH -->
 <div id="splash">
 <h1>K7N</h1>
 <p>CYBER TOOLS</p>
@@ -133,8 +127,10 @@ canvas{display:block;margin:10px auto}
 <h2>K7N CYBER TOOLS</h2>
 </header>
 
+<!-- LINK GENERATOR -->
 <div class="card">
 <h3>🔗 Link Generator</h3>
+
 <input id="waNum" placeholder="WhatsApp Number">
 <button onclick="act(this);makeWA()">Create WhatsApp Link</button>
 <input id="waOut" readonly>
@@ -148,14 +144,23 @@ canvas{display:block;margin:10px auto}
 <input id="dcOut" readonly>
 </div>
 
+<!-- QR GENERATOR -->
 <div class="card">
 <h3>🔳 QR Generator</h3>
+
 <input id="qrText" placeholder="Text / Link">
+
+<select id="logoType">
+<option value="k7n">Logo K7N</option>
+<option value="image">Logo Gambar</option>
+</select>
+
 <button onclick="act(this);makeQR()">Generate QR</button>
 <canvas id="qr" width="300" height="300"></canvas>
 <button onclick="act(this);saveQR()">Download QR</button>
 </div>
 
+<!-- UNBANNED -->
 <div class="card">
 <h3>✅ WhatsApp Unbanned Request</h3>
 <input id="unName" placeholder="Your Name">
@@ -163,6 +168,7 @@ canvas{display:block;margin:10px auto}
 <button onclick="act(this);unban()">Open Gmail</button>
 </div>
 
+<!-- BANNED -->
 <div class="card">
 <h3>🚫 Report WhatsApp Account</h3>
 <input id="banNum" placeholder="Reported WhatsApp Number">
@@ -170,6 +176,8 @@ canvas{display:block;margin:10px auto}
 </div>
 
 <script>
+const logoURL = "https://i.supaimg.com/9775bd8b-667c-4ea3-8173-b27aeee837bc.jpg";
+
 function act(btn){
 btn.classList.add("loading");
 setTimeout(()=>btn.classList.remove("loading"),1200);
@@ -193,34 +201,39 @@ function makeDC(){
 dcOut.value=`https://discord.com/users/${dcUser.value}`;
 }
 
-/* QR — ukuran teks K7N DIPAS */
+/* QR */
 function makeQR(){
 QRCode.toCanvas(qr, qrText.value,{
 width:300,
 errorCorrectionLevel:'H'
 },()=>{
-const c = qr.getContext("2d");
+const c=qr.getContext("2d");
 
-/* kotak putih tetap */
+/* area tengah */
 c.fillStyle="#fff";
 c.fillRect(110,110,80,80);
 
-/* TEKS K7N (SUDAH PAS) */
+if(logoType.value==="k7n"){
 c.font="bold 22px Arial Black";
 c.textAlign="center";
 c.textBaseline="middle";
 
-/* outline */
 c.lineWidth=2;
 c.strokeStyle="#0f172a";
 c.strokeText("K7N",150,150);
 
-/* gradasi */
 const grad=c.createLinearGradient(130,150,170,150);
 grad.addColorStop(0,"#22d3ee");
 grad.addColorStop(1,"#22c55e");
 c.fillStyle=grad;
 c.fillText("K7N",150,150);
+
+}else{
+const img=new Image();
+img.crossOrigin="anonymous";
+img.onload=()=>c.drawImage(img,115,115,70,70);
+img.src=logoURL;
+}
 });
 }
 
@@ -231,22 +244,16 @@ a.download="K7N_QR.png";
 a.click();
 }
 
-/* UNBANNED */
+/* UNBAN */
 function unban(){
-const body=`My name is ${unName.value}, and my WhatsApp account with the number ${unNum.value} has been banned.
-
-Thank you.
-
-${unName.value}`;
-location.href=`mailto:support@whatsapp.com?subject=WhatsApp Account Unban Request&body=${encodeURIComponent(body)}`;
+const body=`My name is ${unName.value}, my WhatsApp number ${unNum.value} was banned.`;
+location.href=`mailto:support@whatsapp.com?subject=WhatsApp Unban Request&body=${encodeURIComponent(body)}`;
 }
 
-/* BANNED */
+/* BAN */
 function ban(){
-const body=`I would like to report the WhatsApp number ${banNum.value}.
-
-Thank you.`;
-location.href=`mailto:support@whatsapp.com?subject=WhatsApp Policy Violation Report&body=${encodeURIComponent(body)}`;
+const body=`I would like to report WhatsApp number ${banNum.value}.`;
+location.href=`mailto:support@whatsapp.com?subject=WhatsApp Policy Violation&body=${encodeURIComponent(body)}`;
 }
 </script>
 
