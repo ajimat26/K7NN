@@ -124,7 +124,6 @@ canvas{display:block;margin:10px auto}
 
 <body>
 
-<!-- SPLASH -->
 <div id="splash">
 <h1>K7N</h1>
 <p>CYBER TOOLS</p>
@@ -134,10 +133,8 @@ canvas{display:block;margin:10px auto}
 <h2>K7N CYBER TOOLS</h2>
 </header>
 
-<!-- LINK GENERATOR -->
 <div class="card">
 <h3>🔗 Link Generator</h3>
-
 <input id="waNum" placeholder="WhatsApp Number">
 <button onclick="act(this);makeWA()">Create WhatsApp Link</button>
 <input id="waOut" readonly>
@@ -151,7 +148,6 @@ canvas{display:block;margin:10px auto}
 <input id="dcOut" readonly>
 </div>
 
-<!-- QR -->
 <div class="card">
 <h3>🔳 QR Generator</h3>
 <input id="qrText" placeholder="Text / Link">
@@ -160,7 +156,6 @@ canvas{display:block;margin:10px auto}
 <button onclick="act(this);saveQR()">Download QR</button>
 </div>
 
-<!-- UNBANNED -->
 <div class="card">
 <h3>✅ WhatsApp Unbanned Request</h3>
 <input id="unName" placeholder="Your Name">
@@ -168,7 +163,6 @@ canvas{display:block;margin:10px auto}
 <button onclick="act(this);unban()">Open Gmail</button>
 </div>
 
-<!-- BANNED -->
 <div class="card">
 <h3>🚫 Report WhatsApp Account</h3>
 <input id="banNum" placeholder="Reported WhatsApp Number">
@@ -190,16 +184,16 @@ setTimeout(()=>pet.remove(),1800);
 
 /* LINK */
 function makeWA(){
-waOut.value = `https://wa.me/${waNum.value.replace(/\D/g,"")}`;
+waOut.value=`https://wa.me/${waNum.value.replace(/\D/g,"")}`;
 }
 function makeTG(){
-tgOut.value = `https://t.me/${tgUser.value.replace("@","")}`;
+tgOut.value=`https://t.me/${tgUser.value.replace("@","")}`;
 }
 function makeDC(){
-dcOut.value = `https://discord.com/users/${dcUser.value}`;
+dcOut.value=`https://discord.com/users/${dcUser.value}`;
 }
 
-/* QR (HANYA TEKS K7N YANG DIUBAH) */
+/* QR — ukuran teks K7N DIPAS */
 function makeQR(){
 QRCode.toCanvas(qr, qrText.value,{
 width:300,
@@ -207,25 +201,26 @@ errorCorrectionLevel:'H'
 },()=>{
 const c = qr.getContext("2d");
 
-/* background putih tetap */
+/* kotak putih tetap */
 c.fillStyle="#fff";
 c.fillRect(110,110,80,80);
 
-/* === TEKS K7N BARU === */
-c.font="bold 26px Arial Black";
-c.textAlign="left";
+/* TEKS K7N (SUDAH PAS) */
+c.font="bold 22px Arial Black";
+c.textAlign="center";
+c.textBaseline="middle";
 
 /* outline */
 c.lineWidth=2;
 c.strokeStyle="#0f172a";
-c.strokeText("K7N",120,158);
+c.strokeText("K7N",150,150);
 
 /* gradasi */
-const grad=c.createLinearGradient(120,0,170,0);
+const grad=c.createLinearGradient(130,150,170,150);
 grad.addColorStop(0,"#22d3ee");
 grad.addColorStop(1,"#22c55e");
 c.fillStyle=grad;
-c.fillText("K7N",120,158);
+c.fillText("K7N",150,150);
 });
 }
 
@@ -240,8 +235,6 @@ a.click();
 function unban(){
 const body=`My name is ${unName.value}, and my WhatsApp account with the number ${unNum.value} has been banned.
 
-I understand that my account may have violated WhatsApp's Terms of Service, but I sincerely want to comply with all rules moving forward.
-
 Thank you.
 
 ${unName.value}`;
@@ -251,8 +244,6 @@ location.href=`mailto:support@whatsapp.com?subject=WhatsApp Account Unban Reques
 /* BANNED */
 function ban(){
 const body=`I would like to report the WhatsApp number ${banNum.value}.
-
-This account has violated WhatsApp policies.
 
 Thank you.`;
 location.href=`mailto:support@whatsapp.com?subject=WhatsApp Policy Violation Report&body=${encodeURIComponent(body)}`;
