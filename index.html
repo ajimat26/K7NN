@@ -13,38 +13,9 @@ margin:0;
 font-family:Arial,Helvetica,sans-serif;
 background:#020617;
 color:#e5e7eb;
-overflow-x:hidden;
 }
-
-/* SPLASH */
-#splash{
-position:fixed;
-inset:0;
-background:radial-gradient(circle,#0f172a,#020617);
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-z-index:9999;
-animation:fadeOut 1.2s ease 3.5s forwards;
-}
-#splash h1{
-font-size:56px;
-letter-spacing:8px;
-color:#22d3ee;
-animation:pulse 1.5s infinite;
-}
-#splash p{color:#94a3b8;letter-spacing:3px}
-
-@keyframes pulse{
-0%,100%{text-shadow:0 0 10px #22d3ee}
-50%{text-shadow:0 0 30px #22c55e}
-}
-@keyframes fadeOut{to{opacity:0;visibility:hidden}}
-
 header{text-align:center;padding:20px}
 header h2{color:#22d3ee}
-
 .card{
 background:#020617;
 border:1px solid #1e293b;
@@ -52,9 +23,7 @@ border-radius:18px;
 padding:16px;
 margin:12px;
 }
-
 h3{color:#a855f7}
-
 input,select{
 width:100%;
 padding:11px;
@@ -64,7 +33,6 @@ border:1px solid #334155;
 border-radius:12px;
 color:#fff;
 }
-
 button{
 width:100%;
 margin-top:12px;
@@ -75,40 +43,17 @@ font-weight:bold;
 background:linear-gradient(90deg,#22d3ee,#22c55e);
 cursor:pointer;
 }
-
 canvas{display:block;margin:10px auto}
 </style>
 </head>
 
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-<h1>K7N</h1>
-<p>CYBER TOOLS</p>
-</div>
-
 <header>
 <h2>K7N CYBER TOOLS</h2>
 </header>
 
-<!-- LINK GENERATOR -->
-<div class="card">
-<h3>🔗 Link Generator</h3>
-<input id="waNum" placeholder="WhatsApp Number">
-<button onclick="makeWA()">Create WhatsApp Link</button>
-<input id="waOut" readonly>
-
-<input id="tgUser" placeholder="Telegram Username">
-<button onclick="makeTG()">Create Telegram Link</button>
-<input id="tgOut" readonly>
-
-<input id="dcUser" placeholder="Discord User ID">
-<button onclick="makeDC()">Create Discord Link</button>
-<input id="dcOut" readonly>
-</div>
-
-<!-- QR -->
+<!-- QR GENERATOR -->
 <div class="card">
 <h3>🔳 QR Generator</h3>
 
@@ -126,62 +71,65 @@ canvas{display:block;margin:10px auto}
 </div>
 
 <script>
-// LINK
-function makeWA(){
-waOut.value=`https://wa.me/${waNum.value.replace(/\D/g,"")}`;
-}
-function makeTG(){
-tgOut.value=`https://t.me/${tgUser.value.replace("@","")}`;
-}
-function makeDC(){
-dcOut.value=`https://discord.com/users/${dcUser.value}`;
-}
-
-// QR TYPE
 function toggleQR(){
 qrText.style.display = qrType.value==="image"?"none":"block";
 qrImg.style.display  = qrType.value==="image"?"block":"none";
 }
 
-// QR GENERATOR WITH K7N LOGO
 function makeQR(){
+
+const SIZE = 300;
 
 const drawQR = (data)=>{
 QRCode.toCanvas(qr,data,{
-width:300,
+width:SIZE,
 errorCorrectionLevel:'H'
 },()=>{
 const c = qr.getContext("2d");
+const center = SIZE / 2;
 
-/* background tengah */
-c.fillStyle="#ffffff";
-c.fillRect(100,100,100,100);
-
-/* LOGO K7N (SESUAI CONTOH) */
+/* === STEP 1: LUBANGI QR SESUAI HURUF K7N === */
 c.save();
-c.translate(150,150);
-c.rotate(-0.4);
+c.translate(center, center);
+c.rotate(-0.35);
+
+c.globalCompositeOperation = "destination-out";
+c.font = "bold 30px Arial Black";
+c.textAlign = "center";
+c.textBaseline = "middle";
+c.fillText("K7N", 0, 0);
+
+c.restore();
+
+/* === STEP 2: GAMBAR TEKS K7N DI ATASNYA === */
+c.save();
+c.translate(center, center);
+c.rotate(-0.35);
+
+c.globalCompositeOperation = "source-over";
 
 /* outline */
-c.lineWidth=4;
-c.strokeStyle="#0f172a";
-c.font="bold 34px Arial Black";
-c.strokeText("K7N",-45,12);
+c.lineWidth = 3;
+c.strokeStyle = "#0f172a";
+c.font = "bold 30px Arial Black";
+c.textAlign = "center";
+c.textBaseline = "middle";
+c.strokeText("K7N", 0, 0);
 
-/* gradient */
-const g=c.createLinearGradient(-50,0,50,0);
-g.addColorStop(0,"#22d3ee");
-g.addColorStop(1,"#22c55e");
-c.fillStyle=g;
-c.fillText("K7N",-45,12);
+/* gradient isi */
+const grad = c.createLinearGradient(-30,0,30,0);
+grad.addColorStop(0,"#22d3ee");
+grad.addColorStop(1,"#22c55e");
+c.fillStyle = grad;
+c.fillText("K7N", 0, 0);
 
 c.restore();
 });
 };
 
 if(qrType.value==="image" && qrImg.files[0]){
-const r=new FileReader();
-r.onload=e=>drawQR(e.target.result);
+const r = new FileReader();
+r.onload = e => drawQR(e.target.result);
 r.readAsDataURL(qrImg.files[0]);
 }else{
 drawQR(qrText.value);
