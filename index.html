@@ -65,7 +65,7 @@ box-shadow:0 0 25px #020617;
 }
 h3{color:#a855f7}
 
-input,textarea{
+input,textarea,select{
 width:100%;
 padding:11px;
 margin-top:8px;
@@ -152,7 +152,14 @@ canvas{display:block;margin:10px auto}
 <!-- QR -->
 <div class="card">
 <h3>🔳 QR Generator</h3>
-<input id="qrText" placeholder="Text / Link">
+
+<select id="qrType">
+  <option value="text">Text</option>
+  <option value="link">Website Link</option>
+  <option value="image">Image URL</option>
+</select>
+
+<input id="qrText" placeholder="Text / Link / Image URL">
 <button onclick="act(this);makeQR()">Generate QR</button>
 <canvas id="qr" width="300" height="300"></canvas>
 <button onclick="act(this);saveQR()">Download QR</button>
@@ -197,24 +204,34 @@ function makeDC(){
 dcOut.value=`https://discord.com/users/${dcUser.value}`;
 }
 
-// QR WITH STYLISH K7N
+// QR
 function makeQR(){
-QRCode.toCanvas(qr,qrText.value,{
-width:300,
-errorCorrectionLevel:'H'
-},()=>{
-const c=qr.getContext("2d");
-c.fillStyle="#fff";
-c.fillRect(110,110,80,80);
-c.fillStyle="#000";
-c.font="bold 26px 'Courier New', monospace";
-c.fillText("K7N",120,158);
+const type = document.getElementById("qrType").value;
+let value = qrText.value.trim();
+if(!value) return alert("Masukkan data QR!");
+
+// Bisa sesuaikan value untuk image/link/text
+if(type === "link") value = value;
+if(type === "image") value = value;
+
+QRCode.toCanvas(qr, value, {
+  width: 300,
+  errorCorrectionLevel: 'H',
+  color: {dark:"#000", light:"#fff"}
+}, () => {
+  const c = qr.getContext("2d");
+  c.fillStyle = "#22d3ee";
+  c.font = "bold 36px Arial, sans-serif";
+  c.textAlign = "center";
+  c.textBaseline = "middle";
+  c.fillText("K7N", qr.width/2, qr.height/2);
 });
 }
+
 function saveQR(){
-const a=document.createElement("a");
-a.href=qr.toDataURL("image/png");
-a.download="K7N_QR.png";
+const a = document.createElement("a");
+a.href = qr.toDataURL("image/png");
+a.download = "K7N_QR.png";
 a.click();
 }
 
