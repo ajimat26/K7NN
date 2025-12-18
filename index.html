@@ -2,17 +2,25 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>All In One Tools</title>
+<title>Cyber Tools</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- LOTTIE -->
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+<!-- QR -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
+:root{
+  --neon:#22d3ee;
+  --neon2:#a855f7;
+}
+
 body{
   margin:0;
-  font-family:Poppins,Arial;
-  background:#0f172a;
-  color:white;
+  font-family:Arial,Helvetica,sans-serif;
+  background:radial-gradient(circle at top,#020617,#000);
+  color:#e5e7eb;
 }
 
 .hidden{display:none}
@@ -21,7 +29,7 @@ body{
 #splash{
   position:fixed;
   inset:0;
-  background:#020617;
+  background:linear-gradient(135deg,#020617,#000);
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -30,96 +38,132 @@ body{
 }
 
 /* APP */
-#app{
-  padding:15px;
+#app{padding:15px}
+
+h3{
+  color:var(--neon);
+  text-shadow:0 0 10px var(--neon);
 }
 
+/* CARD */
 .card{
-  background:#020617;
+  background:rgba(2,6,23,.75);
+  backdrop-filter:blur(10px);
+  border-radius:16px;
   padding:15px;
-  border-radius:15px;
-  margin-bottom:15px;
-  box-shadow:0 0 20px #0ea5e955;
+  margin-bottom:16px;
+  border:1px solid #1e293b;
+  box-shadow:
+    0 0 20px rgba(34,211,238,.25),
+    inset 0 0 20px rgba(168,85,247,.08);
 }
 
-input,select,button{
+/* INPUT */
+input,select{
   width:100%;
-  padding:10px;
+  padding:11px;
   margin-top:8px;
-  border:none;
-  border-radius:10px;
+  border-radius:12px;
+  border:1px solid #1e293b;
+  background:#020617;
+  color:#e5e7eb;
 }
 
+/* BUTTON */
 button{
-  background:#0ea5e9;
-  color:white;
+  width:100%;
+  padding:11px;
+  margin-top:10px;
+  border:none;
+  border-radius:12px;
   font-weight:bold;
+  color:#020617;
+  background:linear-gradient(90deg,var(--neon),var(--neon2));
+  box-shadow:0 0 15px var(--neon);
+  transition:.3s;
 }
 
-canvas{margin:auto;display:block}
+button:hover{
+  transform:scale(1.03);
+  box-shadow:0 0 25px var(--neon2);
+}
+
+/* RESULT */
+.result input{
+  margin-top:8px;
+  background:#000;
+  border:1px solid var(--neon);
+  box-shadow:0 0 10px var(--neon);
+}
+
+/* QR */
+canvas{
+  display:block;
+  margin:10px auto;
+  box-shadow:0 0 25px var(--neon2);
+  border-radius:12px;
+}
 </style>
 </head>
 <body>
 
 <!-- SPLASH -->
 <div id="splash">
-  <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_usmfx6bp.json"
-    background="transparent" speed="1"
-    style="width:200px;height:200px" loop autoplay></lottie-player>
-  <p>Memuat aplikasi...</p>
+  <lottie-player
+    src="https://assets2.lottiefiles.com/packages/lf20_usmfx6bp.json"
+    style="width:220px;height:220px"
+    loop autoplay>
+  </lottie-player>
+  <p style="color:var(--neon)">Initializing Cyber System…</p>
 </div>
 
-<!-- APP -->
 <div id="app" class="hidden">
 
-<!-- DOWNLOADER -->
 <div class="card">
-<h3>Downloader YT / TikTok</h3>
-<input id="url" placeholder="Masukkan URL">
+<h3>Downloader YouTube / TikTok</h3>
+<input id="url" placeholder="Tempel link YouTube / TikTok">
 <select id="type">
-<option value="mp4">MP4</option>
-<option value="mp3">MP3</option>
+  <option value="mp4">MP4</option>
+  <option value="mp3">MP3</option>
 </select>
-<button onclick="download()">Download</button>
-<p id="status"></p>
+<button onclick="download()">Generate Link</button>
+<div id="status" class="result"></div>
 </div>
 
-<!-- QR -->
 <div class="card">
-<h3>QR Generator</h3>
+<h3>QR Generator (Logo Menyatu)</h3>
 <input id="qrtext" placeholder="Teks / Link">
-<button onclick="makeQR()">Buat QR</button>
+<button onclick="makeQR()">Generate QR</button>
 <canvas id="qrCanvas" width="300" height="300"></canvas>
 <button onclick="downloadQR()">Download QR</button>
 </div>
 
-<!-- WA UNBANNED -->
 <div class="card">
 <h3>Unbanned WhatsApp</h3>
-<input id="wa_nama" placeholder="Nama">
+<input id="wa_nama" placeholder="Nama Lengkap">
 <input id="wa_nomor" placeholder="Nomor WhatsApp">
 <button onclick="unbanWA()">Ajukan Unban</button>
 </div>
 
-<!-- WA REPORT -->
 <div class="card">
-<h3>Laporkan WhatsApp</h3>
+<h3>Report / Banned WhatsApp</h3>
 <input id="wa_report" placeholder="Nomor WhatsApp">
-<button onclick="reportWA()">Laporkan</button>
+<button onclick="reportWA()">Kirim Laporan</button>
 </div>
 
-<!-- LINK GENERATOR -->
 <div class="card">
 <h3>Link Generator</h3>
 <input id="wa_me" placeholder="Nomor WhatsApp">
-<input id="wa_msg" placeholder="Pesan">
-<button onclick="waLink()">WhatsApp.me</button>
+<input id="wa_msg" placeholder="Pesan WhatsApp">
+<button onclick="waLink()">WhatsApp Link</button>
 
 <input id="tg_user" placeholder="Username Telegram">
-<button onclick="tgLink()">Telegram</button>
+<button onclick="tgLink()">Telegram Link</button>
 
 <input id="dc_id" placeholder="Discord User ID">
-<button onclick="dcLink()">Discord</button>
+<button onclick="dcLink()">Discord Link</button>
+
+<div id="linkResult" class="result"></div>
 </div>
 
 </div>
@@ -127,68 +171,69 @@ canvas{margin:auto;display:block}
 <script>
 // SPLASH
 setTimeout(()=>{
- document.getElementById("splash").style.display="none";
- document.getElementById("app").classList.remove("hidden");
+  splash.style.display="none";
+  app.classList.remove("hidden");
 },2500);
 
 // DOWNLOAD
 function download(){
- status.innerHTML="🔍 Memproses...";
- fetch("http://localhost:3000/api/download",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({url:url.value,type:type.value})
- }).then(r=>r.json()).then(j=>{
-  status.innerHTML=j.status?
-  `<a href="${j.download_url}" target="_blank">⬇ Download</a>`:
-  j.message;
- });
+  const l=url.value.trim();
+  let target="";
+  if(l.includes("tiktok.com")){
+    target=`https://ssstik.io/en?url=${encodeURIComponent(l)}`;
+  }else if(l.includes("youtube")){
+    target=`https://y2mate.nu/?url=${encodeURIComponent(l)}`;
+  }else{
+    status.innerHTML="❌ URL tidak didukung";
+    return;
+  }
+  status.innerHTML=`
+    <input value="${target}" readonly onclick="this.select()">
+    <button onclick="navigator.clipboard.writeText('${target}')">📋 Salin</button>
+  `;
 }
 
-// QR + LOGO MENYATU
+// QR LOGO
 async function makeQR(){
- const canvas=qrCanvas;
- await QRCode.toCanvas(canvas,qrtext.value,{width:300});
- const ctx=canvas.getContext("2d");
- const logo=new Image();
- logo.crossOrigin="anonymous";
- logo.src="https://i.supaimg.com/9775bd8b-667c-4ea3-8173-b27aeee837bc.jpg";
- logo.onload=()=>{
-  const s=60;
-  ctx.drawImage(logo,(300-s)/2,(300-s)/2,s,s);
- };
+  const c=qrCanvas,ctx=c.getContext("2d");
+  await QRCode.toCanvas(c,qrtext.value,{width:300,margin:1});
+  const img=new Image();
+  img.crossOrigin="anonymous";
+  img.src="https://i.supaimg.com/9775bd8b-667c-4ea3-8173-b27aeee837bc.jpg";
+  img.onload=()=>{
+    ctx.fillStyle="#fff";
+    ctx.fillRect(115,115,70,70);
+    ctx.drawImage(img,115,115,70,70);
+  };
 }
-
 function downloadQR(){
- const a=document.createElement("a");
- a.href=qrCanvas.toDataURL();
- a.download="qr.png";
- a.click();
+  const a=document.createElement("a");
+  a.href=qrCanvas.toDataURL();
+  a.download="qr-cyber.png";
+  a.click();
 }
 
 // WA
 function unbanWA(){
- const body=`Halo Tim WhatsApp,
-Saya ${wa_nama.value} dengan nomor ${wa_nomor.value}.
-Saya mohon maaf dan berjanji mematuhi kebijakan WhatsApp.`;
- location.href=`mailto:support@whatsapp.com?subject=Permohonan Unbanned&body=${encodeURIComponent(body)}`;
+  location.href=`mailto:support@whatsapp.com?subject=Permohonan Unban Akun WhatsApp&body=${encodeURIComponent(
+`Saya ${wa_nama.value} dengan nomor ${wa_nomor.value}.
+Mohon peninjauan kembali akun saya dan saya berjanji mematuhi seluruh kebijakan WhatsApp.`)}`;
 }
-
 function reportWA(){
- const body=`Saya melaporkan nomor ${wa_report.value} karena melanggar kebijakan WhatsApp.`;
- location.href=`mailto:support@whatsapp.com?subject=Laporan WhatsApp&body=${encodeURIComponent(body)}`;
+  location.href=`mailto:support@whatsapp.com?subject=Laporan Pelanggaran WhatsApp&body=${encodeURIComponent(
+`Saya melaporkan nomor ${wa_report.value} karena pelanggaran kebijakan WhatsApp.`)}`;
 }
 
-// LINKS
-function waLink(){
- window.open(`https://wa.me/${wa_me.value}?text=${encodeURIComponent(wa_msg.value)}`);
+// LINK
+function showLink(l){
+  linkResult.innerHTML=`
+    <input value="${l}" readonly onclick="this.select()">
+    <button onclick="navigator.clipboard.writeText('${l}')">📋 Salin</button>
+  `;
 }
-function tgLink(){
- window.open(`https://t.me/${tg_user.value.replace('@','')}`);
-}
-function dcLink(){
- window.open(`https://discord.com/users/${dc_id.value}`);
-}
+function waLink(){showLink(`https://wa.me/${wa_me.value}?text=${encodeURIComponent(wa_msg.value)}`);}
+function tgLink(){showLink(`https://t.me/${tg_user.value.replace('@','')}`);}
+function dcLink(){showLink(`https://discord.com/users/${dc_id.value}`);}
 </script>
 
 </body>
