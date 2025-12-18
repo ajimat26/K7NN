@@ -13,18 +13,58 @@ margin:0;
 font-family:Arial,Helvetica,sans-serif;
 background:#020617;
 color:#e5e7eb;
+overflow-x:hidden;
 }
-header{text-align:center;padding:20px}
+
+/* SPLASH */
+#splash{
+position:fixed;
+inset:0;
+background:radial-gradient(circle,#0f172a,#020617);
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+z-index:9999;
+animation:fadeOut 1.2s ease 3.5s forwards;
+}
+#splash h1{
+font-size:56px;
+letter-spacing:8px;
+color:#22d3ee;
+animation:pulse 1.5s infinite;
+}
+#splash p{
+color:#94a3b8;
+letter-spacing:3px;
+}
+@keyframes pulse{
+0%,100%{text-shadow:0 0 10px #22d3ee}
+50%{text-shadow:0 0 30px #a855f7}
+}
+@keyframes fadeOut{
+to{opacity:0;visibility:hidden}
+}
+
+/* HEADER */
+header{
+text-align:center;
+padding:20px;
+}
 header h2{color:#22d3ee}
+
+/* CARD */
 .card{
 background:#020617;
 border:1px solid #1e293b;
 border-radius:18px;
 padding:16px;
 margin:12px;
+box-shadow:0 0 25px #020617;
 }
 h3{color:#a855f7}
-input,select{
+
+input{
 width:100%;
 padding:11px;
 margin-top:8px;
@@ -33,6 +73,7 @@ border:1px solid #334155;
 border-radius:12px;
 color:#fff;
 }
+
 button{
 width:100%;
 margin-top:12px;
@@ -40,110 +81,152 @@ padding:13px;
 border:none;
 border-radius:14px;
 font-weight:bold;
-background:linear-gradient(90deg,#22d3ee,#22c55e);
+background:linear-gradient(90deg,#22d3ee,#a855f7);
 cursor:pointer;
+position:relative;
+overflow:hidden;
 }
+button.loading{
+pointer-events:none;
+opacity:.7;
+}
+button.loading::after{
+content:"";
+width:22px;height:22px;
+border:3px solid #fff;
+border-top:3px solid transparent;
+border-radius:50%;
+position:absolute;
+top:50%;left:50%;
+transform:translate(-50%,-50%);
+animation:spin 1s linear infinite;
+}
+@keyframes spin{
+to{transform:translate(-50%,-50%) rotate(360deg)}
+}
+
+.pet{
+position:fixed;
+bottom:-60px;
+font-size:38px;
+animation:pet 1.8s ease-out forwards;
+z-index:999;
+}
+@keyframes pet{
+0%{opacity:0}
+30%{bottom:140px;opacity:1}
+100%{bottom:30px;opacity:0}
+}
+
 canvas{display:block;margin:10px auto}
 </style>
 </head>
 
 <body>
 
+<!-- SPLASH -->
+<div id="splash">
+<h1>K7N</h1>
+<p>CYBER TOOLS</p>
+</div>
+
 <header>
 <h2>K7N CYBER TOOLS</h2>
 </header>
 
+<!-- LINK GENERATOR -->
+<div class="card">
+<h3>🔗 Link Generator</h3>
+
+<input id="waNum" placeholder="WhatsApp Number">
+<button onclick="act(this);makeWA()">Create WhatsApp Link</button>
+<input id="waOut" readonly>
+
+<input id="tgUser" placeholder="Telegram Username">
+<button onclick="act(this);makeTG()">Create Telegram Link</button>
+<input id="tgOut" readonly>
+
+<input id="dcUser" placeholder="Discord User ID">
+<button onclick="act(this);makeDC()">Create Discord Link</button>
+<input id="dcOut" readonly>
+</div>
+
+<!-- QR -->
 <div class="card">
 <h3>🔳 QR Generator</h3>
-
-<select id="qrType" onchange="toggleQR()">
-<option value="text">Text / Link</option>
-<option value="image">Gambar (Upload)</option>
-</select>
-
 <input id="qrText" placeholder="Text / Link">
-<input id="qrImg" type="file" accept="image/*" style="display:none">
-
-<button onclick="makeQR()">Generate QR</button>
+<button onclick="act(this);makeQR()">Generate QR</button>
 <canvas id="qr" width="300" height="300"></canvas>
-<button onclick="saveQR()">Download QR</button>
+<button onclick="act(this);saveQR()">Download QR</button>
+</div>
+
+<!-- UNBANNED -->
+<div class="card">
+<h3>✅ WhatsApp Unbanned Request</h3>
+<input id="unName" placeholder="Your Name">
+<input id="unNum" placeholder="WhatsApp Number">
+<button onclick="act(this);unban()">Open Gmail</button>
+</div>
+
+<!-- BANNED -->
+<div class="card">
+<h3>🚫 Report WhatsApp Account</h3>
+<input id="banNum" placeholder="Reported WhatsApp Number">
+<button onclick="act(this);ban()">Open Gmail</button>
 </div>
 
 <script>
-function toggleQR(){
-qrText.style.display = qrType.value==="image"?"none":"block";
-qrImg.style.display  = qrType.value==="image"?"block":"none";
+function act(btn){
+btn.classList.add("loading");
+setTimeout(()=>btn.classList.remove("loading"),1200);
+
+const pet=document.createElement("div");
+pet.className="pet";
+pet.innerText="🐺";
+pet.style.left=Math.random()*70+"%";
+document.body.appendChild(pet);
+setTimeout(()=>pet.remove(),1800);
 }
 
-/* fungsi rounded rectangle */
-function roundRect(ctx,x,y,w,h,r){
-ctx.beginPath();
-ctx.moveTo(x+r,y);
-ctx.arcTo(x+w,y,x+w,y+h,r);
-ctx.arcTo(x+w,y+h,x,y+h,r);
-ctx.arcTo(x,y+h,x,y,r);
-ctx.arcTo(x,y,x+w,y,r);
-ctx.closePath();
+/* LINK */
+function makeWA(){
+waOut.value = `https://wa.me/${waNum.value.replace(/\D/g,"")}`;
+}
+function makeTG(){
+tgOut.value = `https://t.me/${tgUser.value.replace("@","")}`;
+}
+function makeDC(){
+dcOut.value = `https://discord.com/users/${dcUser.value}`;
 }
 
+/* QR (HANYA TEKS K7N YANG DIUBAH) */
 function makeQR(){
-
-const SIZE = 300;
-const BG_W = 110;   // lebar oval (aman)
-const BG_H = 60;    // tinggi oval
-const RADIUS = 30;  // bikin oval / rounded
-
-const drawQR = (data)=>{
-QRCode.toCanvas(qr,data,{
-width: SIZE,
+QRCode.toCanvas(qr, qrText.value,{
+width:300,
 errorCorrectionLevel:'H'
 },()=>{
 const c = qr.getContext("2d");
-const center = SIZE/2;
 
-/* === BACKGROUND PUTIH OVAL === */
-c.save();
-c.translate(center, center);
-c.rotate(-0.35);
+/* background putih tetap */
+c.fillStyle="#fff";
+c.fillRect(110,110,80,80);
 
-c.fillStyle = "#ffffff";
-roundRect(c, -BG_W/2, -BG_H/2, BG_W, BG_H, RADIUS);
-c.fill();
-
-c.restore();
-
-/* === TEKS K7N === */
-c.save();
-c.translate(center, center);
-c.rotate(-0.35);
-
-c.font = "bold 28px Arial Black";
-c.textAlign = "center";
-c.textBaseline = "middle";
+/* === TEKS K7N BARU === */
+c.font="bold 26px Arial Black";
+c.textAlign="left";
 
 /* outline */
-c.lineWidth = 3;
-c.strokeStyle = "#0f172a";
-c.strokeText("K7N", 0, 0);
+c.lineWidth=2;
+c.strokeStyle="#0f172a";
+c.strokeText("K7N",120,158);
 
-/* isi gradasi */
-const grad = c.createLinearGradient(-30,0,30,0);
+/* gradasi */
+const grad=c.createLinearGradient(120,0,170,0);
 grad.addColorStop(0,"#22d3ee");
 grad.addColorStop(1,"#22c55e");
-c.fillStyle = grad;
-c.fillText("K7N", 0, 0);
-
-c.restore();
+c.fillStyle=grad;
+c.fillText("K7N",120,158);
 });
-};
-
-if(qrType.value==="image" && qrImg.files[0]){
-const r = new FileReader();
-r.onload = e => drawQR(e.target.result);
-r.readAsDataURL(qrImg.files[0]);
-}else{
-drawQR(qrText.value);
-}
 }
 
 function saveQR(){
@@ -151,6 +234,28 @@ const a=document.createElement("a");
 a.href=qr.toDataURL("image/png");
 a.download="K7N_QR.png";
 a.click();
+}
+
+/* UNBANNED */
+function unban(){
+const body=`My name is ${unName.value}, and my WhatsApp account with the number ${unNum.value} has been banned.
+
+I understand that my account may have violated WhatsApp's Terms of Service, but I sincerely want to comply with all rules moving forward.
+
+Thank you.
+
+${unName.value}`;
+location.href=`mailto:support@whatsapp.com?subject=WhatsApp Account Unban Request&body=${encodeURIComponent(body)}`;
+}
+
+/* BANNED */
+function ban(){
+const body=`I would like to report the WhatsApp number ${banNum.value}.
+
+This account has violated WhatsApp policies.
+
+Thank you.`;
+location.href=`mailto:support@whatsapp.com?subject=WhatsApp Policy Violation Report&body=${encodeURIComponent(body)}`;
 }
 </script>
 
