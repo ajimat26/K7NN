@@ -27,12 +27,21 @@ align-items:center;
 justify-content:center;
 flex-direction:column;
 z-index:9999;
-animation:fadeOut 1s ease 3s forwards;
+animation:fadeOut 1.2s ease 3.5s forwards;
 }
 #splash h1{
-font-size:48px;
-letter-spacing:6px;
+font-size:56px;
+letter-spacing:8px;
 color:#22d3ee;
+animation:pulse 1.5s infinite;
+}
+#splash p{
+color:#94a3b8;
+letter-spacing:3px;
+}
+@keyframes pulse{
+0%,100%{text-shadow:0 0 10px #22d3ee}
+50%{text-shadow:0 0 30px #a855f7}
 }
 @keyframes fadeOut{
 to{opacity:0;visibility:hidden}
@@ -68,20 +77,33 @@ color:#fff;
 
 button{
 width:100%;
-margin-top:10px;
+margin-top:12px;
 padding:13px;
 border:none;
 border-radius:14px;
 font-weight:bold;
 background:linear-gradient(90deg,#22d3ee,#a855f7);
 cursor:pointer;
-transition:.15s;
+position:relative;
+overflow:hidden;
 }
-button:active{transform:scale(.95)}
+button.loading{
+pointer-events:none;
+opacity:.7;
+}
+button.loading::after{
+content:"";
+width:22px;height:22px;
+border:3px solid #fff;
+border-top:3px solid transparent;
+border-radius:50%;
+position:absolute;
+top:50%;left:50%;
+transform:translate(-50%,-50%);
+animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 
-.result input{margin-top:6px}
-
-/* PET ANIMATION */
 .pet{
 position:fixed;
 bottom:-60px;
@@ -103,98 +125,79 @@ canvas{display:block;margin:10px auto}
 <!-- SPLASH -->
 <div id="splash">
 <h1>K7N</h1>
-<p>Cyber Tools</p>
+<p>CYBER TOOLS</p>
 </div>
-
-<audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3"></audio>
 
 <header>
 <h2>K7N CYBER TOOLS</h2>
 </header>
-
-<!-- TIKTOK -->
-<div class="card">
-<h3>📥 TikTok Downloader</h3>
-<input id="ttUrl" placeholder="Paste TikTok URL">
-<button onclick="action();tt()">Generate Download Link</button>
-<div id="ttRes" class="result"></div>
-</div>
-
-<!-- YOUTUBE -->
-<div class="card">
-<h3>📥 YouTube Downloader</h3>
-<input id="ytUrl" placeholder="Paste YouTube URL">
-<button onclick="action();yt()">Generate Download Link</button>
-<div id="ytRes" class="result"></div>
-</div>
 
 <!-- LINK GENERATOR -->
 <div class="card">
 <h3>🔗 Link Generator</h3>
 
 <input id="waNum" placeholder="WhatsApp Number">
-<button onclick="action();wa()">Create WhatsApp Link</button>
+<button onclick="act(this);makeWA()">Create WhatsApp Link</button>
 <input id="waOut" readonly>
 
 <input id="tgUser" placeholder="Telegram Username">
-<button onclick="action();tg()">Create Telegram Link</button>
+<button onclick="act(this);makeTG()">Create Telegram Link</button>
 <input id="tgOut" readonly>
 
 <input id="dcUser" placeholder="Discord User ID">
-<button onclick="action();dc()">Create Discord Link</button>
+<button onclick="act(this);makeDC()">Create Discord Link</button>
 <input id="dcOut" readonly>
 </div>
 
 <!-- QR -->
 <div class="card">
-<h3>🔳 QR Generator (K7N)</h3>
+<h3>🔳 QR Generator</h3>
 <input id="qrText" placeholder="Text / Link">
-<button onclick="action();makeQR()">Generate QR</button>
+<button onclick="act(this);makeQR()">Generate QR</button>
 <canvas id="qr" width="300" height="300"></canvas>
-<button onclick="action();saveQR()">Download QR</button>
+<button onclick="act(this);saveQR()">Download QR</button>
+</div>
+
+<!-- UNBANNED -->
+<div class="card">
+<h3>✅ WhatsApp Unbanned Request</h3>
+<input id="unName" placeholder="Your Name">
+<input id="unNum" placeholder="WhatsApp Number">
+<button onclick="act(this);unban()">Open Gmail</button>
 </div>
 
 <!-- BANNED -->
 <div class="card">
-<h3>🚫 Report WhatsApp (Banned)</h3>
+<h3>🚫 Report WhatsApp Account</h3>
 <input id="banNum" placeholder="Reported WhatsApp Number">
-<button onclick="action();ban()">Open Gmail</button>
+<button onclick="act(this);ban()">Open Gmail</button>
 </div>
 
 <script>
-// GLOBAL ACTION
-function action(){
-document.getElementById("clickSound").play();
+function act(btn){
+btn.classList.add("loading");
+setTimeout(()=>btn.classList.remove("loading"),1200);
+
 const pet=document.createElement("div");
 pet.className="pet";
-pet.innerText="🐱";
+pet.innerText="🐺";
 pet.style.left=Math.random()*70+"%";
 document.body.appendChild(pet);
 setTimeout(()=>pet.remove(),1800);
 }
 
-// DOWNLOAD
-function tt(){
-const u=ttUrl.value.trim();
-ttRes.innerHTML=`<input value="https://ssstik.io/en?url=${encodeURIComponent(u)}" readonly onclick="this.select()">`;
-}
-function yt(){
-const u=ytUrl.value.trim();
-ytRes.innerHTML=`<input value="https://y2mate.nu/?url=${encodeURIComponent(u)}" readonly onclick="this.select()">`;
-}
-
-// LINK GENERATOR
-function wa(){
+// LINK
+function makeWA(){
 waOut.value=`https://wa.me/${waNum.value.replace(/\D/g,"")}`;
 }
-function tg(){
+function makeTG(){
 tgOut.value=`https://t.me/${tgUser.value.replace("@","")}`;
 }
-function dc(){
+function makeDC(){
 dcOut.value=`https://discord.com/users/${dcUser.value}`;
 }
 
-// QR WITH TEXT K7N
+// QR WITH STYLISH K7N
 function makeQR(){
 QRCode.toCanvas(qr,qrText.value,{
 width:300,
@@ -202,10 +205,10 @@ errorCorrectionLevel:'H'
 },()=>{
 const c=qr.getContext("2d");
 c.fillStyle="#fff";
-c.fillRect(120,120,60,60);
+c.fillRect(110,110,80,80);
 c.fillStyle="#000";
-c.font="bold 22px Arial";
-c.fillText("K7N",125,155);
+c.font="bold 26px 'Courier New', monospace";
+c.fillText("K7N",120,158);
 });
 }
 function saveQR(){
@@ -215,18 +218,32 @@ a.download="K7N_QR.png";
 a.click();
 }
 
-// BANNED EMAIL
-function ban(){
-const num=banNum.value;
+// UNBANNED
+function unban(){
 const body=
-`I would like to report the WhatsApp number ${num}.
+`My name is ${unName.value}, and my WhatsApp account with the number ${unNum.value} has been banned.
+
+I understand that my account may have violated WhatsApp's Terms of Service, but I sincerely want to comply with all rules moving forward.
+
+I rely on this account for important communication, and I kindly request your review to restore access to my account.
+
+Thank you very much for your time and consideration.
+
+Sincerely,
+${unName.value}`;
+location.href=`mailto:support@whatsapp.com?subject=WhatsApp Account Unban Request&body=${encodeURIComponent(body)}`;
+}
+
+// BANNED
+function ban(){
+const body=
+`I would like to report the WhatsApp number ${banNum.value}.
 
 This account has violated WhatsApp policies by sending inappropriate content, spam, or harmful material.
 
-Please review this report and take appropriate action to protect the WhatsApp community.
+Please review this report and take appropriate action.
 
-Thank you for your attention.`;
-
+Thank you.`;
 location.href=`mailto:support@whatsapp.com?subject=WhatsApp Policy Violation Report&body=${encodeURIComponent(body)}`;
 }
 </script>
