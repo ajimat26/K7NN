@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>K7N Cyber Tools</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
@@ -35,34 +34,28 @@ letter-spacing:8px;
 color:#22d3ee;
 animation:pulse 1.5s infinite;
 }
-#splash p{
-color:#94a3b8;
-letter-spacing:3px;
-}
+#splash p{color:#94a3b8;letter-spacing:3px}
+
 @keyframes pulse{
 0%,100%{text-shadow:0 0 10px #22d3ee}
-50%{text-shadow:0 0 30px #a855f7}
+50%{text-shadow:0 0 30px #22c55e}
 }
-@keyframes fadeOut{
-to{opacity:0;visibility:hidden}
-}
+@keyframes fadeOut{to{opacity:0;visibility:hidden}}
 
-/* HEADER */
-header{text-align:center;padding:20px;}
+header{text-align:center;padding:20px}
 header h2{color:#22d3ee}
 
-/* CARD */
 .card{
 background:#020617;
 border:1px solid #1e293b;
 border-radius:18px;
 padding:16px;
 margin:12px;
-box-shadow:0 0 25px #020617;
 }
+
 h3{color:#a855f7}
 
-input,textarea,select{
+input,select{
 width:100%;
 padding:11px;
 margin-top:8px;
@@ -79,44 +72,14 @@ padding:13px;
 border:none;
 border-radius:14px;
 font-weight:bold;
-background:linear-gradient(90deg,#22d3ee,#a855f7);
+background:linear-gradient(90deg,#22d3ee,#22c55e);
 cursor:pointer;
-position:relative;
-overflow:hidden;
-}
-button.loading{
-pointer-events:none;
-opacity:.7;
-}
-button.loading::after{
-content:"";
-width:22px;height:22px;
-border:3px solid #fff;
-border-top:3px solid transparent;
-border-radius:50%;
-position:absolute;
-top:50%;left:50%;
-transform:translate(-50%,-50%);
-animation:spin 1s linear infinite;
-}
-@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-
-.pet{
-position:fixed;
-bottom:-60px;
-font-size:38px;
-animation:pet 1.8s ease-out forwards;
-z-index:999;
-}
-@keyframes pet{
-0%{opacity:0}
-30%{bottom:140px;opacity:1}
-100%{bottom:30px;opacity:0}
 }
 
 canvas{display:block;margin:10px auto}
 </style>
 </head>
+
 <body>
 
 <!-- SPLASH -->
@@ -132,17 +95,16 @@ canvas{display:block;margin:10px auto}
 <!-- LINK GENERATOR -->
 <div class="card">
 <h3>🔗 Link Generator</h3>
-
 <input id="waNum" placeholder="WhatsApp Number">
-<button onclick="act(this);makeWA()">Create WhatsApp Link</button>
+<button onclick="makeWA()">Create WhatsApp Link</button>
 <input id="waOut" readonly>
 
 <input id="tgUser" placeholder="Telegram Username">
-<button onclick="act(this);makeTG()">Create Telegram Link</button>
+<button onclick="makeTG()">Create Telegram Link</button>
 <input id="tgOut" readonly>
 
 <input id="dcUser" placeholder="Discord User ID">
-<button onclick="act(this);makeDC()">Create Discord Link</button>
+<button onclick="makeDC()">Create Discord Link</button>
 <input id="dcOut" readonly>
 </div>
 
@@ -150,46 +112,20 @@ canvas{display:block;margin:10px auto}
 <div class="card">
 <h3>🔳 QR Generator</h3>
 
-<select id="qrType">
-  <option value="text">Text</option>
-  <option value="link">Website Link</option>
-  <option value="image">Image URL</option>
+<select id="qrType" onchange="toggleQR()">
+<option value="text">Text / Link</option>
+<option value="image">Gambar (Upload)</option>
 </select>
 
-<input id="qrText" placeholder="Text / Link / Image URL">
-<button onclick="act(this);makeQR()">Generate QR</button>
+<input id="qrText" placeholder="Text / Link">
+<input id="qrImg" type="file" accept="image/*" style="display:none">
+
+<button onclick="makeQR()">Generate QR</button>
 <canvas id="qr" width="300" height="300"></canvas>
-<button onclick="act(this);saveQR()">Download QR</button>
-</div>
-
-<!-- UNBANNED -->
-<div class="card">
-<h3>✅ WhatsApp Unbanned Request</h3>
-<input id="unName" placeholder="Your Name">
-<input id="unNum" placeholder="WhatsApp Number">
-<button onclick="act(this);unban()">Open Gmail</button>
-</div>
-
-<!-- BANNED -->
-<div class="card">
-<h3>🚫 Report WhatsApp Account</h3>
-<input id="banNum" placeholder="Reported WhatsApp Number">
-<button onclick="act(this);ban()">Open Gmail</button>
+<button onclick="saveQR()">Download QR</button>
 </div>
 
 <script>
-function act(btn){
-btn.classList.add("loading");
-setTimeout(()=>btn.classList.remove("loading"),1200);
-
-const pet=document.createElement("div");
-pet.className="pet";
-pet.innerText="🐺";
-pet.style.left=Math.random()*70+"%";
-document.body.appendChild(pet);
-setTimeout(()=>pet.remove(),1800);
-}
-
 // LINK
 function makeWA(){
 waOut.value=`https://wa.me/${waNum.value.replace(/\D/g,"")}`;
@@ -201,81 +137,64 @@ function makeDC(){
 dcOut.value=`https://discord.com/users/${dcUser.value}`;
 }
 
-// QR Generator dengan K7N di tengah + area bebas modul + glow
+// QR TYPE
+function toggleQR(){
+qrText.style.display = qrType.value==="image"?"none":"block";
+qrImg.style.display  = qrType.value==="image"?"block":"none";
+}
+
+// QR GENERATOR WITH K7N LOGO
 function makeQR(){
-const type = document.getElementById("qrType").value;
-let value = qrText.value.trim();
-if(!value) return alert("Masukkan data QR!");
 
-// Generate QR
-QRCode.toCanvas(qr, value, {
-  width: 300,
-  errorCorrectionLevel: 'H', // penting agar bisa menutupi area tengah
-  color: {dark:"#000", light:"#fff"}
-}, () => {
-  const c = qr.getContext("2d");
+const drawQR = (data)=>{
+QRCode.toCanvas(qr,data,{
+width:300,
+errorCorrectionLevel:'H'
+},()=>{
+const c = qr.getContext("2d");
 
-  // Area bebas modul tengah (kotak putih)
-  const boxSize = 80;
-  const x = qr.width/2 - boxSize/2;
-  const y = qr.height/2 - boxSize/2;
-  c.fillStyle = "#fff";
-  c.fillRect(x, y, boxSize, boxSize);
+/* background tengah */
+c.fillStyle="#ffffff";
+c.fillRect(100,100,100,100);
 
-  // Tulis K7N dengan glow
-  const text = "K7N";
-  c.font = "bold 36px Arial, sans-serif";
-  c.textAlign = "center";
-  c.textBaseline = "middle";
+/* LOGO K7N (SESUAI CONTOH) */
+c.save();
+c.translate(150,150);
+c.rotate(-0.4);
 
-  const glowColors = ["#22d3ee","#a855f7","#fff"];
-  glowColors.forEach((col,i)=>{
-    c.shadowColor = col;
-    c.shadowBlur = 10 + i*10;
-    c.fillStyle = col;
-    c.fillText(text, qr.width/2, qr.height/2);
-  });
+/* outline */
+c.lineWidth=4;
+c.strokeStyle="#0f172a";
+c.font="bold 34px Arial Black";
+c.strokeText("K7N",-45,12);
 
-  c.shadowBlur = 0;
+/* gradient */
+const g=c.createLinearGradient(-50,0,50,0);
+g.addColorStop(0,"#22d3ee");
+g.addColorStop(1,"#22c55e");
+c.fillStyle=g;
+c.fillText("K7N",-45,12);
+
+c.restore();
 });
+};
+
+if(qrType.value==="image" && qrImg.files[0]){
+const r=new FileReader();
+r.onload=e=>drawQR(e.target.result);
+r.readAsDataURL(qrImg.files[0]);
+}else{
+drawQR(qrText.value);
+}
 }
 
 function saveQR(){
-const a = document.createElement("a");
-a.href = qr.toDataURL("image/png");
-a.download = "K7N_QR.png";
+const a=document.createElement("a");
+a.href=qr.toDataURL("image/png");
+a.download="K7N_QR.png";
 a.click();
-}
-
-// UNBANNED
-function unban(){
-const body=
-`My name is ${unName.value}, and my WhatsApp account with the number ${unNum.value} has been banned.
-
-I understand that my account may have violated WhatsApp's Terms of Service, but I sincerely want to comply with all rules moving forward.
-
-I rely on this account for important communication, and I kindly request your review to restore access to my account.
-
-Thank you very much for your time and consideration.
-
-Sincerely,
-${unName.value}`;
-location.href=`mailto:support@whatsapp.com?subject=WhatsApp Account Unban Request&body=${encodeURIComponent(body)}`;
-}
-
-// BANNED
-function ban(){
-const body=
-`I would like to report the WhatsApp number ${banNum.value}.
-
-This account has violated WhatsApp policies by sending inappropriate content, spam, or harmful material.
-
-Please review this report and take appropriate action.
-
-Thank you.`;
-location.href=`mailto:support@whatsapp.com?subject=WhatsApp Policy Violation Report&body=${encodeURIComponent(body)}`;
 }
 </script>
 
 </body>
-  </html>
+</html>
