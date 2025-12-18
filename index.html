@@ -1,239 +1,183 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Cyber Tools</title>
+<title>All-in-One Cyber Tools</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- LOTTIE -->
-<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-<!-- QR -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
-:root{
-  --neon:#22d3ee;
-  --neon2:#a855f7;
-}
-
 body{
   margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:radial-gradient(circle at top,#020617,#000);
-  color:#e5e7eb;
-}
-
-.hidden{display:none}
-
-/* SPLASH */
-#splash{
-  position:fixed;
-  inset:0;
-  background:linear-gradient(135deg,#020617,#000);
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  z-index:999;
-}
-
-/* APP */
-#app{padding:15px}
-
-h3{
-  color:var(--neon);
-  text-shadow:0 0 10px var(--neon);
-}
-
-/* CARD */
-.card{
-  background:rgba(2,6,23,.75);
-  backdrop-filter:blur(10px);
-  border-radius:16px;
-  padding:15px;
-  margin-bottom:16px;
-  border:1px solid #1e293b;
-  box-shadow:
-    0 0 20px rgba(34,211,238,.25),
-    inset 0 0 20px rgba(168,85,247,.08);
-}
-
-/* INPUT */
-input,select{
-  width:100%;
-  padding:11px;
-  margin-top:8px;
-  border-radius:12px;
-  border:1px solid #1e293b;
   background:#020617;
   color:#e5e7eb;
+  font-family:Arial,Helvetica,sans-serif;
 }
-
-/* BUTTON */
+.card{
+  background:#020617;
+  border:1px solid #1e293b;
+  border-radius:14px;
+  padding:15px;
+  margin:15px;
+}
+h3{color:#22d3ee}
+input,textarea{
+  width:100%;
+  margin-top:8px;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #334155;
+  background:#000;
+  color:#fff;
+}
 button{
   width:100%;
-  padding:11px;
   margin-top:10px;
+  padding:11px;
   border:none;
-  border-radius:12px;
+  border-radius:10px;
   font-weight:bold;
-  color:#020617;
-  background:linear-gradient(90deg,var(--neon),var(--neon2));
-  box-shadow:0 0 15px var(--neon);
-  transition:.3s;
+  background:linear-gradient(90deg,#22d3ee,#a855f7);
 }
-
-button:hover{
-  transform:scale(1.03);
-  box-shadow:0 0 25px var(--neon2);
-}
-
-/* RESULT */
-.result input{
-  margin-top:8px;
-  background:#000;
-  border:1px solid var(--neon);
-  box-shadow:0 0 10px var(--neon);
-}
-
-/* QR */
-canvas{
-  display:block;
-  margin:10px auto;
-  box-shadow:0 0 25px var(--neon2);
-  border-radius:12px;
-}
+canvas{display:block;margin:10px auto}
+.result input{margin-top:6px}
 </style>
 </head>
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-  <lottie-player
-    src="https://assets2.lottiefiles.com/packages/lf20_usmfx6bp.json"
-    style="width:220px;height:220px"
-    loop autoplay>
-  </lottie-player>
-  <p style="color:var(--neon)">Initializing Cyber System…</p>
+<!-- TIKTOK -->
+<div class="card">
+<h3>📥 TikTok Downloader</h3>
+<input id="ttUrl" placeholder="Paste TikTok URL">
+<button onclick="downloadTT()">Generate Download Link</button>
+<div id="ttResult" class="result"></div>
 </div>
 
-<div id="app" class="hidden">
-
+<!-- YOUTUBE -->
 <div class="card">
-<h3>Downloader YouTube / TikTok</h3>
-<input id="url" placeholder="Tempel link YouTube / TikTok">
-<select id="type">
-  <option value="mp4">MP4</option>
-  <option value="mp3">MP3</option>
-</select>
-<button onclick="download()">Generate Link</button>
-<div id="status" class="result"></div>
+<h3>📥 YouTube Downloader</h3>
+<input id="ytUrl" placeholder="Paste YouTube URL">
+<button onclick="downloadYT()">Generate Download Link</button>
+<div id="ytResult" class="result"></div>
 </div>
 
+<!-- QR -->
 <div class="card">
-<h3>QR Generator (Logo Menyatu)</h3>
-<input id="qrtext" placeholder="Teks / Link">
+<h3>🔳 QR Generator (Logo Embedded)</h3>
+<input id="qrText" placeholder="Text / Link">
 <button onclick="makeQR()">Generate QR</button>
 <canvas id="qrCanvas" width="300" height="300"></canvas>
-<button onclick="downloadQR()">Download QR</button>
+<button onclick="downloadQR()">Download QR Image</button>
 </div>
 
+<!-- UNBANNED -->
 <div class="card">
-<h3>Unbanned WhatsApp</h3>
-<input id="wa_nama" placeholder="Nama Lengkap">
-<input id="wa_nomor" placeholder="Nomor WhatsApp">
-<button onclick="unbanWA()">Ajukan Unban</button>
+<h3>✅ WhatsApp Unbanned Request</h3>
+<input id="unName" placeholder="Your Name">
+<input id="unNumber" placeholder="WhatsApp Number">
+<button onclick="unbanWA()">Open Gmail</button>
 </div>
 
+<!-- BANNED -->
 <div class="card">
-<h3>Report / Banned WhatsApp</h3>
-<input id="wa_report" placeholder="Nomor WhatsApp">
-<button onclick="reportWA()">Kirim Laporan</button>
-</div>
-
-<div class="card">
-<h3>Link Generator</h3>
-<input id="wa_me" placeholder="Nomor WhatsApp">
-<input id="wa_msg" placeholder="Pesan WhatsApp">
-<button onclick="waLink()">WhatsApp Link</button>
-
-<input id="tg_user" placeholder="Username Telegram">
-<button onclick="tgLink()">Telegram Link</button>
-
-<input id="dc_id" placeholder="Discord User ID">
-<button onclick="dcLink()">Discord Link</button>
-
-<div id="linkResult" class="result"></div>
-</div>
-
+<h3>🚫 Report / Banned WhatsApp</h3>
+<input id="banNumber" placeholder="Reported WhatsApp Number">
+<textarea id="banReason" placeholder="Violation details (auto-filled if empty)"></textarea>
+<button onclick="banWA()">Open Gmail</button>
 </div>
 
 <script>
-// SPLASH
-setTimeout(()=>{
-  splash.style.display="none";
-  app.classList.remove("hidden");
-},2500);
-
-// DOWNLOAD
-function download(){
-  const l=url.value.trim();
-  let target="";
-  if(l.includes("tiktok.com")){
-    target=`https://ssstik.io/en?url=${encodeURIComponent(l)}`;
-  }else if(l.includes("youtube")){
-    target=`https://y2mate.nu/?url=${encodeURIComponent(l)}`;
-  }else{
-    status.innerHTML="❌ URL tidak didukung";
+// ===== TIKTOK =====
+function downloadTT(){
+  const url = ttUrl.value.trim();
+  if(!url.includes("tiktok.com")){
+    ttResult.innerHTML="❌ Invalid TikTok URL";
     return;
   }
-  status.innerHTML=`
-    <input value="${target}" readonly onclick="this.select()">
-    <button onclick="navigator.clipboard.writeText('${target}')">📋 Salin</button>
+  const link=`https://ssstik.io/en?url=${encodeURIComponent(url)}`;
+  ttResult.innerHTML=`
+    <input value="${link}" readonly onclick="this.select()">
+    <button onclick="navigator.clipboard.writeText('${link}')">📋 Copy</button>
   `;
 }
 
-// QR LOGO
+// ===== YOUTUBE =====
+function downloadYT(){
+  const url = ytUrl.value.trim();
+  if(!url.includes("youtube")){
+    ytResult.innerHTML="❌ Invalid YouTube URL";
+    return;
+  }
+  const link=`https://y2mate.nu/?url=${encodeURIComponent(url)}`;
+  ytResult.innerHTML=`
+    <input value="${link}" readonly onclick="this.select()">
+    <button onclick="navigator.clipboard.writeText('${link}')">📋 Copy</button>
+  `;
+}
+
+// ===== QR WITH LOGO =====
 async function makeQR(){
-  const c=qrCanvas,ctx=c.getContext("2d");
-  await QRCode.toCanvas(c,qrtext.value,{width:300,margin:1});
-  const img=new Image();
-  img.crossOrigin="anonymous";
-  img.src="https://i.supaimg.com/9775bd8b-667c-4ea3-8173-b27aeee837bc.jpg";
-  img.onload=()=>{
+  const canvas=qrCanvas;
+  const ctx=canvas.getContext("2d");
+  await QRCode.toCanvas(canvas,qrText.value,{width:300,margin:1});
+  const logo=new Image();
+  logo.crossOrigin="anonymous";
+  logo.src="LOGO_KAMU.png"; // ganti sesuai logo
+  logo.onload=()=>{
+    const size=70;
+    const x=(canvas.width-size)/2;
+    const y=(canvas.height-size)/2;
     ctx.fillStyle="#fff";
-    ctx.fillRect(115,115,70,70);
-    ctx.drawImage(img,115,115,70,70);
-  };
+    ctx.fillRect(x,y,size,size);
+    ctx.drawImage(logo,x,y,size,size);
+  }
 }
 function downloadQR(){
   const a=document.createElement("a");
-  a.href=qrCanvas.toDataURL();
-  a.download="qr-cyber.png";
+  a.href=qrCanvas.toDataURL("image/png");
+  a.download="qr_with_logo.png";
   a.click();
 }
 
-// WA
+// ===== UNBANNED =====
 function unbanWA(){
-  location.href=`mailto:support@whatsapp.com?subject=Permohonan Unban Akun WhatsApp&body=${encodeURIComponent(
-`Saya ${wa_nama.value} dengan nomor ${wa_nomor.value}.
-Mohon peninjauan kembali akun saya dan saya berjanji mematuhi seluruh kebijakan WhatsApp.`)}`;
-}
-function reportWA(){
-  location.href=`mailto:support@whatsapp.com?subject=Laporan Pelanggaran WhatsApp&body=${encodeURIComponent(
-`Saya melaporkan nomor ${wa_report.value} karena pelanggaran kebijakan WhatsApp.`)}`;
+const name=unName.value;
+const num=unNumber.value;
+const body=
+`My name is ${name}, and my WhatsApp account with the number ${num} has been banned.
+
+I understand that my account may have violated WhatsApp's Terms of Service, but I sincerely want to comply with all rules moving forward.
+
+I rely on this account for important communication, and I kindly request your review to restore access to my account.
+
+Thank you very much for your time and consideration.
+
+Sincerely,
+${name}`;
+
+location.href=`mailto:support@whatsapp.com?subject=WhatsApp Account Unban Request&body=${encodeURIComponent(body)}`;
 }
 
-// LINK
-function showLink(l){
-  linkResult.innerHTML=`
-    <input value="${l}" readonly onclick="this.select()">
-    <button onclick="navigator.clipboard.writeText('${l}')">📋 Salin</button>
-  `;
+// ===== BANNED =====
+function banWA(){
+const num=banNumber.value;
+const reason=banReason.value || 
+`This number has violated WhatsApp policies by sending inappropriate content, spam, or harmful material.
+
+Please review this account thoroughly and take appropriate action to protect the WhatsApp community.`;
+
+const body=
+`I would like to formally report the WhatsApp number ${num}.
+
+Reason:
+${reason}
+
+This account has engaged in activities that violate WhatsApp’s Terms of Service and community guidelines.
+
+Thank you for your attention and action regarding this report.`;
+
+location.href=`mailto:support@whatsapp.com?subject=WhatsApp Policy Violation Report&body=${encodeURIComponent(body)}`;
 }
-function waLink(){showLink(`https://wa.me/${wa_me.value}?text=${encodeURIComponent(wa_msg.value)}`);}
-function tgLink(){showLink(`https://t.me/${tg_user.value.replace('@','')}`);}
-function dcLink(){showLink(`https://discord.com/users/${dc_id.value}`);}
 </script>
 
 </body>
