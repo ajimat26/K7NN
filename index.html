@@ -1,180 +1,231 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>All-in-One Cyber Tools</title>
+<title>K7N Cyber Tools</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
+*{box-sizing:border-box}
 body{
-  margin:0;
-  background:#020617;
-  color:#e5e7eb;
-  font-family:Arial,Helvetica,sans-serif;
+margin:0;
+font-family:Arial,Helvetica,sans-serif;
+background:#020617;
+color:#e5e7eb;
+overflow-x:hidden;
 }
+
+/* SPLASH */
+#splash{
+position:fixed;
+inset:0;
+background:radial-gradient(circle,#0f172a,#020617);
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+z-index:9999;
+animation:fadeOut 1s ease 3s forwards;
+}
+#splash h1{
+font-size:48px;
+letter-spacing:6px;
+color:#22d3ee;
+}
+@keyframes fadeOut{
+to{opacity:0;visibility:hidden}
+}
+
+/* HEADER */
+header{
+text-align:center;
+padding:20px;
+}
+header h2{color:#22d3ee}
+
+/* CARD */
 .card{
-  background:#020617;
-  border:1px solid #1e293b;
-  border-radius:14px;
-  padding:15px;
-  margin:15px;
+background:#020617;
+border:1px solid #1e293b;
+border-radius:18px;
+padding:16px;
+margin:12px;
+box-shadow:0 0 25px #020617;
 }
-h3{color:#22d3ee}
+h3{color:#a855f7}
+
 input,textarea{
-  width:100%;
-  margin-top:8px;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #334155;
-  background:#000;
-  color:#fff;
+width:100%;
+padding:11px;
+margin-top:8px;
+background:#000;
+border:1px solid #334155;
+border-radius:12px;
+color:#fff;
 }
+
 button{
-  width:100%;
-  margin-top:10px;
-  padding:11px;
-  border:none;
-  border-radius:10px;
-  font-weight:bold;
-  background:linear-gradient(90deg,#22d3ee,#a855f7);
+width:100%;
+margin-top:10px;
+padding:13px;
+border:none;
+border-radius:14px;
+font-weight:bold;
+background:linear-gradient(90deg,#22d3ee,#a855f7);
+cursor:pointer;
+transition:.15s;
 }
-canvas{display:block;margin:10px auto}
+button:active{transform:scale(.95)}
+
 .result input{margin-top:6px}
+
+/* PET ANIMATION */
+.pet{
+position:fixed;
+bottom:-60px;
+font-size:38px;
+animation:pet 1.8s ease-out forwards;
+z-index:999;
+}
+@keyframes pet{
+0%{opacity:0}
+30%{bottom:140px;opacity:1}
+100%{bottom:30px;opacity:0}
+}
+
+canvas{display:block;margin:10px auto}
 </style>
 </head>
 <body>
+
+<!-- SPLASH -->
+<div id="splash">
+<h1>K7N</h1>
+<p>Cyber Tools</p>
+</div>
+
+<audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3"></audio>
+
+<header>
+<h2>K7N CYBER TOOLS</h2>
+</header>
 
 <!-- TIKTOK -->
 <div class="card">
 <h3>📥 TikTok Downloader</h3>
 <input id="ttUrl" placeholder="Paste TikTok URL">
-<button onclick="downloadTT()">Generate Download Link</button>
-<div id="ttResult" class="result"></div>
+<button onclick="action();tt()">Generate Download Link</button>
+<div id="ttRes" class="result"></div>
 </div>
 
 <!-- YOUTUBE -->
 <div class="card">
 <h3>📥 YouTube Downloader</h3>
 <input id="ytUrl" placeholder="Paste YouTube URL">
-<button onclick="downloadYT()">Generate Download Link</button>
-<div id="ytResult" class="result"></div>
+<button onclick="action();yt()">Generate Download Link</button>
+<div id="ytRes" class="result"></div>
+</div>
+
+<!-- LINK GENERATOR -->
+<div class="card">
+<h3>🔗 Link Generator</h3>
+
+<input id="waNum" placeholder="WhatsApp Number">
+<button onclick="action();wa()">Create WhatsApp Link</button>
+<input id="waOut" readonly>
+
+<input id="tgUser" placeholder="Telegram Username">
+<button onclick="action();tg()">Create Telegram Link</button>
+<input id="tgOut" readonly>
+
+<input id="dcUser" placeholder="Discord User ID">
+<button onclick="action();dc()">Create Discord Link</button>
+<input id="dcOut" readonly>
 </div>
 
 <!-- QR -->
 <div class="card">
-<h3>🔳 QR Generator (Logo Embedded)</h3>
+<h3>🔳 QR Generator (K7N)</h3>
 <input id="qrText" placeholder="Text / Link">
-<button onclick="makeQR()">Generate QR</button>
-<canvas id="qrCanvas" width="300" height="300"></canvas>
-<button onclick="downloadQR()">Download QR Image</button>
-</div>
-
-<!-- UNBANNED -->
-<div class="card">
-<h3>✅ WhatsApp Unbanned Request</h3>
-<input id="unName" placeholder="Your Name">
-<input id="unNumber" placeholder="WhatsApp Number">
-<button onclick="unbanWA()">Open Gmail</button>
+<button onclick="action();makeQR()">Generate QR</button>
+<canvas id="qr" width="300" height="300"></canvas>
+<button onclick="action();saveQR()">Download QR</button>
 </div>
 
 <!-- BANNED -->
 <div class="card">
-<h3>🚫 Report / Banned WhatsApp</h3>
-<input id="banNumber" placeholder="Reported WhatsApp Number">
-<textarea id="banReason" placeholder="Violation details (auto-filled if empty)"></textarea>
-<button onclick="banWA()">Open Gmail</button>
+<h3>🚫 Report WhatsApp (Banned)</h3>
+<input id="banNum" placeholder="Reported WhatsApp Number">
+<button onclick="action();ban()">Open Gmail</button>
 </div>
 
 <script>
-// ===== TIKTOK =====
-function downloadTT(){
-  const url = ttUrl.value.trim();
-  if(!url.includes("tiktok.com")){
-    ttResult.innerHTML="❌ Invalid TikTok URL";
-    return;
-  }
-  const link=`https://ssstik.io/en?url=${encodeURIComponent(url)}`;
-  ttResult.innerHTML=`
-    <input value="${link}" readonly onclick="this.select()">
-    <button onclick="navigator.clipboard.writeText('${link}')">📋 Copy</button>
-  `;
+// GLOBAL ACTION
+function action(){
+document.getElementById("clickSound").play();
+const pet=document.createElement("div");
+pet.className="pet";
+pet.innerText="🐱";
+pet.style.left=Math.random()*70+"%";
+document.body.appendChild(pet);
+setTimeout(()=>pet.remove(),1800);
 }
 
-// ===== YOUTUBE =====
-function downloadYT(){
-  const url = ytUrl.value.trim();
-  if(!url.includes("youtube")){
-    ytResult.innerHTML="❌ Invalid YouTube URL";
-    return;
-  }
-  const link=`https://y2mate.nu/?url=${encodeURIComponent(url)}`;
-  ytResult.innerHTML=`
-    <input value="${link}" readonly onclick="this.select()">
-    <button onclick="navigator.clipboard.writeText('${link}')">📋 Copy</button>
-  `;
+// DOWNLOAD
+function tt(){
+const u=ttUrl.value.trim();
+ttRes.innerHTML=`<input value="https://ssstik.io/en?url=${encodeURIComponent(u)}" readonly onclick="this.select()">`;
+}
+function yt(){
+const u=ytUrl.value.trim();
+ytRes.innerHTML=`<input value="https://y2mate.nu/?url=${encodeURIComponent(u)}" readonly onclick="this.select()">`;
 }
 
-// ===== QR WITH LOGO =====
-async function makeQR(){
-  const canvas=qrCanvas;
-  const ctx=canvas.getContext("2d");
-  await QRCode.toCanvas(canvas,qrText.value,{width:300,margin:1});
-  const logo=new Image();
-  logo.crossOrigin="anonymous";
-  logo.src="LOGO_KAMU.png"; // ganti sesuai logo
-  logo.onload=()=>{
-    const size=70;
-    const x=(canvas.width-size)/2;
-    const y=(canvas.height-size)/2;
-    ctx.fillStyle="#fff";
-    ctx.fillRect(x,y,size,size);
-    ctx.drawImage(logo,x,y,size,size);
-  }
+// LINK GENERATOR
+function wa(){
+waOut.value=`https://wa.me/${waNum.value.replace(/\D/g,"")}`;
 }
-function downloadQR(){
-  const a=document.createElement("a");
-  a.href=qrCanvas.toDataURL("image/png");
-  a.download="qr_with_logo.png";
-  a.click();
+function tg(){
+tgOut.value=`https://t.me/${tgUser.value.replace("@","")}`;
+}
+function dc(){
+dcOut.value=`https://discord.com/users/${dcUser.value}`;
 }
 
-// ===== UNBANNED =====
-function unbanWA(){
-const name=unName.value;
-const num=unNumber.value;
+// QR WITH TEXT K7N
+function makeQR(){
+QRCode.toCanvas(qr,qrText.value,{
+width:300,
+errorCorrectionLevel:'H'
+},()=>{
+const c=qr.getContext("2d");
+c.fillStyle="#fff";
+c.fillRect(120,120,60,60);
+c.fillStyle="#000";
+c.font="bold 22px Arial";
+c.fillText("K7N",125,155);
+});
+}
+function saveQR(){
+const a=document.createElement("a");
+a.href=qr.toDataURL("image/png");
+a.download="K7N_QR.png";
+a.click();
+}
+
+// BANNED EMAIL
+function ban(){
+const num=banNum.value;
 const body=
-`My name is ${name}, and my WhatsApp account with the number ${num} has been banned.
+`I would like to report the WhatsApp number ${num}.
 
-I understand that my account may have violated WhatsApp's Terms of Service, but I sincerely want to comply with all rules moving forward.
+This account has violated WhatsApp policies by sending inappropriate content, spam, or harmful material.
 
-I rely on this account for important communication, and I kindly request your review to restore access to my account.
+Please review this report and take appropriate action to protect the WhatsApp community.
 
-Thank you very much for your time and consideration.
-
-Sincerely,
-${name}`;
-
-location.href=`mailto:support@whatsapp.com?subject=WhatsApp Account Unban Request&body=${encodeURIComponent(body)}`;
-}
-
-// ===== BANNED =====
-function banWA(){
-const num=banNumber.value;
-const reason=banReason.value || 
-`This number has violated WhatsApp policies by sending inappropriate content, spam, or harmful material.
-
-Please review this account thoroughly and take appropriate action to protect the WhatsApp community.`;
-
-const body=
-`I would like to formally report the WhatsApp number ${num}.
-
-Reason:
-${reason}
-
-This account has engaged in activities that violate WhatsApp’s Terms of Service and community guidelines.
-
-Thank you for your attention and action regarding this report.`;
+Thank you for your attention.`;
 
 location.href=`mailto:support@whatsapp.com?subject=WhatsApp Policy Violation Report&body=${encodeURIComponent(body)}`;
 }
