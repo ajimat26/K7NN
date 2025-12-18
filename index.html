@@ -2,230 +2,214 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>KZN Tools</title>
+<title>All-in-One Downloader</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<!-- QR LIB -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
 <style>
-*{box-sizing:border-box;font-family:Arial,sans-serif}
-body{
-  margin:0;
-  background:linear-gradient(135deg,#8b0000,#000);
-  color:#fff;
-  overflow:hidden;
-}
-.app{
-  max-width:420px;
-  margin:auto;
-  padding:20px;
-  animation:fadeIn 0.8s ease;
-}
-@keyframes fadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1}}
-
-h1{
-  text-align:center;
-  color:#ff3b3b;
-  text-shadow:0 0 15px #ff3b3b;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Poppins, sans-serif;
 }
 
-.tabs{
-  display:flex;
-  gap:6px;
-}
-.tabs button{
-  flex:1;
-  padding:10px;
-  background:#111;
-  border:none;
-  color:#fff;
-  border-radius:8px;
-  transition:.3s;
-}
-.tabs button:hover{
-  background:#ff2a2a;
-  box-shadow:0 0 10px #ff2a2a;
+body {
+  background: #0f172a;
+  color: #fff;
+  overflow: hidden;
 }
 
-.tab{
-  display:none;
-  margin-top:15px;
-  animation:slideUp .5s ease;
-}
-@keyframes slideUp{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
-input{
-  width:100%;
-  padding:12px;
-  margin-bottom:10px;
-  border-radius:8px;
-  border:none;
+/* SPLASH */
+#splash {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg,#0ea5e9,#1e293b);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
 }
 
-button.action{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  background:#ff2a2a;
-  border:none;
-  color:#fff;
-  position:relative;
-  overflow:hidden;
-  transition:.3s;
-}
-button.action:hover{
-  box-shadow:0 0 15px #ff2a2a;
-  transform:scale(1.03);
-}
-button.action::after{
-  content:"";
-  position:absolute;
-  background:rgba(255,255,255,.4);
-  width:10px;height:10px;
-  border-radius:50%;
-  transform:scale(0);
-  animation:ripple .6s linear;
-}
-@keyframes ripple{
-  to{transform:scale(20);opacity:0}
+#splash img {
+  width: 120px;
+  border-radius: 20px;
+  animation: pop 1.5s infinite alternate;
 }
 
-canvas{
-  width:100%;
-  margin-top:10px;
-  border-radius:10px;
-  background:#fff;
-  animation:zoom .4s ease;
-}
-@keyframes zoom{
-  from{transform:scale(.5);opacity:0}
-  to{transform:scale(1);opacity:1}
+@keyframes pop {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
 }
 
-.loading{
-  text-align:center;
-  margin-top:10px;
-  animation:pulse 1s infinite;
+.loader {
+  margin-top: 20px;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #fff;
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
-@keyframes pulse{
-  0%{opacity:.4}50%{opacity:1}100%{opacity:.4}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* APP */
+#app {
+  display: none;
+  padding: 20px;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.card {
+  background: #020617;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.4);
+}
+
+input, select, button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  margin-top: 10px;
+}
+
+button {
+  background: #0ea5e9;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: .9;
+}
+
+#qr {
+  position: relative;
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+#qr img.logo {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
 }
 </style>
 </head>
-
 <body>
-<div class="app">
-<h1>KZN TOOLS</h1>
 
-<div class="tabs">
-  <button onclick="openTab('dl')">Downloader</button>
-  <button onclick="openTab('qr')">QR</button>
-  <button onclick="openTab('unban')">Unban WA</button>
-  <button onclick="openTab('report')">Report WA</button>
+<!-- SPLASH -->
+<div id="splash">
+  <img src="https://i.supaimg.com/9775bd8b-667c-4ea3-8173-b27aeee837bc.jpg">
+  <div class="loader"></div>
+  <p style="margin-top:10px">Memuat aplikasi...</p>
 </div>
 
-<div id="dl" class="tab">
-  <input id="dlUrl" placeholder="Paste link TikTok / YouTube">
-  <button class="action" onclick="download()">Download</button>
-  <div id="loading" class="loading" style="display:none">Memproses...</div>
-</div>
+<!-- APP -->
+<div id="app">
 
-<div id="qr" class="tab">
-  <input id="qrText" placeholder="Teks / Link">
-  <button class="action" onclick="makeQR()">Buat QR</button>
-  <canvas id="qrCanvas"></canvas>
-</div>
+  <!-- DOWNLOADER -->
+  <div class="card">
+    <h3>Downloader YT / TikTok</h3>
+    <input id="url" placeholder="Masukkan URL">
+    <select id="type">
+      <option value="mp4">MP4</option>
+      <option value="mp3">MP3</option>
+    </select>
+    <button onclick="download()">Download</button>
+    <p id="result"></p>
+  </div>
 
-<div id="unban" class="tab">
-  <input id="unName" placeholder="Nama">
-  <input id="unNum" placeholder="Nomor WhatsApp +62">
-  <button class="action" onclick="unban()">Ajukan Unban</button>
-</div>
+  <!-- QR -->
+  <div class="card">
+    <h3>QR Generator</h3>
+    <input id="qrtext" placeholder="Teks / Link">
+    <button onclick="makeQR()">Buat QR</button>
 
-<div id="report" class="tab">
-  <input id="repName" placeholder="Nama Pelapor">
-  <input id="repNum" placeholder="Nomor Target">
-  <button class="action" onclick="report()">Laporkan</button>
-</div>
+    <div id="qr"></div>
+
+    <button onclick="downloadQR()">Download QR</button>
+  </div>
 
 </div>
 
 <script>
-function openTab(id){
-  document.querySelectorAll('.tab').forEach(t=>t.style.display='none');
-  document.getElementById(id).style.display='block';
-}
-openTab('dl');
+/* SPLASH CONTROL */
+setTimeout(() => {
+  document.getElementById("splash").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  document.body.style.overflow = "auto";
+}, 2500);
 
-// DOWNLOAD
-function download(){
-  const u=dlUrl.value;
-  if(!u) return alert("Masukkan link!");
-  loading.style.display="block";
-  setTimeout(()=>{
-    if(u.includes("tiktok")){
-      location.href="https://ssstik.io/id?url="+encodeURIComponent(u);
-    }else if(u.includes("youtube")||u.includes("youtu.be")){
-      location.href="https://v6.www-y2mate.com/youtube/"+encodeURIComponent(u);
-    }else{
-      alert("Link tidak didukung");
-    }
-    loading.style.display="none";
-  },1200);
-}
+/* DOWNLOAD */
+async function download() {
+  const url = document.getElementById("url").value;
+  const type = document.getElementById("type").value;
+  const res = document.getElementById("result");
 
-// QR
-function makeQR(){
-  const t=qrText.value;
-  const c=qrCanvas;
-  const ctx=c.getContext("2d");
-  const qr=new Image();
-  qr.src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data="+encodeURIComponent(t);
-  qr.onload=()=>{
-    c.width=300;c.height=300;
-    ctx.drawImage(qr,0,0);
-    const logo=new Image();
-    logo.src="logo.png";
-    logo.onload=()=>ctx.drawImage(logo,110,110,80,80);
+  res.innerHTML = "⏳ Memproses...";
+
+  const r = await fetch("http://localhost:3000/api/download", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url, type })
+  });
+
+  const j = await r.json();
+
+  if (j.status) {
+    res.innerHTML = `<a href="${j.download_url}" target="_blank">⬇ Download Sekarang</a>`;
+  } else {
+    res.innerHTML = j.message;
   }
 }
 
-// UNBAN
-function unban(){
-  const msg=`Dear WhatsApp Support Team,
+/* QR */
+let qr;
+function makeQR() {
+  document.getElementById("qr").innerHTML = "";
+  qr = new QRCode("qr", {
+    text: document.getElementById("qrtext").value,
+    width: 220,
+    height: 220
+  });
 
-I respectfully request a review of my WhatsApp account.
-
-Name: ${unName.value}
-Phone Number: ${unNum.value}
-
-I sincerely apologize for any unintentional violation.
-
-Best regards,
-${unName.value}`;
-  location.href=`mailto:support@whatsapp.com?subject=WhatsApp Account Review&body=${encodeURIComponent(msg)}`;
+  setTimeout(() => {
+    const img = document.createElement("img");
+    img.src = "https://i.supaimg.com/9775bd8b-667c-4ea3-8173-b27aeee837bc.jpg";
+    img.className = "logo";
+    document.getElementById("qr").appendChild(img);
+  }, 300);
 }
 
-// REPORT
-function report(){
-  const msg=`Dear WhatsApp Support Team,
-
-I would like to report a WhatsApp account violating policies.
-
-Reported Number: ${repNum.value}
-
-Thank you.
-
-Sincerely,
-${repName.value}`;
-  location.href=`mailto:support@whatsapp.com?subject=WhatsApp Policy Violation&body=${encodeURIComponent(msg)}`;
+function downloadQR() {
+  const canvas = document.querySelector("#qr canvas");
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL();
+  a.download = "qr.png";
+  a.click();
 }
-
-// DISABLE REFRESH
-window.addEventListener("keydown",e=>{
-  if(e.key==="F5"||(e.ctrlKey&&e.key==="r")) e.preventDefault();
-});
 </script>
+
 </body>
 </html>
