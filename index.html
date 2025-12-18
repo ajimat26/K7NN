@@ -48,10 +48,7 @@ to{opacity:0;visibility:hidden}
 }
 
 /* HEADER */
-header{
-text-align:center;
-padding:20px;
-}
+header{text-align:center;padding:20px;}
 header h2{color:#22d3ee}
 
 /* CARD */
@@ -204,27 +201,42 @@ function makeDC(){
 dcOut.value=`https://discord.com/users/${dcUser.value}`;
 }
 
-// QR
+// QR Generator dengan K7N di tengah + area bebas modul + glow
 function makeQR(){
 const type = document.getElementById("qrType").value;
 let value = qrText.value.trim();
 if(!value) return alert("Masukkan data QR!");
 
-// Bisa sesuaikan value untuk image/link/text
-if(type === "link") value = value;
-if(type === "image") value = value;
-
+// Generate QR
 QRCode.toCanvas(qr, value, {
   width: 300,
-  errorCorrectionLevel: 'H',
+  errorCorrectionLevel: 'H', // penting agar bisa menutupi area tengah
   color: {dark:"#000", light:"#fff"}
 }, () => {
   const c = qr.getContext("2d");
-  c.fillStyle = "#22d3ee";
+
+  // Area bebas modul tengah (kotak putih)
+  const boxSize = 80;
+  const x = qr.width/2 - boxSize/2;
+  const y = qr.height/2 - boxSize/2;
+  c.fillStyle = "#fff";
+  c.fillRect(x, y, boxSize, boxSize);
+
+  // Tulis K7N dengan glow
+  const text = "K7N";
   c.font = "bold 36px Arial, sans-serif";
   c.textAlign = "center";
   c.textBaseline = "middle";
-  c.fillText("K7N", qr.width/2, qr.height/2);
+
+  const glowColors = ["#22d3ee","#a855f7","#fff"];
+  glowColors.forEach((col,i)=>{
+    c.shadowColor = col;
+    c.shadowBlur = 10 + i*10;
+    c.fillStyle = col;
+    c.fillText(text, qr.width/2, qr.height/2);
+  });
+
+  c.shadowBlur = 0;
 });
 }
 
@@ -266,4 +278,4 @@ location.href=`mailto:support@whatsapp.com?subject=WhatsApp Policy Violation Rep
 </script>
 
 </body>
-</html>
+  </html>
