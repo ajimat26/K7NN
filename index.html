@@ -2,72 +2,90 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>K7N Web Tester</title>
+<title>K7N Web Tester PRO</title>
 <style>
 body {
-    margin: 0;
+    margin:0;
     font-family: Arial;
 }
 
 /* PREVIEW */
 iframe {
-    width: 100%;
-    height: 100vh;
-    border: none;
+    width:100%;
+    height:100vh;
+    border:none;
 }
 
-/* BUTTON OPEN */
+/* BUTTON */
 .open-btn {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background: gold;
-    padding: 10px;
-    cursor: pointer;
-    z-index: 1000;
-    border-radius: 8px;
+    position:fixed;
+    top:10px;
+    right:10px;
+    background:gold;
+    padding:10px;
+    border-radius:8px;
+    cursor:pointer;
+    z-index:1000;
 }
 
 /* OVERLAY */
 .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.9);
-    display: none;
-    flex-direction: column;
-    z-index: 2000;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:#111;
+    display:none;
+    flex-direction:column;
+    z-index:2000;
+}
+
+/* TABS */
+.tabs {
+    display:flex;
+    background:#222;
+}
+
+.tab {
+    flex:1;
+    padding:10px;
+    text-align:center;
+    cursor:pointer;
+    color:white;
+}
+
+.active {
+    background:gold;
+    color:black;
 }
 
 /* TEXTAREA */
 textarea {
-    width: 100%;
-    height: 80%;
-    background: #111;
-    color: #0f0;
-    font-family: monospace;
-    font-size: 14px;
-    padding: 10px;
-    border: none;
-    outline: none;
+    flex:1;
+    width:100%;
+    background:black;
+    color:#0f0;
+    font-family:monospace;
+    font-size:14px;
+    padding:10px;
+    border:none;
+    outline:none;
 }
 
-/* BUTTONS */
+/* CONTROLS */
 .controls {
-    padding: 10px;
-    background: #222;
-    text-align: center;
+    background:#222;
+    padding:10px;
+    text-align:center;
 }
 
 .btn {
-    background: gold;
-    margin: 5px;
-    padding: 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    display: inline-block;
+    background:gold;
+    padding:10px;
+    margin:5px;
+    border-radius:6px;
+    cursor:pointer;
 }
 </style>
 </head>
@@ -79,52 +97,75 @@ textarea {
 <iframe id="preview"></iframe>
 
 <div class="overlay" id="overlay">
-    <textarea id="code"></textarea>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('html')">HTML</div>
+        <div class="tab" onclick="switchTab('css')">CSS</div>
+        <div class="tab" onclick="switchTab('js')">JS</div>
+    </div>
+
+    <textarea id="html"></textarea>
+    <textarea id="css" style="display:none;"></textarea>
+    <textarea id="js" style="display:none;"></textarea>
 
     <div class="controls">
         <div class="btn" onclick="runCode()">▶ RUN</div>
+        <div class="btn" onclick="saveCode()">💾 SAVE</div>
         <div class="btn" onclick="closeEditor()">❌ CLOSE</div>
     </div>
+
 </div>
 
 <script>
 // DEFAULT CODE
-let defaultCode = `
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-body { background: black; color: white; text-align: center; }
-.box { background: gold; padding: 20px; margin: 50px; }
-</style>
-</head>
-<body>
+let defaultHTML = `<h1 style="text-align:center;">Halo K7N 🚀</h1>`;
+let defaultCSS = `body { background:black; color:white; }`;
+let defaultJS = `console.log("JS jalan");`;
 
-<h1>Halo K7N 🚀</h1>
-<div class="box">Ini Preview Website Kamu</div>
-
-</body>
-</html>
-`;
-
-document.getElementById("code").value = defaultCode;
+// LOAD STORAGE
+document.getElementById("html").value = localStorage.getItem("html") || defaultHTML;
+document.getElementById("css").value = localStorage.getItem("css") || defaultCSS;
+document.getElementById("js").value = localStorage.getItem("js") || defaultJS;
 
 // RUN CODE
 function runCode() {
-    let code = document.getElementById("code").value;
+    let html = document.getElementById("html").value;
+    let css = "<style>"+document.getElementById("css").value+"</style>";
+    let js = "<script>"+document.getElementById("js").value+"<\/script>";
+
     let iframe = document.getElementById("preview").contentWindow.document;
     iframe.open();
-    iframe.write(code);
+    iframe.write(html + css + js);
     iframe.close();
 }
 
-// OPEN / CLOSE
+// SAVE
+function saveCode() {
+    localStorage.setItem("html", document.getElementById("html").value);
+    localStorage.setItem("css", document.getElementById("css").value);
+    localStorage.setItem("js", document.getElementById("js").value);
+    alert("Tersimpan!");
+}
+
+// TAB SWITCH
+function switchTab(tab) {
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    event.target.classList.add("active");
+
+    document.getElementById("html").style.display="none";
+    document.getElementById("css").style.display="none";
+    document.getElementById("js").style.display="none";
+
+    document.getElementById(tab).style.display="block";
+}
+
+// OPEN/CLOSE
 function openEditor() {
-    document.getElementById("overlay").style.display = "flex";
+    document.getElementById("overlay").style.display="flex";
 }
 
 function closeEditor() {
-    document.getElementById("overlay").style.display = "none";
+    document.getElementById("overlay").style.display="none";
 }
 
 // LOAD AWAL
