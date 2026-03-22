@@ -2,259 +2,133 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>K7N Cyber Tools</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-
+<title>K7N Web Tester</title>
 <style>
-*{box-sizing:border-box}
-body{
-margin:0;
-font-family:Arial,Helvetica,sans-serif;
-background:#020617;
-color:#e5e7eb;
-overflow-x:hidden;
+body {
+    margin: 0;
+    font-family: Arial;
 }
 
-/* SPLASH */
-#splash{
-position:fixed;
-inset:0;
-background:radial-gradient(circle,#0f172a,#020617);
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-z-index:9999;
-animation:fadeOut 1.2s ease 3.5s forwards;
-}
-#splash h1{
-font-size:56px;
-letter-spacing:8px;
-color:#22d3ee;
-animation:pulse 1.5s infinite;
-}
-#splash p{
-color:#94a3b8;
-letter-spacing:3px;
-}
-@keyframes pulse{
-0%,100%{text-shadow:0 0 10px #22d3ee}
-50%{text-shadow:0 0 30px #a855f7}
-}
-@keyframes fadeOut{
-to{opacity:0;visibility:hidden}
+/* PREVIEW */
+iframe {
+    width: 100%;
+    height: 100vh;
+    border: none;
 }
 
-/* HEADER */
-header{text-align:center;padding:20px}
-header h2{color:#22d3ee}
-
-/* CARD */
-.card{
-background:#020617;
-border:1px solid #1e293b;
-border-radius:18px;
-padding:16px;
-margin:12px;
-}
-h3{color:#a855f7}
-
-input,select{
-width:100%;
-padding:11px;
-margin-top:8px;
-background:#000;
-border:1px solid #334155;
-border-radius:12px;
-color:#fff;
+/* BUTTON OPEN */
+.open-btn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: gold;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 1000;
+    border-radius: 8px;
 }
 
-button{
-width:100%;
-margin-top:12px;
-padding:13px;
-border:none;
-border-radius:14px;
-font-weight:bold;
-background:linear-gradient(90deg,#22d3ee,#a855f7);
-cursor:pointer;
-position:relative;
-overflow:hidden;
-}
-button.loading{pointer-events:none;opacity:.7}
-button.loading::after{
-content:"";
-width:22px;height:22px;
-border:3px solid #fff;
-border-top:3px solid transparent;
-border-radius:50%;
-position:absolute;
-top:50%;left:50%;
-transform:translate(-50%,-50%);
-animation:spin 1s linear infinite;
-}
-@keyframes spin{
-to{transform:translate(-50%,-50%) rotate(360deg)}
+/* OVERLAY */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    flex-direction: column;
+    z-index: 2000;
 }
 
-.pet{
-position:fixed;
-bottom:-60px;
-font-size:38px;
-animation:pet 1.8s ease-out forwards;
-z-index:999;
-}
-@keyframes pet{
-0%{opacity:0}
-30%{bottom:140px;opacity:1}
-100%{bottom:30px;opacity:0}
+/* TEXTAREA */
+textarea {
+    width: 100%;
+    height: 80%;
+    background: #111;
+    color: #0f0;
+    font-family: monospace;
+    font-size: 14px;
+    padding: 10px;
+    border: none;
+    outline: none;
 }
 
-canvas{display:block;margin:10px auto}
+/* BUTTONS */
+.controls {
+    padding: 10px;
+    background: #222;
+    text-align: center;
+}
+
+.btn {
+    background: gold;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-block;
+}
 </style>
 </head>
 
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-<h1>K7N</h1>
-<p>CYBER TOOLS</p>
-</div>
+<div class="open-btn" onclick="openEditor()">⚙ EDIT</div>
 
-<header>
-<h2>K7N CYBER TOOLS</h2>
-</header>
+<iframe id="preview"></iframe>
 
-<!-- LINK GENERATOR -->
-<div class="card">
-<h3>🔗 Link Generator</h3>
+<div class="overlay" id="overlay">
+    <textarea id="code"></textarea>
 
-<input id="waNum" placeholder="WhatsApp Number">
-<button onclick="act(this);makeWA()">Create WhatsApp Link</button>
-<input id="waOut" readonly>
-
-<input id="tgUser" placeholder="Telegram Username">
-<button onclick="act(this);makeTG()">Create Telegram Link</button>
-<input id="tgOut" readonly>
-
-<input id="dcUser" placeholder="Discord User ID">
-<button onclick="act(this);makeDC()">Create Discord Link</button>
-<input id="dcOut" readonly>
-</div>
-
-<!-- QR GENERATOR -->
-<div class="card">
-<h3>🔳 QR Generator</h3>
-
-<input id="qrText" placeholder="Text / Link">
-
-<select id="logoType">
-<option value="k7n">Logo K7N</option>
-<option value="image">Logo Gambar</option>
-</select>
-
-<button onclick="act(this);makeQR()">Generate QR</button>
-<canvas id="qr" width="300" height="300"></canvas>
-<button onclick="act(this);saveQR()">Download QR</button>
-</div>
-
-<!-- UNBANNED -->
-<div class="card">
-<h3>✅ WhatsApp Unbanned Request</h3>
-<input id="unName" placeholder="Your Name">
-<input id="unNum" placeholder="WhatsApp Number">
-<button onclick="act(this);unban()">Open Gmail</button>
-</div>
-
-<!-- BANNED -->
-<div class="card">
-<h3>🚫 Report WhatsApp Account</h3>
-<input id="banNum" placeholder="Reported WhatsApp Number">
-<button onclick="act(this);ban()">Open Gmail</button>
+    <div class="controls">
+        <div class="btn" onclick="runCode()">▶ RUN</div>
+        <div class="btn" onclick="closeEditor()">❌ CLOSE</div>
+    </div>
 </div>
 
 <script>
-const logoURL = "https://i.supaimg.com/9775bd8b-667c-4ea3-8173-b27aeee837bc.jpg";
+// DEFAULT CODE
+let defaultCode = `
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { background: black; color: white; text-align: center; }
+.box { background: gold; padding: 20px; margin: 50px; }
+</style>
+</head>
+<body>
 
-function act(btn){
-btn.classList.add("loading");
-setTimeout(()=>btn.classList.remove("loading"),1200);
+<h1>Halo K7N 🚀</h1>
+<div class="box">Ini Preview Website Kamu</div>
 
-const pet=document.createElement("div");
-pet.className="pet";
-pet.innerText="🐺";
-pet.style.left=Math.random()*70+"%";
-document.body.appendChild(pet);
-setTimeout(()=>pet.remove(),1800);
+</body>
+</html>
+`;
+
+document.getElementById("code").value = defaultCode;
+
+// RUN CODE
+function runCode() {
+    let code = document.getElementById("code").value;
+    let iframe = document.getElementById("preview").contentWindow.document;
+    iframe.open();
+    iframe.write(code);
+    iframe.close();
 }
 
-/* LINK */
-function makeWA(){
-waOut.value=`https://wa.me/${waNum.value.replace(/\D/g,"")}`;
-}
-function makeTG(){
-tgOut.value=`https://t.me/${tgUser.value.replace("@","")}`;
-}
-function makeDC(){
-dcOut.value=`https://discord.com/users/${dcUser.value}`;
+// OPEN / CLOSE
+function openEditor() {
+    document.getElementById("overlay").style.display = "flex";
 }
 
-/* QR */
-function makeQR(){
-QRCode.toCanvas(qr, qrText.value,{
-width:300,
-errorCorrectionLevel:'H'
-},()=>{
-const c=qr.getContext("2d");
-
-/* area tengah */
-c.fillStyle="#fff";
-c.fillRect(110,110,80,80);
-
-if(logoType.value==="k7n"){
-c.font="bold 22px Arial Black";
-c.textAlign="center";
-c.textBaseline="middle";
-
-c.lineWidth=2;
-c.strokeStyle="#0f172a";
-c.strokeText("K7N",150,150);
-
-const grad=c.createLinearGradient(130,150,170,150);
-grad.addColorStop(0,"#22d3ee");
-grad.addColorStop(1,"#22c55e");
-c.fillStyle=grad;
-c.fillText("K7N",150,150);
-
-}else{
-const img=new Image();
-img.crossOrigin="anonymous";
-img.onload=()=>c.drawImage(img,115,115,70,70);
-img.src=logoURL;
-}
-});
+function closeEditor() {
+    document.getElementById("overlay").style.display = "none";
 }
 
-function saveQR(){
-const a=document.createElement("a");
-a.href=qr.toDataURL("image/png");
-a.download="K7N_QR.png";
-a.click();
-}
-
-/* UNBAN */
-function unban(){
-const body=`My name is ${unName.value}, my WhatsApp number ${unNum.value} was banned.`;
-location.href=`mailto:support@whatsapp.com?subject=WhatsApp Unban Request&body=${encodeURIComponent(body)}`;
-}
-
-/* BAN */
-function ban(){
-const body=`I would like to report WhatsApp number ${banNum.value}.`;
-location.href=`mailto:support@whatsapp.com?subject=WhatsApp Policy Violation&body=${encodeURIComponent(body)}`;
-}
+// LOAD AWAL
+runCode();
 </script>
 
 </body>
