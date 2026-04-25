@@ -8,8 +8,6 @@
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <style>
-
-/* ===== ROOT ===== */
 :root{
 --tema:#4f46e5;
 --bg:#0f172a;
@@ -18,197 +16,51 @@
 --accent:#22d3ee;
 }
 
-/* ===== BODY ===== */
-body{
-margin:0;
-font-family:Arial;
-background:var(--bg);
-color:var(--text);
-}
+body{margin:0;font-family:Arial;background:var(--bg);color:var(--text);}
 
-/* ===== HEADER ===== */
 .header{
 background:linear-gradient(90deg,#4f46e5,#06b6d4);
-color:white;
-padding:16px;
-text-align:center;
-font-size:20px;
-font-weight:bold;
-box-shadow:0 4px 15px rgba(0,0,0,0.3);
+padding:15px;text-align:center;color:white;font-weight:bold;
 }
 
-/* ===== LAYOUT ===== */
-.container{
-display:flex;
-flex-direction:column;
-height:100vh;
-}
-.content{
-flex:1;
-padding:20px;
-overflow:auto;
-}
+.container{display:flex;flex-direction:column;height:100vh;}
+.content{flex:1;padding:20px;overflow:auto;}
 
-/* ===== CARD ===== */
 .card{
 background:var(--card);
-padding:15px;
-border-radius:15px;
-margin-bottom:12px;
+padding:15px;border-radius:15px;margin-bottom:10px;
 box-shadow:0 10px 25px rgba(0,0,0,0.4);
-transition:0.3s;
 }
 
-.card:hover{
-transform:translateY(-3px);
-}
-
-/* ===== INPUT ===== */
 input,select{
-width:100%;
-padding:10px;
-margin:6px 0;
-border-radius:10px;
-border:none;
-background:#0f172a;
-color:white;
-outline:none;
+width:100%;padding:10px;margin:5px 0;border-radius:10px;
+border:none;background:#020617;color:white;
 }
 
-input:focus,select:focus{
-box-shadow:0 0 10px var(--accent);
-}
-
-/* ===== BUTTON ===== */
 button{
-width:100%;
-padding:10px;
-border:none;
-border-radius:10px;
-background:linear-gradient(90deg,#4f46e5,#06b6d4);
-color:white;
-font-weight:bold;
-cursor:pointer;
-transition:0.2s;
+width:100%;padding:10px;margin-top:5px;border:none;
+border-radius:10px;background:linear-gradient(90deg,#4f46e5,#06b6d4);
+color:white;cursor:pointer;
 }
 
-button:hover{
-opacity:0.9;
-transform:scale(1.03);
+.menu{
+display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
 }
 
-button:active{
-transform:scale(0.95);
-box-shadow:0 0 15px var(--accent);
+.menu div{
+background:var(--card);padding:20px;text-align:center;
+border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.1);
 }
 
-/* ===== MENU DASHBOARD ===== */
-.menu-center{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
-margin-top:20px;
-}
-
-.menu-card{
-position:relative;
-padding:20px;
-background:var(--card);
-border-radius:15px;
-text-align:center;
-font-weight:bold;
-cursor:pointer;
-overflow:hidden;
-transition:0.3s;
-border:1px solid rgba(255,255,255,0.05);
-}
-
-/* NEON LINE */
-.menu-card::before{
-content:"";
-position:absolute;
-inset:-2px;
-border-radius:15px;
-background:linear-gradient(90deg,transparent,var(--accent),transparent);
-background-size:300% 300%;
-animation:jalan 3s linear infinite;
-z-index:0;
-}
-
-.menu-card::after{
-content:"";
-position:absolute;
-inset:2px;
-background:var(--card);
-border-radius:13px;
-z-index:1;
-}
-
-.menu-card span{
-position:relative;
-z-index:2;
-}
-
-.menu-card:hover{
-transform:translateY(-5px);
-box-shadow:0 0 20px var(--accent);
-}
-
-.menu-card:active{
-transform:scale(0.95);
-box-shadow:0 0 25px var(--accent);
-}
-
-/* ===== STRUK ===== */
 .struk{
-background:white;
-color:black;
-padding:15px;
-border-radius:12px;
-margin-top:10px;
+background:white;color:black;padding:15px;border-radius:10px;margin-top:10px;
 font-family:monospace;
-box-shadow:0 10px 30px rgba(0,0,0,0.4);
 }
 
-/* ===== STATUS ===== */
-.status{
-padding:4px 8px;
-border-radius:6px;
-color:white;
-font-size:12px;
-}
-.sukses{background:#22c55e;}
-.pending{background:#f59e0b;}
-.proses{background:#3b82f6;}
-.gagal{background:#ef4444;}
+.line{border-bottom:1px dashed #aaa;margin:8px 0;}
 
-/* ===== LINE ===== */
-.line{
-border-bottom:1px dashed #aaa;
-margin:10px 0;
-}
-
-/* ===== LOGO ===== */
-.logo{
-width:50px;
-display:block;
-margin:auto;
-}
-
-/* ===== SCROLLBAR ===== */
-::-webkit-scrollbar{
-width:6px;
-}
-::-webkit-scrollbar-thumb{
-background:var(--tema);
-border-radius:10px;
-}
-
-/* ===== ANIMATION ===== */
-@keyframes jalan{
-0%{background-position:0%;}
-100%{background-position:300%;}
-}
+.status{padding:4px;border-radius:5px;color:white;font-size:12px;}
+.sukses{background:green}.pending{background:orange}.proses{background:blue}.gagal{background:red}
 
 </style>
 </head>
@@ -221,71 +73,60 @@ border-radius:10px;
 </div>
 
 <script>
+document.addEventListener("DOMContentLoaded", ()=>{
 
-/* LOAD TEMA */
-let t = localStorage.getItem("tema");
-let bg = localStorage.getItem("bg");
+const app = document.getElementById("app");
+let db = JSON.parse(localStorage.getItem("k7n"))||[];
 
-if(t) document.documentElement.style.setProperty('--tema', t);
-if(bg) document.documentElement.style.setProperty('--bg', bg);
+function save(){localStorage.setItem("k7n",JSON.stringify(db));}
 
-/* DATABASE */
-let db = JSON.parse(localStorage.getItem("k7n")) || [];
-
-/* PRODUK */
-const produk = [
-{nama:"Follower Indo 100", harga:10500},
-{nama:"Follower Global 100", harga:5000},
-{nama:"Like TikTok 100", harga:800},
-{nama:"Viewer 1000", harga:800}
+const produk=[
+{nama:"Follower Indo 100",harga:10500},
+{nama:"Follower Global 100",harga:5000},
+{nama:"Like TikTok 100",harga:800},
+{nama:"Viewer 1000",harga:800}
 ];
 
-const logo="https://i.supaimg.com/2c1011f1-f260-4955-af4a-29c7a57d78c9.png";
-
-/* PAGE */
 function page(p){
 
 if(p=="dashboard"){
 let total=0;
-db.forEach(x=>{if(x.status==="SUKSES")total+=Number(x.harga);});
+db.forEach(x=>{if(x.status=="SUKSES")total+=Number(x.harga)});
 
 app.innerHTML=`
 <div class="card">
-<h3>📊 Dashboard</h3>
+<h3>Dashboard</h3>
 <p>💰 Rp ${total.toLocaleString("id-ID")}</p>
 <p>📦 ${db.length} Transaksi</p>
 </div>
 
-<div class="menu-center">
-<div class="menu-card" onclick="page('buat')"><span>📦 Buat</span></div>
-<div class="menu-card" onclick="page('riwayat')"><span>📊 Riwayat</span></div>
-<div class="menu-card" onclick="page('grafik')"><span>📈 Grafik</span></div>
-<div class="menu-card" onclick="page('setting')"><span>⚙️ Setting</span></div>
+<div class="menu">
+<div onclick="page('buat')">📦 Buat</div>
+<div onclick="page('riwayat')">📊 Riwayat</div>
+<div onclick="page('grafik')">📈 Grafik</div>
+<div onclick="page('setting')">⚙️ Setting</div>
 </div>
 `;
 }
 
 /* BUAT */
 if(p=="buat"){
-let opt="";
-produk.forEach((x,i)=>{
-opt+=`<option value="${i}">${x.nama} - Rp ${x.harga}</option>`;
-});
+let opt=produk.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
 
 app.innerHTML=`
 <div class="card">
 <button onclick="page('dashboard')">⬅️ Kembali</button>
-<h3>Buat Struk</h3>
 
+<h3>Buat Struk</h3>
 <input id="nama" placeholder="Nama">
 
-<select id="produk" onchange="isiHarga()">
-<option value="">Pilih Produk</option>
+<select id="produk" onchange="autoHarga()">
+<option value="">Pilih</option>
 ${opt}
 <option value="custom">Custom</option>
 </select>
 
-<input id="harga" type="number" placeholder="Harga">
+<input id="harga" placeholder="Harga">
 
 <select id="status">
 <option>SUKSES</option>
@@ -294,11 +135,70 @@ ${opt}
 <option>GAGAL</option>
 </select>
 
-<button onclick="buat()">Buat Struk</button>
-
+<button onclick="buat()">Buat</button>
 <div id="hasil"></div>
 </div>
 `;
+}
+
+/* AUTO HARGA */
+window.autoHarga=function(){
+let v=document.getElementById("produk").value;
+if(v!=="custom" && v!==""){
+document.getElementById("harga").value=produk[v].harga;
+}
+}
+
+/* BUAT */
+window.buat=function(){
+let nama=namaInput("nama");
+let harga=namaInput("harga");
+let status=document.getElementById("status").value;
+
+if(!nama||!harga)return alert("Isi dulu!");
+
+let id="K7N-"+Math.random().toString(36).substr(2,5);
+let t=new Date().toISOString();
+
+let obj={id,nama,harga,status,tanggal:t};
+db.push(obj);save();
+
+hasil.innerHTML=`
+<div id="strukBox" class="struk">
+<h3>K7N STORE</h3>
+<div class="line"></div>
+<p>ID: ${id}</p>
+<p>Nama: ${nama}</p>
+<div class="line"></div>
+<p>Harga: Rp ${Number(harga).toLocaleString("id-ID")}</p>
+<div class="line"></div>
+<p>Status: <span class="${status.toLowerCase()}">${status}</span></p>
+</div>
+
+<button onclick="download()">Download</button>
+<button onclick='wa(${JSON.stringify(obj)})'>WhatsApp</button>
+`;
+}
+
+/* HELPER */
+function namaInput(id){
+return document.getElementById(id).value.trim();
+}
+
+/* DOWNLOAD */
+window.download=function(){
+html2canvas(document.getElementById("strukBox")).then(c=>{
+let a=document.createElement("a");
+a.href=c.toDataURL();
+a.download="struk.png";
+a.click();
+});
+}
+
+/* WA */
+window.wa=function(x){
+let t=`ID:${x.id}\nNama:${x.nama}\nHarga:${x.harga}`;
+window.open("https://wa.me/?text="+encodeURIComponent(t));
 }
 
 /* RIWAYAT */
@@ -309,22 +209,38 @@ html+=`
 <div class="card">
 <b>${x.id}</b><br>
 ${x.nama}<br>
-${x.layanan}<br>
 Rp ${Number(x.harga).toLocaleString("id-ID")}<br>
-<span class="status ${x.status.toLowerCase()}">${x.status}</span>
-
-<button onclick="editData(${i})">Edit</button>
+${x.status}
+<button onclick="edit(${i})">Edit</button>
 <button onclick="hapus(${i})">Hapus</button>
 </div>`;
 });
 app.innerHTML=html;
 }
 
+/* EDIT */
+window.edit=function(i){
+let x=db[i];
+let nama=prompt("Nama",x.nama);
+let harga=prompt("Harga",x.harga);
+let status=prompt("Status",x.status);
+if(!nama||!harga||!status)return;
+db[i]={...x,nama,harga,status};
+save();page("riwayat");
+}
+
+/* HAPUS */
+window.hapus=function(i){
+if(confirm("Hapus?")){
+db.splice(i,1);save();page("riwayat");
+}
+}
+
 /* GRAFIK */
 if(p=="grafik"){
 let map={};
 db.forEach(x=>{
-if(x.status==="SUKSES"){
+if(x.status=="SUKSES"){
 let t=new Date(x.tanggal).toLocaleDateString("id-ID");
 map[t]=(map[t]||0)+Number(x.harga);
 }
@@ -332,11 +248,11 @@ map[t]=(map[t]||0)+Number(x.harga);
 
 app.innerHTML=`
 <button onclick="page('dashboard')">⬅️ Kembali</button>
-<div class="card"><canvas id="c"></canvas></div>
+<canvas id="chart"></canvas>
 `;
 
 setTimeout(()=>{
-new Chart(c,{
+new Chart(chart,{
 type:"line",
 data:{
 labels:Object.keys(map),
@@ -355,111 +271,37 @@ app.innerHTML=`
 <div class="card">
 <button onclick="page('dashboard')">⬅️ Kembali</button>
 
-<h3>Pengaturan</h3>
+<h3>Setting</h3>
 
-<label>Warna Tema</label>
+<label>Tema</label>
 <input type="color" id="color" value="${tema}">
 
-<label>Warna Background</label>
+<label>Background</label>
 <input type="color" id="bgcolor" value="${bg}">
 
-<button onclick="simpanTema()">Simpan</button>
+<button onclick="saveTheme()">Simpan</button>
 </div>
 `;
 }
 
 }
 
-/* AUTO HARGA */
-function isiHarga(){
-let v=document.getElementById("produk").value;
-if(v!=="custom" && v!==""){
-document.getElementById("harga").value=produk[v].harga;
-}
-}
-
-/* BUAT */
-function buat(){
-let nama=document.getElementById("nama").value;
-let harga=document.getElementById("harga").value;
-let status=document.getElementById("status").value;
-let p=document.getElementById("produk").value;
-
-if(!nama||!harga)return alert("Isi dulu!");
-
-let namaProduk=(p==="custom"||p==="")?"Custom":produk[p].nama;
-let id="K7N-"+Math.random().toString(36).substr(2,5);
-let tanggal=new Date().toISOString();
-
-let obj={id,nama,layanan:namaProduk,harga,status,tanggal};
-db.push(obj);
-localStorage.setItem("k7n",JSON.stringify(db));
-
-hasil.innerHTML=`
-<div id="strukBox" class="struk">
-<img src="${logo}" class="logo">
-<h3 style="text-align:center;">K7N STORE</h3>
-<div class="line"></div>
-<p>ID: ${id}</p>
-<p>Nama: ${nama}</p>
-<p>Layanan: ${namaProduk}</p>
-<div class="line"></div>
-<p>Harga: Rp ${Number(harga).toLocaleString("id-ID")}</p>
-<div class="line"></div>
-<p>Status: <span class="status ${status.toLowerCase()}">${status}</span></p>
-</div>
-
-<button onclick="download()">Download</button>
-<button onclick='wa(${JSON.stringify(obj)})'>WhatsApp</button>
-`;
+/* SAVE THEME */
+window.saveTheme=function(){
+let t=document.getElementById("color").value;
+let b=document.getElementById("bgcolor").value;
+localStorage.setItem("tema",t);
+localStorage.setItem("bg",b);
+document.documentElement.style.setProperty('--tema',t);
+document.documentElement.style.setProperty('--bg',b);
+alert("Disimpan!");
 }
 
-/* EDIT */
-function editData(i){
-let x=db[i];
-let nama=prompt("Nama:",x.nama);
-let harga=prompt("Harga:",x.harga);
-let status=prompt("Status:",x.status);
-if(!nama||!harga||!status)return;
-db[i].nama=nama;
-db[i].harga=harga;
-db[i].status=status;
-localStorage.setItem("k7n",JSON.stringify(db));
-page("riwayat");
-}
+window.page=page;
+page("dashboard");
 
-/* HAPUS */
-function hapus(i){
-if(confirm("Hapus?")){
-db.splice(i,1);
-localStorage.setItem("k7n",JSON.stringify(db));
-page("riwayat");
-}
-}
-
-/* DOWNLOAD */
-function download(){
-html2canvas(document.getElementById("strukBox")).then(c=>{
-let a=document.createElement("a");
-a.href=c.toDataURL();
-a.download="struk.png";
-a.click();
 });
-}
+</script>
 
-/* WA */
-function wa(x){
-let t=`ID:${x.id}\nNama:${x.nama}\nHarga:${x.harga}`;
-window.open("https://wa.me/?text="+encodeURIComponent(t));
-}
-
-/* SIMPAN TEMA */
-function simpanTema(){
-let warna=document.getElementById("color").value;
-let bg=document.getElementById("bgcolor").value;
-
-localStorage.setItem("tema",warna);
-localStorage.setItem("bg",bg);
-
-document.documentElement.style.setProperty('--tema',warna);
-document.documentElement.style.setProperty('--bg
+</body>
+</html>
