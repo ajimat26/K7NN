@@ -8,31 +8,101 @@
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <style>
+
+/* ===== ROOT ===== */
 :root{
---tema:#ee4d2d;
---bg:#f5f5f5;
+--tema:#4f46e5;
+--bg:#0f172a;
+--card:#1e293b;
+--text:#e5e7eb;
+--accent:#22d3ee;
 }
 
+/* ===== BODY ===== */
 body{
 margin:0;
 font-family:Arial;
 background:var(--bg);
+color:var(--text);
 }
 
-/* HEADER */
+/* ===== HEADER ===== */
 .header{
-background:var(--tema);
+background:linear-gradient(90deg,#4f46e5,#06b6d4);
 color:white;
-padding:15px;
+padding:16px;
 text-align:center;
 font-size:20px;
+font-weight:bold;
+box-shadow:0 4px 15px rgba(0,0,0,0.3);
 }
 
-/* LAYOUT */
-.container{display:flex;flex-direction:column;height:100vh;}
-.content{flex:1;padding:20px;overflow:auto;}
+/* ===== LAYOUT ===== */
+.container{
+display:flex;
+flex-direction:column;
+height:100vh;
+}
+.content{
+flex:1;
+padding:20px;
+overflow:auto;
+}
 
-/* DASHBOARD MENU */
+/* ===== CARD ===== */
+.card{
+background:var(--card);
+padding:15px;
+border-radius:15px;
+margin-bottom:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.4);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-3px);
+}
+
+/* ===== INPUT ===== */
+input,select{
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:10px;
+border:none;
+background:#0f172a;
+color:white;
+outline:none;
+}
+
+input:focus,select:focus{
+box-shadow:0 0 10px var(--accent);
+}
+
+/* ===== BUTTON ===== */
+button{
+width:100%;
+padding:10px;
+border:none;
+border-radius:10px;
+background:linear-gradient(90deg,#4f46e5,#06b6d4);
+color:white;
+font-weight:bold;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+opacity:0.9;
+transform:scale(1.03);
+}
+
+button:active{
+transform:scale(0.95);
+box-shadow:0 0 15px var(--accent);
+}
+
+/* ===== MENU DASHBOARD ===== */
 .menu-center{
 display:grid;
 grid-template-columns:repeat(2,1fr);
@@ -43,24 +113,25 @@ margin-top:20px;
 .menu-card{
 position:relative;
 padding:20px;
-background:#fff;
+background:var(--card);
 border-radius:15px;
 text-align:center;
 font-weight:bold;
 cursor:pointer;
 overflow:hidden;
-transition:0.2s;
+transition:0.3s;
+border:1px solid rgba(255,255,255,0.05);
 }
 
-/* GARIS NEON */
+/* NEON LINE */
 .menu-card::before{
 content:"";
 position:absolute;
 inset:-2px;
 border-radius:15px;
-background:linear-gradient(90deg,transparent,#00eaff,transparent);
+background:linear-gradient(90deg,transparent,var(--accent),transparent);
 background-size:300% 300%;
-animation:jalan 2s linear infinite;
+animation:jalan 3s linear infinite;
 z-index:0;
 }
 
@@ -68,7 +139,7 @@ z-index:0;
 content:"";
 position:absolute;
 inset:2px;
-background:#fff;
+background:var(--card);
 border-radius:13px;
 z-index:1;
 }
@@ -78,74 +149,67 @@ position:relative;
 z-index:2;
 }
 
-/* EFEK KLIK GLOW */
+.menu-card:hover{
+transform:translateY(-5px);
+box-shadow:0 0 20px var(--accent);
+}
+
 .menu-card:active{
 transform:scale(0.95);
-box-shadow:0 0 20px #00eaff;
+box-shadow:0 0 25px var(--accent);
 }
 
-/* ANIMASI */
-@keyframes jalan{
-0%{background-position:0%;}
-100%{background-position:300%;}
-}
-
-/* CARD */
-.card{
-background:white;
-padding:15px;
-border-radius:10px;
-margin-bottom:10px;
-border:1px solid #eee;
-}
-
-input,select{
-width:100%;
-padding:10px;
-margin:5px 0;
-border-radius:8px;
-border:1px solid #ddd;
-}
-
-button{
-width:100%;
-padding:10px;
-background:var(--tema);
-color:white;
-border:none;
-border-radius:8px;
-margin-top:5px;
-cursor:pointer;
-}
-
-/* STRUK */
+/* ===== STRUK ===== */
 .struk{
-background:#fff;
+background:white;
+color:black;
 padding:15px;
+border-radius:12px;
 margin-top:10px;
 font-family:monospace;
-border-radius:10px;
-color:black;
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
 }
 
-.line{border-bottom:1px dashed #aaa;margin:8px 0;}
-
+/* ===== STATUS ===== */
 .status{
-padding:3px 6px;
-border-radius:5px;
+padding:4px 8px;
+border-radius:6px;
 color:white;
 font-size:12px;
 }
-.sukses{background:green}
-.pending{background:orange}
-.proses{background:blue}
-.gagal{background:red}
+.sukses{background:#22c55e;}
+.pending{background:#f59e0b;}
+.proses{background:#3b82f6;}
+.gagal{background:#ef4444;}
 
+/* ===== LINE ===== */
+.line{
+border-bottom:1px dashed #aaa;
+margin:10px 0;
+}
+
+/* ===== LOGO ===== */
 .logo{
 width:50px;
 display:block;
 margin:auto;
 }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{
+width:6px;
+}
+::-webkit-scrollbar-thumb{
+background:var(--tema);
+border-radius:10px;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes jalan{
+0%{background-position:0%;}
+100%{background-position:300%;}
+}
+
 </style>
 </head>
 
@@ -181,9 +245,7 @@ const logo="https://i.supaimg.com/2c1011f1-f260-4955-af4a-29c7a57d78c9.png";
 /* PAGE */
 function page(p){
 
-/* DASHBOARD */
 if(p=="dashboard"){
-
 let total=0;
 db.forEach(x=>{if(x.status==="SUKSES")total+=Number(x.harga);});
 
@@ -213,8 +275,8 @@ opt+=`<option value="${i}">${x.nama} - Rp ${x.harga}</option>`;
 app.innerHTML=`
 <div class="card">
 <button onclick="page('dashboard')">⬅️ Kembali</button>
-
 <h3>Buat Struk</h3>
+
 <input id="nama" placeholder="Nama">
 
 <select id="produk" onchange="isiHarga()">
@@ -286,8 +348,8 @@ datasets:[{data:Object.values(map),tension:0.3}]
 
 /* SETTING */
 if(p=="setting"){
-let tema=localStorage.getItem("tema")||"#ee4d2d";
-let bg=localStorage.getItem("bg")||"#f5f5f5";
+let tema=localStorage.getItem("tema")||"#4f46e5";
+let bg=localStorage.getItem("bg")||"#0f172a";
 
 app.innerHTML=`
 <div class="card">
@@ -337,19 +399,13 @@ hasil.innerHTML=`
 <div id="strukBox" class="struk">
 <img src="${logo}" class="logo">
 <h3 style="text-align:center;">K7N STORE</h3>
-
 <div class="line"></div>
-
 <p>ID: ${id}</p>
 <p>Nama: ${nama}</p>
 <p>Layanan: ${namaProduk}</p>
-
 <div class="line"></div>
-
 <p>Harga: Rp ${Number(harga).toLocaleString("id-ID")}</p>
-
 <div class="line"></div>
-
 <p>Status: <span class="status ${status.toLowerCase()}">${status}</span></p>
 </div>
 
@@ -406,15 +462,4 @@ localStorage.setItem("tema",warna);
 localStorage.setItem("bg",bg);
 
 document.documentElement.style.setProperty('--tema',warna);
-document.documentElement.style.setProperty('--bg',bg);
-
-alert("Tema disimpan!");
-}
-
-/* START */
-page("dashboard");
-
-</script>
-
-</body>
-</html>
+document.documentElement.style.setProperty('--bg
