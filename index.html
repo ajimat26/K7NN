@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>K7N STORE PRO MAX FINAL</title>
+<title>K7N STORE FINAL STABIL</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -22,7 +22,7 @@ body{margin:0;font-family:Arial;background:var(--bg);color:var(--text);}
 
 .card{background:var(--card);padding:15px;border-radius:12px;margin-bottom:10px;}
 input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;background:#020617;color:white;}
-button{width:100%;padding:10px;margin-top:5px;border:none;border-radius:8px;background:var(--tema);color:white;}
+button{width:100%;padding:10px;margin-top:5px;border:none;border-radius:8px;background:var(--tema);color:white;cursor:pointer;}
 
 .menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
 .menu div{background:var(--card);padding:20px;text-align:center;border-radius:10px;cursor:pointer;}
@@ -55,9 +55,22 @@ const produk=[
 {nama:"Viewer TikTok 1000",harga:800}
 ];
 
-function save(){localStorage.setItem("k7n",JSON.stringify(db));}
+function save(){
+localStorage.setItem("k7n",JSON.stringify(db));
+}
 
-/* DISCORD STRUK */
+/* FORMAT RUPIAH */
+function formatRupiah(angka){
+return "Rp "+Number(angka).toLocaleString("id-ID");
+}
+
+/* INPUT FORMAT */
+function formatInput(el){
+let angka = el.value.replace(/[^0-9]/g,"");
+el.value = angka;
+}
+
+/* DISCORD */
 async function kirimDiscord(d){
 try{
 await fetch(WEBHOOK,{
@@ -65,14 +78,13 @@ method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 username:"K7N STORE",
-content:"💸 Transaksi baru!",
 embeds:[{
 title:"STRUK BARU",
 fields:[
 {name:"ID",value:d.id},
 {name:"Nama",value:d.nama},
 {name:"Produk",value:d.produk},
-{name:"Harga",value:"Rp "+d.harga},
+{name:"Harga",value:formatRupiah(d.harga)},
 {name:"Status",value:d.status}
 ]
 }]
@@ -81,13 +93,13 @@ fields:[
 }catch(e){}
 }
 
-/* DISCORD GRAFIK */
+/* GRAFIK DISCORD */
 async function kirimGrafik(){
 try{
 let map={}, total=0, jumlah=0;
 
 db.forEach(x=>{
-if(x.status=="SUKSES"){
+if(x.status==="SUKSES"){
 let t=new Date(x.tanggal).toLocaleDateString("id-ID");
 map[t]=(map[t]||0)+Number(x.harga);
 total+=Number(x.harga);
@@ -103,7 +115,10 @@ new Chart(canvas,{
 type:"line",
 data:{
 labels:Object.keys(map),
-datasets:[{data:Object.values(map),tension:0.3}]
+datasets:[{
+data:Object.values(map),
+tension:0.3
+}]
 },
 options:{animation:false}
 });
@@ -117,13 +132,11 @@ form.append("file",blob,"grafik.png");
 
 form.append("payload_json",JSON.stringify({
 username:"K7N STORE",
-content:`📊 LAPORAN OTOMATIS
-🕒 ${new Date().toLocaleString("id-ID")}
-💰 Total: Rp ${total.toLocaleString("id-ID")}
-📦 Transaksi: ${jumlah}`
+content:`📊 LAPORAN\n🕒 ${new Date().toLocaleString("id-ID")}\n💰 ${formatRupiah(total)}\n📦 ${jumlah} transaksi`
 }));
 
 await fetch(WEBHOOK,{method:"POST",body:form});
+
 }catch(e){}
 }
 
@@ -132,13 +145,14 @@ setInterval(()=>kirimGrafik(),3600000);
 /* PAGE */
 function page(p){
 
-if(p=="dashboard"){
+if(p==="dashboard"){
 let total=0;
-db.forEach(x=>{if(x.status=="SUKSES")total+=Number(x.harga)});
+db.forEach(x=>{if(x.status==="SUKSES")total+=Number(x.harga)});
+
 app.innerHTML=`
 <div class="card">
 <h3>Dashboard</h3>
-<p>💰 Rp ${total.toLocaleString("id-ID")}</p>
+<p>💰 ${formatRupiah(total)}</p>
 <p>📦 ${db.length} transaksi</p>
 </div>
 
@@ -146,19 +160,17 @@ app.innerHTML=`
 <div onclick="page('buat')">📦 Buat</div>
 <div onclick="page('riwayat')">📊 Riwayat</div>
 <div onclick="page('grafik')">📈 Grafik</div>
-<div onclick="page('setting')">⚙️ Setting</div>
 </div>`;
 }
 
 /* BUAT */
-if(p=="buat"){
+if(p==="buat"){
 let opt=produk.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
 
 app.innerHTML=`
 <div class="card">
 <button onclick="page('dashboard')">⬅️</button>
 
-<h3>Buat Struk</h3>
 <input id="nama" placeholder="Nama">
 
 <select id="produk" onchange="isiHarga()">
@@ -167,8 +179,8 @@ ${opt}
 <option value="custom">Custom</option>
 </select>
 
-<input id="customNama" placeholder="Nama Custom (jika custom)">
-<input id="harga" placeholder="Harga">
+<input id="customNama" placeholder="Nama Custom">
+<input id="harga" placeholder="Harga" oninput="formatInput(this)">
 
 <select id="status">
 <option>SUKSES</option>
@@ -182,43 +194,43 @@ ${opt}
 </div>`;
 }
 
-/* AUTO HARGA */
 window.isiHarga=function(){
 let v=document.getElementById("produk").value;
-if(v!=="custom" && v!==""){
+if(v!=="" && v!=="custom"){
 document.getElementById("harga").value=produk[v].harga;
 }
 }
 
 /* BUAT */
 window.buat=function(){
-let nama=nama.value;
-let harga=harga.value;
-let status=status.value;
+
+let nama=document.getElementById("nama").value;
+let harga=document.getElementById("harga").value;
+let status=document.getElementById("status").value;
 let p=document.getElementById("produk").value;
+let customNama=document.getElementById("customNama").value;
 
-if(!nama||!harga)return alert("Isi data!");
-
-let namaProduk="";
-if(p==="custom"){
-namaProduk=document.getElementById("customNama").value || "Custom";
-}else{
-namaProduk=produk[p].nama;
+if(!nama||!harga){
+alert("Isi data!");
+return;
 }
+
+let namaProduk = p==="custom" ? (customNama||"Custom") : (produk[p]?.nama || "Produk");
 
 let obj={
 id:"K7N-"+Math.random().toString(36).substr(2,5),
 nama,
 produk:namaProduk,
-harga,
+harga:Number(harga),
 status,
 tanggal:new Date().toISOString()
 };
 
-db.push(obj);save();
+db.push(obj);
+save();
 kirimDiscord(obj);
 
-hasil.innerHTML=`
+document.getElementById("hasil").innerHTML=`
 <div id="strukBox" class="struk">
 <h3>K7N STORE</h3>
 <div class="line"></div>
@@ -226,7 +238,7 @@ hasil.innerHTML=`
 <p>Nama: ${nama}</p>
 <p>Produk: ${namaProduk}</p>
 <div class="line"></div>
-<p>Harga: Rp ${Number(harga).toLocaleString("id-ID")}</p>
+<p>Harga: ${formatRupiah(obj.harga)}</p>
 <div class="line"></div>
 <p>Status: ${status}</p>
 </div>
@@ -238,7 +250,7 @@ hasil.innerHTML=`
 
 /* DOWNLOAD */
 window.download=function(){
-html2canvas(strukBox).then(c=>{
+html2canvas(document.getElementById("strukBox")).then(c=>{
 let a=document.createElement("a");
 a.href=c.toDataURL();
 a.download="struk.png";
@@ -248,19 +260,19 @@ a.click();
 
 /* WA */
 window.wa=function(x){
-let t=`ID:${x.id}\nNama:${x.nama}\nProduk:${x.produk}\nHarga:${x.harga}`;
+let t=`ID:${x.id}\nNama:${x.nama}\nProduk:${x.produk}\nHarga:${formatRupiah(x.harga)}`;
 window.open("https://wa.me/?text="+encodeURIComponent(t));
 }
 
 /* RIWAYAT */
-if(p=="riwayat"){
+if(p==="riwayat"){
 let html=`<button onclick="page('dashboard')">⬅️</button>`;
 db.slice().reverse().forEach((x,i)=>{
 html+=`
 <div class="card">
 <b>${x.id}</b><br>
 ${x.nama} - ${x.produk}<br>
-Rp ${Number(x.harga).toLocaleString("id-ID")}<br>
+${formatRupiah(x.harga)}<br>
 ${x.status}
 <button onclick="edit(${i})">Edit</button>
 <button onclick="hapus(${i})">Hapus</button>
@@ -269,75 +281,43 @@ ${x.status}
 app.innerHTML=html;
 }
 
-/* EDIT */
 window.edit=function(i){
 let x=db[i];
-let namaBaru=prompt("Nama",x.nama);
-let produkBaru=prompt("Produk",x.produk);
-let hargaBaru=prompt("Harga",x.harga);
-let statusBaru=prompt("Status",x.status);
+let nama=prompt("Nama",x.nama);
+let produk=prompt("Produk",x.produk);
+let harga=prompt("Harga",x.harga);
+let status=prompt("Status",x.status);
 
-if(!namaBaru||!hargaBaru||!statusBaru)return;
+if(!nama||!harga||!status)return;
 
-db[i]={...x,nama:namaBaru,produk:produkBaru,harga:hargaBaru,status:statusBaru};
+db[i]={...x,nama,produk,harga:Number(harga),status};
 save();page("riwayat");
 }
 
-/* HAPUS */
 window.hapus=function(i){
 if(confirm("Hapus?")){
-db.splice(i,1);save();page("riwayat");
+db.splice(i,1);
+save();
+page("riwayat");
 }
 }
 
 /* GRAFIK */
-if(p=="grafik"){
+if(p==="grafik"){
 let map={};
 db.forEach(x=>{
-if(x.status=="SUKSES"){
+if(x.status==="SUKSES"){
 let t=new Date(x.tanggal).toLocaleDateString("id-ID");
 map[t]=(map[t]||0)+Number(x.harga);
 }
 });
 app.innerHTML=`<button onclick="page('dashboard')">⬅️</button><canvas id="c"></canvas>`;
 setTimeout(()=>{
-new Chart(c,{type:"line",data:{labels:Object.keys(map),datasets:[{data:Object.values(map),tension:0.3}]}})
+new Chart(document.getElementById("c"),{
+type:"line",
+data:{labels:Object.keys(map),datasets:[{data:Object.values(map),tension:0.3}]}
+});
 },100);
-}
-
-/* SETTING */
-if(p=="setting"){
-let tema=localStorage.getItem("tema")||"#4f46e5";
-let bg=localStorage.getItem("bg")||"#0f172a";
-
-app.innerHTML=`
-<div class="card">
-<button onclick="page('dashboard')">⬅️</button>
-
-<h3>Setting</h3>
-
-<label>Tema</label>
-<input type="color" id="t" value="${tema}">
-
-<label>Background</label>
-<input type="color" id="b" value="${bg}">
-
-<button onclick="saveTheme()">Simpan</button>
-</div>`;
-}
-
-/* SAVE THEME */
-window.saveTheme=function(){
-let t=document.getElementById("t").value;
-let b=document.getElementById("b").value;
-
-localStorage.setItem("tema",t);
-localStorage.setItem("bg",b);
-
-document.documentElement.style.setProperty('--tema',t);
-document.documentElement.style.setProperty('--bg',b);
-
-alert("Tema disimpan!");
 }
 
 }
