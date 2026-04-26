@@ -7,24 +7,17 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-:root{
---bg:#0f172a;
---card:#1e293b;
---text:#e5e7eb;
---main:#4f46e5;
-}
-
-body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
-.header{padding:15px;text-align:center;background:var(--main);color:white;font-weight:bold}
+body{margin:0;font-family:Arial;background:#0f172a;color:#e5e7eb}
+.header{background:#4f46e5;padding:15px;text-align:center;color:white;font-weight:bold}
 
 .container{padding:15px}
-.card{background:var(--card);padding:12px;border-radius:12px;margin-bottom:10px}
+.card{background:#1e293b;padding:12px;border-radius:12px;margin-bottom:10px}
 
 input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none}
-button{width:100%;padding:10px;border:none;border-radius:8px;background:var(--main);color:white}
+button{width:100%;padding:10px;border:none;border-radius:8px;background:#4f46e5;color:white}
 
 .menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.menu div{background:var(--card);padding:15px;text-align:center;border-radius:10px;cursor:pointer}
+.menu div{background:#1e293b;padding:15px;text-align:center;border-radius:10px;cursor:pointer}
 
 .struk{background:white;color:black;padding:10px;border-radius:10px}
 </style>
@@ -42,18 +35,11 @@ let db=JSON.parse(localStorage.getItem("k7n"))||[];
 const WEBHOOK_STRUK="https://discord.com/api/webhooks/1497806134692810943/giut3tk-1F64WHwCyas9p6fQcl5q3JCWpWlvhXc3A3yNKiQal6WWLXHfRedlwmcTVVVH";
 const WEBHOOK_GRAFIK="https://discord.com/api/webhooks/1497825833295806477/9avVXxaqYpdlCiR-Rwzgsnw8FeKW218LXMUt9K5BzsxHxVn7ccty8VP7cj2K5gDcQH9V";
 
-function save(){
-localStorage.setItem("k7n",JSON.stringify(db));
-}
-
-function formatRupiah(n){
-return Number(n||0).toLocaleString("id-ID");
-}
+function save(){localStorage.setItem("k7n",JSON.stringify(db))}
+function rp(n){return Number(n||0).toLocaleString("id-ID")}
 
 /* ================= STRUK DISCORD FIX ================= */
 async function sendStruk(x){
-
-const statusFix = x.status || "UNKNOWN";
 
 await fetch(WEBHOOK_STRUK,{
 method:"POST",
@@ -61,22 +47,22 @@ headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 username:"K7N STORE BOT",
 embeds:[{
-title:"🧾 TRANSAKSI K7N STORE",
+title:"🧾 TRANSAKSI BARU",
 color:5814783,
 fields:[
-{ name:"🆔 ID", value:x.id || "-", inline:true },
-{ name:"👤 Nama", value:x.nama || "-", inline:true },
-{ name:"📦 Produk", value:x.produk || "-", inline:false },
-{ name:"💰 Harga", value:"Rp "+formatRupiah(x.harga), inline:true },
-{ name:"📊 Status", value:statusFix, inline:true }
+{name:"🆔 ID",value:x.id,inline:true},
+{name:"👤 Nama",value:x.nama,inline:true},
+{name:"📦 Produk",value:x.produk,inline:false},
+{name:"💰 Harga",value:"Rp "+rp(x.harga),inline:true},
+{name:"📊 Status",value:x.status||"UNKNOWN",inline:true}
 ],
-footer:{ text:"K7N STORE • "+new Date().toLocaleString("id-ID") }
+footer:{text:"K7N STORE • "+new Date().toLocaleString("id-ID")}
 }]
 })
 });
 }
 
-/* ================= GRAFIK DISCORD ================= */
+/* ================= GRAFIK DISCORD (EMBED BOT ASLI) ================= */
 async function sendGrafik(){
 
 let map={}, total=0;
@@ -95,9 +81,7 @@ let values=Object.values(map);
 let max=Math.max(...values,1);
 let h=6;
 
-let msg="📊 LAPORAN GRAFIK K7N STORE\n━━━━━━━━━━━━━━\n";
-msg+="💰 TOTAL: Rp "+formatRupiah(total)+"\n\n";
-msg+="📈 PER HARI:\n\n";
+let grafik="";
 
 for(let i=h;i>=1;i--){
 let line="";
@@ -105,16 +89,37 @@ values.forEach(v=>{
 let lv=Math.round((v/max)*h);
 line+=lv>=i?" ███ ":"     ";
 });
-msg+=line+"\n";
+grafik+=line+"\n";
 }
 
-msg+="──────────────\n";
-msg+=keys.join(" ");
+grafik+="────────────\n";
+grafik+=keys.join(" ");
 
 await fetch(WEBHOOK_GRAFIK,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({content:msg})
+body:JSON.stringify({
+username:"K7N GRAPH BOT",
+embeds:[{
+title:"📊 LAPORAN GRAFIK K7N STORE",
+color:3447003,
+fields:[
+{
+name:"💰 TOTAL PENDAPATAN",
+value:"Rp "+rp(total),
+inline:false
+},
+{
+name:"📈 GRAFIK HARIAN",
+value:"```"+grafik+"```",
+inline:false
+}
+],
+footer:{
+text:"Auto Report • "+new Date().toLocaleString("id-ID")
+}
+}]
+})
 });
 }
 
@@ -124,15 +129,13 @@ setInterval(sendGrafik,3600000);
 function dashboard(){
 
 let total=0;
-db.forEach(x=>{
-if(x.status==="SUKSES") total+=Number(x.harga);
-});
+db.forEach(x=>{if(x.status==="SUKSES") total+=Number(x.harga)});
 
 app.innerHTML=`
 <div class="card">
 <h3>Dashboard</h3>
-<p>💰 Rp ${formatRupiah(total)}</p>
-<p>📦 ${db.length} Transaksi</p>
+<p>💰 Rp ${rp(total)}</p>
+<p>📦 ${db.length} transaksi</p>
 </div>
 
 <div class="menu">
@@ -174,10 +177,10 @@ window.buat=function(){
 
 let obj={
 id:"K7N-"+Math.random().toString(36).slice(2,7),
-nama:document.getElementById("nama").value,
-produk:document.getElementById("produk").value,
-harga:document.getElementById("harga").value,
-status:document.getElementById("status").value,
+nama:nama.value,
+produk:produk.value,
+harga:harga.value,
+status:status.value,
 tanggal:new Date().toISOString()
 };
 
@@ -186,16 +189,15 @@ save();
 
 sendStruk(obj);
 
-document.getElementById("hasil").innerHTML=`
+hasil.innerHTML=`
 <div class="struk">
 <b>STRUK BERHASIL</b><br><br>
 ID: ${obj.id}<br>
 Nama: ${obj.nama}<br>
 Produk: ${obj.produk}<br>
-Harga: Rp ${formatRupiah(obj.harga)}<br>
+Harga: Rp ${rp(obj.harga)}<br>
 Status: ${obj.status}
-</div>
-`;
+</div>`;
 }
 
 /* ================= RIWAYAT ================= */
@@ -208,8 +210,8 @@ html+=`
 <div class="card">
 <b>${x.id}</b><br>
 ${x.nama} - ${x.produk}<br>
-Rp ${formatRupiah(x.harga)}<br>
-Status: ${x.status}<br>
+Rp ${rp(x.harga)}<br>
+${x.status}<br>
 
 <button onclick="edit(${i})">Edit</button>
 <button onclick="hapus(${i})">Hapus</button>
@@ -219,7 +221,6 @@ Status: ${x.status}<br>
 app.innerHTML=html;
 }
 
-/* EDIT */
 window.edit=function(i){
 let x=db[i];
 
@@ -233,7 +234,6 @@ save();
 riwayat();
 }
 
-/* HAPUS */
 window.hapus=function(i){
 if(confirm("Hapus?")){
 db.splice(i,1);
@@ -273,7 +273,6 @@ datasets:[{data:Object.values(map),borderColor:"#4f46e5",tension:0.3}]
 },200);
 }
 
-/* START */
 dashboard();
 </script>
 
