@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>K7N STORE FINAL STABIL</title>
+<title>K7N STORE PRO FINAL</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -20,9 +20,9 @@ body{margin:0;font-family:Arial;background:var(--bg);color:var(--text);}
 .container{display:flex;flex-direction:column;height:100vh;}
 .content{flex:1;padding:20px;overflow:auto;}
 
-.card{background:var(--card);padding:15px;border-radius:12px;margin-bottom:10px;}
-input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;background:#020617;color:white;}
-button{width:100%;padding:10px;margin-top:5px;border:none;border-radius:8px;background:var(--tema);color:white;cursor:pointer;}
+.card{background:var(--card);padding:15px;border-radius:15px;margin-bottom:10px;}
+input,select{width:100%;padding:10px;margin:5px 0;border-radius:10px;border:none;background:#020617;color:white;}
+button{width:100%;padding:10px;margin-top:5px;border:none;border-radius:10px;background:var(--tema);color:white;}
 
 .menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
 .menu div{background:var(--card);padding:20px;text-align:center;border-radius:10px;cursor:pointer;}
@@ -45,57 +45,54 @@ document.addEventListener("DOMContentLoaded", ()=>{
 const app = document.getElementById("app");
 let db = JSON.parse(localStorage.getItem("k7n"))||[];
 
-const WEBHOOK="https://discord.com/api/webhooks/1497825833295806477/9avVXxaqYpdlCiR-Rwzgsnw8FeKW218LXMUt9K5BzsxHxVn7ccty8VP7cj2K5gDcQH9V";
+function save(){localStorage.setItem("k7n",JSON.stringify(db));}
+
+/* 🔥 WEBHOOK */
+const WEBHOOK_TESTI = "https://discord.com/api/webhooks/1497806134692810943/giut3tk-1F64WHwCyas9p6fQcl5q3JCWpWlvhXc3A3yNKiQal6WWLXHfRedlwmcTVVVH";
+const WEBHOOK_GRAFIK = "https://discord.com/api/webhooks/1497825833295806477/9avVXxaqYpdlCiR-Rwzgsnw8FeKW218LXMUt9K5BzsxHxVn7ccty8VP7cj2K5gDcQH9V";
 
 /* PRODUK */
 const produk=[
 {nama:"Follower Indo 100",harga:10500},
 {nama:"Follower Global 100",harga:5000},
 {nama:"Like TikTok 100",harga:800},
-{nama:"Viewer TikTok 1000",harga:800}
+{nama:"Viewer 1000",harga:800}
 ];
 
-function save(){
-localStorage.setItem("k7n",JSON.stringify(db));
+/* FORMAT */
+function rupiah(x){
+return "Rp "+Number(x).toLocaleString("id-ID");
 }
 
-/* FORMAT RUPIAH */
-function formatRupiah(angka){
-return "Rp "+Number(angka).toLocaleString("id-ID");
-}
-
-/* INPUT FORMAT */
-function formatInput(el){
-let angka = el.value.replace(/[^0-9]/g,"");
-el.value = angka;
-}
-
-/* DISCORD */
-async function kirimDiscord(d){
+/* 📤 KIRIM STRUK */
+async function kirimStruk(d){
 try{
-await fetch(WEBHOOK,{
+await fetch(WEBHOOK_TESTI,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 username:"K7N STORE",
 embeds:[{
-title:"STRUK BARU",
+title:"🧾 STRUK BARU",
+color:3066993,
 fields:[
-{name:"ID",value:d.id},
-{name:"Nama",value:d.nama},
+{name:"ID",value:d.id,inline:true},
+{name:"Nama",value:d.nama,inline:true},
 {name:"Produk",value:d.produk},
-{name:"Harga",value:formatRupiah(d.harga)},
+{name:"Harga",value:rupiah(d.harga)},
 {name:"Status",value:d.status}
-]
+],
+timestamp:new Date()
 }]
 })
 });
 }catch(e){}
 }
 
-/* GRAFIK DISCORD */
+/* 📊 KIRIM GRAFIK */
 async function kirimGrafik(){
 try{
+
 let map={}, total=0, jumlah=0;
 
 db.forEach(x=>{
@@ -115,10 +112,7 @@ new Chart(canvas,{
 type:"line",
 data:{
 labels:Object.keys(map),
-datasets:[{
-data:Object.values(map),
-tension:0.3
-}]
+datasets:[{data:Object.values(map),tension:0.3}]
 },
 options:{animation:false}
 });
@@ -132,15 +126,19 @@ form.append("file",blob,"grafik.png");
 
 form.append("payload_json",JSON.stringify({
 username:"K7N STORE",
-content:`📊 LAPORAN\n🕒 ${new Date().toLocaleString("id-ID")}\n💰 ${formatRupiah(total)}\n📦 ${jumlah} transaksi`
+content:`📊 LAPORAN HARIAN
+🕒 ${new Date().toLocaleString("id-ID")}
+💰 ${rupiah(total)}
+📦 ${jumlah} transaksi`
 }));
 
-await fetch(WEBHOOK,{method:"POST",body:form});
+await fetch(WEBHOOK_GRAFIK,{method:"POST",body:form});
 
 }catch(e){}
 }
 
-setInterval(()=>kirimGrafik(),3600000);
+/* kirim tiap 1 jam */
+setInterval(kirimGrafik,3600000);
 
 /* PAGE */
 function page(p){
@@ -152,7 +150,7 @@ db.forEach(x=>{if(x.status==="SUKSES")total+=Number(x.harga)});
 app.innerHTML=`
 <div class="card">
 <h3>Dashboard</h3>
-<p>💰 ${formatRupiah(total)}</p>
+<p>💰 ${rupiah(total)}</p>
 <p>📦 ${db.length} transaksi</p>
 </div>
 
@@ -173,14 +171,14 @@ app.innerHTML=`
 
 <input id="nama" placeholder="Nama">
 
-<select id="produk" onchange="isiHarga()">
+<select id="produk" onchange="autoHarga()">
 <option value="">Pilih Produk</option>
 ${opt}
 <option value="custom">Custom</option>
 </select>
 
 <input id="customNama" placeholder="Nama Custom">
-<input id="harga" placeholder="Harga" oninput="formatInput(this)">
+<input id="harga" placeholder="Harga">
 
 <select id="status">
 <option>SUKSES</option>
@@ -194,7 +192,7 @@ ${opt}
 </div>`;
 }
 
-window.isiHarga=function(){
+window.autoHarga=function(){
 let v=document.getElementById("produk").value;
 if(v!=="" && v!=="custom"){
 document.getElementById("harga").value=produk[v].harga;
@@ -210,12 +208,9 @@ let status=document.getElementById("status").value;
 let p=document.getElementById("produk").value;
 let customNama=document.getElementById("customNama").value;
 
-if(!nama||!harga){
-alert("Isi data!");
-return;
-}
+if(!nama||!harga)return alert("Isi data!");
 
-let namaProduk = p==="custom" ? (customNama||"Custom") : (produk[p]?.nama || "Produk");
+let namaProduk = p==="custom" ? (customNama||"Custom") : (produk[p]?.nama||"Produk");
 
 let obj={
 id:"K7N-"+Math.random().toString(36).substr(2,5),
@@ -228,8 +223,11 @@ tanggal:new Date().toISOString()
 
 db.push(obj);
 save();
-kirimDiscord(obj);
 
+/* kirim ke discord */
+kirimStruk(obj);
+
+/* tampilkan struk */
 document.getElementById("hasil").innerHTML=`
 <div id="strukBox" class="struk">
 <h3>K7N STORE</h3>
@@ -238,7 +236,7 @@ document.getElementById("hasil").innerHTML=`
 <p>Nama: ${nama}</p>
 <p>Produk: ${namaProduk}</p>
 <div class="line"></div>
-<p>Harga: ${formatRupiah(obj.harga)}</p>
+<p>Harga: ${rupiah(obj.harga)}</p>
 <div class="line"></div>
 <p>Status: ${status}</p>
 </div>
@@ -260,7 +258,7 @@ a.click();
 
 /* WA */
 window.wa=function(x){
-let t=`ID:${x.id}\nNama:${x.nama}\nProduk:${x.produk}\nHarga:${formatRupiah(x.harga)}`;
+let t=`ID:${x.id}\nNama:${x.nama}\nProduk:${x.produk}\nHarga:${rupiah(x.harga)}`;
 window.open("https://wa.me/?text="+encodeURIComponent(t));
 }
 
@@ -272,26 +270,12 @@ html+=`
 <div class="card">
 <b>${x.id}</b><br>
 ${x.nama} - ${x.produk}<br>
-${formatRupiah(x.harga)}<br>
+${rupiah(x.harga)}<br>
 ${x.status}
-<button onclick="edit(${i})">Edit</button>
 <button onclick="hapus(${i})">Hapus</button>
 </div>`;
 });
 app.innerHTML=html;
-}
-
-window.edit=function(i){
-let x=db[i];
-let nama=prompt("Nama",x.nama);
-let produk=prompt("Produk",x.produk);
-let harga=prompt("Harga",x.harga);
-let status=prompt("Status",x.status);
-
-if(!nama||!harga||!status)return;
-
-db[i]={...x,nama,produk,harga:Number(harga),status};
-save();page("riwayat");
 }
 
 window.hapus=function(i){
@@ -311,9 +295,11 @@ let t=new Date(x.tanggal).toLocaleDateString("id-ID");
 map[t]=(map[t]||0)+Number(x.harga);
 }
 });
-app.innerHTML=`<button onclick="page('dashboard')">⬅️</button><canvas id="c"></canvas>`;
+
+app.innerHTML=`<button onclick="page('dashboard')">⬅️</button><canvas id="chart"></canvas>`;
+
 setTimeout(()=>{
-new Chart(document.getElementById("c"),{
+new Chart(document.getElementById("chart"),{
 type:"line",
 data:{labels:Object.keys(map),datasets:[{data:Object.values(map),tension:0.3}]}
 });
