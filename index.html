@@ -2,222 +2,302 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>K7N STORE PRO</title>
+<title>K7N STORE PRO MAX</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <style>
 :root{
---tema:#4f46e5;
 --bg:#0f172a;
 --card:#1e293b;
 --text:#e5e7eb;
 }
 
 body{margin:0;font-family:Arial;background:var(--bg);color:var(--text);}
-.header{padding:15px;text-align:center;background:#4f46e5;color:white;font-weight:bold}
-.container{padding:15px}
+.header{
+background:linear-gradient(90deg,#4f46e5,#06b6d4);
+padding:15px;text-align:center;font-weight:bold;color:white;
+}
 
-.card{background:#1e293b;padding:15px;border-radius:12px;margin-bottom:10px}
+.container{display:flex;flex-direction:column;height:100vh;}
+.content{flex:1;padding:15px;overflow:auto;}
 
-input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none}
+.card{
+background:var(--card);
+padding:15px;
+border-radius:12px;
+margin-bottom:10px;
+}
 
-button{width:100%;padding:10px;border:none;border-radius:8px;background:#4f46e5;color:white}
+input,select,button{
+width:100%;
+padding:10px;
+margin-top:5px;
+border-radius:10px;
+border:none;
+}
 
-.menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{background:#4f46e5;color:white;}
 
-.menu div{background:#1e293b;padding:20px;text-align:center;border-radius:10px;cursor:pointer}
+.menu{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+}
 
-.struk{background:white;color:black;padding:10px;border-radius:10px;font-family:monospace}
+.menu div{
+background:var(--card);
+padding:20px;
+text-align:center;
+border-radius:10px;
+cursor:pointer;
+}
+
+.struk{
+background:white;color:black;padding:10px;border-radius:10px;
+}
+
+.line{border-bottom:1px dashed #aaa;margin:5px 0;}
 </style>
 </head>
 
 <body>
 
+<div class="container">
 <div class="header">K7N STORE</div>
-<div class="container" id="app"></div>
+<div class="content" id="app"></div>
+</div>
 
 <script>
 const app=document.getElementById("app");
+
 let db=JSON.parse(localStorage.getItem("k7n"))||[];
 
 const WEBHOOK_STRUK="https://discord.com/api/webhooks/1497806134692810943/giut3tk-1F64WHwCyas9p6fQcl5q3JCWpWlvhXc3A3yNKiQal6WWLXHfRedlwmcTVVVH";
 const WEBHOOK_GRAFIK="https://discord.com/api/webhooks/1497825833295806477/9avVXxaqYpdlCiR-Rwzgsnw8FeKW218LXMUt9K5BzsxHxVn7ccty8VP7cj2K5gDcQH9V";
 
+const produk=[
+{nama:"Follower Indo 100",harga:10500},
+{nama:"Follower Global 100",harga:5000},
+{nama:"Like TikTok 100",harga:800},
+{nama:"Viewer 1000",harga:800}
+];
+
 function save(){
 localStorage.setItem("k7n",JSON.stringify(db));
 }
 
-/* ================= STRUK DISCORD ================= */
+/* ================= DISCORD STRUK ================= */
 async function kirimStruk(x){
-try{
+
+let harga=Number(x.harga).toLocaleString("id-ID");
+
+let status =
+x.status==="SUKSES"?"🟢 SUCCESS":
+x.status==="PENDING"?"🟡 PENDING":
+x.status==="PROSES"?"🔵 PROCESS":"🔴 FAILED";
+
 await fetch(WEBHOOK_STRUK,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-content:
-`🧾 STRUK K7N STORE
-━━━━━━━━━━
-ID: ${x.id}
-Nama: ${x.nama}
-Produk: ${x.produk}
-Harga: Rp ${Number(x.harga).toLocaleString("id-ID")}
-Status: ${x.status}`
+username:"K7N STORE BOT",
+embeds:[{
+title:"🧾 STRUK TRANSAKSI",
+color:3066993,
+description:
+"```" +
+"K7N STORE\n" +
+"---------------------\n" +
+`ID     : ${x.id}\n` +
+`USER   : ${x.nama}\n` +
+`PRODUK : ${x.produk}\n` +
+`HARGA  : Rp ${harga}\n` +
+`STATUS : ${status}\n` +
+"---------------------\n" +
+"```",
+timestamp:new Date()
+}]
 })
 });
-}catch(e){}
 }
 
-/* ================= GRAFIK SHOPEE STYLE ================= */
+/* ================= DISCORD GRAFIK ================= */
 async function kirimGrafik(){
+let el=document.getElementById("chartBox");
 
-let map={}, total=0;
+if(!el) return;
 
-db.forEach(x=>{
-if(x.status==="SUKSES"){
-let t=new Date(x.tanggal).toLocaleDateString("id-ID");
-map[t]=(map[t]||0)+Number(x.harga);
-total+=Number(x.harga);
-}
-});
-
-let keys=Object.keys(map);
-let values=Object.values(map);
-
-let max=Math.max(...values,1);
-let h=5;
-
-let msg="📊 LAPORAN GRAFIK K7N STORE\n━━━━━━━━━━\n";
-msg+="💰 TOTAL: Rp "+total.toLocaleString("id-ID")+"\n\n";
-msg+="📈 PER HARI:\n\n";
-
-/* kotak naik turun (VERTICAL) */
-for(let i=h;i>=1;i--){
-let line="";
-values.forEach(v=>{
-let lv=Math.round((v/max)*h);
-line+=lv>=i?" ███ ":"     ";
-});
-msg+=line+"\n";
-}
-
-msg+="──────────────\n";
-msg+=keys.join(" ");
+let canvas=await html2canvas(el);
+let img=canvas.toDataURL();
 
 await fetch(WEBHOOK_GRAFIK,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({content:msg})
+body:JSON.stringify({
+username:"K7N STORE GRAPH",
+embeds:[{
+title:"📊 LAPORAN GRAFIK",
+image:{url:img},
+timestamp:new Date()
+}]
+})
 });
 }
 
 /* AUTO 1 JAM */
-setInterval(()=>kirimGrafik(),3600000);
+setInterval(()=>{
+if(document.getElementById("chartBox")){
+kirimGrafik();
+}
+},3600000);
 
-/* ================= DASHBOARD ================= */
-function dashboard(){
+/* ================= PAGE ================= */
+function page(p){
 
-let total=0;
-db.forEach(x=>{
-if(x.status==="SUKSES") total+=Number(x.harga);
-});
+if(p==="dashboard"){
+let total=db.reduce((a,b)=>a+(Number(b.harga)||0),0);
 
 app.innerHTML=`
 <div class="card">
 <h3>Dashboard</h3>
-<p>💰 Rp ${total.toLocaleString("id-ID")}</p>
-<p>📦 ${db.length} Transaksi</p>
+<p>Total: Rp ${total.toLocaleString("id-ID")}</p>
+<p>Transaksi: ${db.length}</p>
 </div>
 
 <div class="menu">
-<div onclick="form()">📦 Buat</div>
-<div onclick="riwayat()">📊 Riwayat</div>
-<div onclick="grafik()">📈 Grafik</div>
-<div onclick="kirimGrafik()">⏱ Kirim Grafik</div>
+<div onclick="page('buat')">Buat</div>
+<div onclick="page('riwayat')">Riwayat</div>
+<div onclick="page('grafik')">Grafik</div>
 </div>
 `;
 }
 
-/* ================= FORM ================= */
-function form(){
+/* ================= BUAT ================= */
+if(p==="buat"){
+let opt=produk.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
+
 app.innerHTML=`
 <div class="card">
-<button onclick="dashboard()">⬅ Kembali</button>
-
-<h3>Buat Struk</h3>
-
 <input id="nama" placeholder="Nama">
-<input id="produk" placeholder="Produk">
+
+<select id="produk" onchange="setHarga()">
+<option value="">Pilih Produk</option>
+${opt}
+</select>
+
 <input id="harga" placeholder="Harga">
 
 <select id="status">
 <option>SUKSES</option>
 <option>PENDING</option>
 <option>PROSES</option>
-<option>GAGAL</option>
 </select>
 
 <button onclick="buat()">Buat</button>
-<div id="hasil"></div>
 </div>
 `;
 }
 
-/* ================= BUAT ================= */
+/* AUTO HARGA */
+window.setHarga=function(){
+let v=document.getElementById("produk").value;
+if(v!==""){
+document.getElementById("harga").value=produk[v].harga;
+}
+}
+
+/* BUAT STRUK */
 window.buat=function(){
 
-let obj={
-id:"K7N-"+Math.random().toString(36).slice(2,7),
-nama:nama.value,
-produk:produk.value,
-harga:harga.value,
-status:status.value,
-tanggal:new Date().toISOString()
-};
+let nama=document.getElementById("nama").value;
+let harga=document.getElementById("harga").value;
+let status=document.getElementById("status").value;
 
-db.push(obj);
+let produkNama=document.getElementById("produk");
+produkNama=produkNama.options[produkNama.selectedIndex].text;
+
+let id="K7N-"+Math.random().toString(36).substr(2,5);
+
+let data={id,nama,harga,status,produk:produkNama,tanggal:new Date()};
+db.push(data);
 save();
 
-kirimStruk(obj);
+kirimStruk(data);
 
-hasil.innerHTML=`
-<div class="struk">
-<b>STRUK</b><br><br>
-ID:${obj.id}<br>
-Nama:${obj.nama}<br>
-Produk:${obj.produk}<br>
-Harga:Rp ${Number(obj.harga).toLocaleString("id-ID")}<br>
-Status:${obj.status}
+app.innerHTML+=`
+<div class="card struk">
+<h3>STRUK</h3>
+<div class="line"></div>
+ID: ${id}<br>
+Nama: ${nama}<br>
+Produk: ${produkNama}<br>
+Harga: Rp ${Number(harga).toLocaleString("id-ID")}<br>
+Status: ${status}
 </div>
 `;
 }
 
 /* ================= RIWAYAT ================= */
-function riwayat(){
-let html=`<button onclick="dashboard()">⬅ Kembali</button>`;
-db.slice().reverse().forEach(x=>{
-html+=`
+if(p==="riwayat"){
+app.innerHTML="<button onclick='page(`dashboard`)'>Back</button>";
+
+db.slice().reverse().forEach((x,i)=>{
+app.innerHTML+=`
 <div class="card">
-<b>${x.id}</b><br>
-${x.nama} - ${x.produk}<br>
+${x.id}<br>
+${x.nama}<br>
+${x.produk}<br>
 Rp ${Number(x.harga).toLocaleString("id-ID")}<br>
-${x.status}
+${x.status}<br>
+<button onclick="hapus(${i})">Hapus</button>
 </div>`;
 });
-app.innerHTML=html;
+}
+
+window.hapus=function(i){
+db.splice(i,1);
+save();
+page("riwayat");
 }
 
 /* ================= GRAFIK ================= */
-function grafik(){
+if(p==="grafik"){
+
+let map={};
+
+db.forEach(x=>{
+let t=new Date(x.tanggal).toLocaleDateString("id-ID");
+map[t]=(map[t]||0)+Number(x.harga);
+});
+
 app.innerHTML=`
-<div class="card">
-<button onclick="dashboard()">⬅ Kembali</button>
-<h3>Grafik aktif</h3>
-<p>Gunakan tombol kirim ke Discord</p>
-</div>`;
+<div class="card" id="chartBox">
+<canvas id="c"></canvas>
+</div>
+
+<button onclick="kirimGrafik()">Kirim ke Discord</button>
+`;
+
+setTimeout(()=>{
+new Chart(c,{
+type:"bar",
+data:{
+labels:Object.keys(map),
+datasets:[{
+data:Object.values(map)
+}]
+}
+});
+},100);
 }
 
-dashboard();
+}
+
+/* INIT */
+window.page=page;
+page("dashboard");
 </script>
 
 </body>
