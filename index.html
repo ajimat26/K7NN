@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>K7N STORE PRO FIX V2</title>
+<title>K7N STORE PRO AUTO</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -11,16 +11,12 @@
 body{margin:0;font-family:Arial;background:#0f172a;color:white}
 .header{padding:15px;text-align:center;background:linear-gradient(90deg,#4f46e5,#06b6d4);font-weight:bold}
 .content{padding:20px}
-
 .card{background:#1e293b;padding:15px;border-radius:12px;margin-bottom:10px}
 input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;background:#020617;color:white}
 button{width:100%;padding:10px;margin-top:5px;border:none;border-radius:8px;background:#4f46e5;color:white}
-
 .menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .menu div{background:#1e293b;padding:20px;text-align:center;border-radius:10px;cursor:pointer}
-
 .struk{background:white;color:black;padding:15px;border-radius:10px;font-family:monospace}
-.line{border-bottom:1px dashed #aaa;margin:8px 0}
 </style>
 </head>
 
@@ -41,7 +37,7 @@ function rp(x){return "Rp "+Number(x).toLocaleString("id-ID");}
 const WEBHOOK_STRUK="PASTE_WEBHOOK_STRUK";
 const WEBHOOK_GRAFIK="PASTE_WEBHOOK_GRAFIK";
 
-/* ================= DISCORD STRUK ================= */
+/* ================= STRUK DISCORD ================= */
 async function kirimStruk(d){
 fetch(WEBHOOK_STRUK,{
 method:"POST",
@@ -50,36 +46,33 @@ body:JSON.stringify({
 username:"K7N STORE",
 embeds:[{
 title:"🧾 STRUK BARU",
-color:3066993,
 fields:[
 {name:"ID",value:d.id},
 {name:"Nama",value:d.nama},
 {name:"Produk",value:d.produk},
 {name:"Harga",value:rp(d.harga)},
 {name:"Status",value:d.status}
-],
-timestamp:new Date()
+]
 }]
 })
 });
 }
 
-/* ================= DISCORD GRAFIK (FIX) ================= */
-async function kirimGrafik(img,total,jumlah){
+/* ================= GRAFIK UPLOAD FIX ================= */
+async function kirimGrafikFile(blob,total,jumlah){
+
+let form=new FormData();
+form.append("file",blob,"grafik.png");
+form.append("payload_json",JSON.stringify({
+username:"K7N STORE BOT",
+content:`📊 AUTO REPORT
+💰 Total: ${rp(total)}
+📦 ${jumlah} transaksi`
+}));
 
 fetch(WEBHOOK_GRAFIK,{
 method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-username:"K7N STORE BOT",
-content:`📊 LAPORAN GRAFIK
-💰 Total: ${rp(total)}
-📦 Transaksi: ${jumlah}`,
-embeds:[{
-title:"Grafik Penjualan",
-image:{url:img}
-}]
-})
+body:form
 });
 }
 
@@ -101,20 +94,19 @@ app.innerHTML=`
 <div onclick="page('buat')">Buat</div>
 <div onclick="page('riwayat')">Riwayat</div>
 <div onclick="page('grafik')">Grafik</div>
-<div onclick="location.reload()">Reload</div>
+<div onclick="toggleAuto()">Auto: ${auto?"ON":"OFF"}</div>
 </div>
 `;
 }
 
 /* ================= BUAT ================= */
 if(p==="buat"){
-
 app.innerHTML=`
 <div class="card">
 <button onclick="page('dashboard')">⬅ Kembali</button>
 
-<input id="nama" placeholder="Nama Pembeli">
-<input id="produk" placeholder="Nama Produk (bebas)">
+<input id="nama" placeholder="Nama">
+<input id="produk" placeholder="Produk">
 <input id="harga" placeholder="Harga">
 
 <select id="status">
@@ -125,7 +117,6 @@ app.innerHTML=`
 </select>
 
 <button onclick="buat()">Buat Struk</button>
-
 <div id="hasil"></div>
 </div>
 `;
@@ -143,8 +134,7 @@ if(!nama||!produk||!harga)return alert("Isi semua!");
 
 let obj={
 id:"K7N-"+Math.random().toString(36).substr(2,6),
-nama,
-produk,
+nama,produk,
 harga:Number(harga),
 status,
 tanggal:new Date().toISOString()
@@ -158,20 +148,18 @@ kirimStruk(obj);
 document.getElementById("hasil").innerHTML=`
 <div class="struk" id="strukBox">
 <h3>K7N STORE</h3>
-<div class="line"></div>
-<p>ID: ${obj.id}</p>
-<p>Nama: ${obj.nama}</p>
-<p>Produk: ${obj.produk}</p>
-<div class="line"></div>
-<p>Harga: ${rp(obj.harga)}</p>
-<p>Status: ${obj.status}</p>
+<p>ID:${obj.id}</p>
+<p>${obj.nama}</p>
+<p>${obj.produk}</p>
+<p>${rp(obj.harga)}</p>
+<p>${obj.status}</p>
 </div>
 
 <button onclick="download()">Download</button>
 `;
 };
 
-/* DOWNLOAD */
+/* ================= DOWNLOAD ================= */
 window.download=function(){
 html2canvas(document.getElementById("strukBox")).then(c=>{
 let a=document.createElement("a");
@@ -181,24 +169,19 @@ a.click();
 });
 };
 
-/* ================= RIWAYAT ================= */
-if(p==="riwayat"){
-let html=`<button onclick="page('dashboard')">⬅</button>`;
-db.slice().reverse().forEach(x=>{
-html+=`
-<div class="card">
-<b>${x.id}</b><br>
-${x.nama}<br>
-${x.produk}<br>
-${rp(x.harga)}<br>
-${x.status}
-</div>`;
-});
-app.innerHTML=html;
-}
-
-/* ================= GRAFIK FIX ================= */
+/* ================= GRAFIK ================= */
 if(p==="grafik"){
+
+app.innerHTML=`
+<div class="card">
+<button onclick="page('dashboard')">⬅</button>
+<h3>Grafik + Auto 1 Jam</h3>
+
+<button onclick="sendGrafik()">Kirim Manual</button>
+</div>
+
+<canvas id="chart"></canvas>
+`;
 
 let map={}, total=0, jumlah=0;
 
@@ -211,16 +194,6 @@ jumlah++;
 }
 });
 
-app.innerHTML=`
-<div class="card">
-<button onclick="page('dashboard')">⬅ Kembali</button>
-<h3>Grafik Penjualan</h3>
-<button onclick="send()">📤 Kirim Grafik ke Discord</button>
-</div>
-
-<canvas id="chart"></canvas>
-`;
-
 setTimeout(()=>{
 new Chart(document.getElementById("chart"),{
 type:"line",
@@ -231,25 +204,52 @@ datasets:[{data:Object.values(map),tension:0.3}]
 });
 },200);
 
-/* ================= SEND GRAFIK FIX ================= */
-window.send=function(){
+/* MANUAL SEND */
+window.sendGrafik=function(){
 
 html2canvas(document.getElementById("chart")).then(canvas=>{
-
-let img=canvas.toDataURL("image/png");
-
-/* kirim ke discord sebagai image embed */
-kirimGrafik(img,total,jumlah);
-
-alert("Grafik terkirim!");
+canvas.toBlob(blob=>{
+kirimGrafikFile(blob,total,jumlah);
 });
-
+});
 };
 
 }
 
+/* ================= AUTO GRAFIK 1 JAM ================= */
+let auto=false;
+
+window.toggleAuto=function(){
+auto=!auto;
+alert("Auto Grafik: "+(auto?"ON":"OFF"));
 }
 
+/* loop 1 jam */
+setInterval(()=>{
+
+if(!auto) return;
+
+let map={}, total=0, jumlah=0;
+
+db.forEach(x=>{
+if(x.status==="SUKSES"){
+map[x.tanggal]=1;
+total+=Number(x.harga);
+jumlah++;
+}
+});
+
+html2canvas(document.getElementById("app")||document.body).then(canvas=>{
+canvas.toBlob(blob=>{
+kirimGrafikFile(blob,total,jumlah);
+});
+});
+
+},3600000); // 1 JAM
+
+}
+
+/* START */
 window.page=page;
 page("dashboard");
 
