@@ -4,80 +4,38 @@
 <meta charset="UTF-8">
 <title>K7N STORE PRO</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
 <style>
 body{margin:0;font-family:Arial;background:#0f172a;color:#e5e7eb;}
-
-.header{
-background:linear-gradient(90deg,#4f46e5,#06b6d4);
-padding:15px;
-text-align:center;
-font-weight:bold;
-color:white;
-}
-
+.header{padding:15px;text-align:center;background:linear-gradient(90deg,#4f46e5,#06b6d4);color:white;font-weight:bold;}
 .container{padding:15px;}
 
-.card{
-background:#1e293b;
-padding:15px;
-border-radius:12px;
-margin-bottom:10px;
-}
+.card{background:#1e293b;padding:15px;border-radius:12px;margin-bottom:10px;}
 
 input,select{
-width:100%;
-padding:10px;
-margin:5px 0;
-border:none;
-border-radius:8px;
-background:#0f172a;
-color:white;
+width:100%;padding:10px;margin:5px 0;
+border:none;border-radius:8px;background:#0f172a;color:white;
 }
 
 button{
-width:100%;
-padding:10px;
-margin-top:5px;
-border:none;
-border-radius:8px;
-background:#22d3ee;
-color:black;
-font-weight:bold;
-cursor:pointer;
+width:100%;padding:10px;margin-top:5px;
+border:none;border-radius:8px;background:#22d3ee;color:black;font-weight:bold;
 }
 
 .menu{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
+display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
 }
 
 .menu div{
-background:#1e293b;
-padding:15px;
-text-align:center;
-border-radius:10px;
-cursor:pointer;
+background:#1e293b;padding:15px;text-align:center;
+border-radius:10px;cursor:pointer;
 }
 
 .struk{
-background:white;
-color:black;
-padding:10px;
-border-radius:10px;
+background:white;color:black;padding:10px;border-radius:10px;
 font-family:monospace;
 }
 
 .line{border-bottom:1px dashed #aaa;margin:8px 0;}
-
-.status{padding:3px 6px;border-radius:5px;color:white;}
-.sukses{background:green;}
-.pending{background:orange;}
-.proses{background:blue;}
-.gagal{background:red;}
 </style>
 </head>
 
@@ -94,23 +52,20 @@ let db=JSON.parse(localStorage.getItem("k7n"))||[];
 const WEBHOOK_STRUK="WEBHOOK_STRUK_KAMU";
 const WEBHOOK_GRAFIK="WEBHOOK_GRAFIK_KAMU";
 
-/* SAVE */
 function save(){
 localStorage.setItem("k7n",JSON.stringify(db));
 }
 
-/* FORMAT RUPIAH */
 function rp(x){
 return "Rp "+Number(x).toLocaleString("id-ID");
 }
 
-/* NAV */
+/* ================= DASHBOARD ================= */
 function page(p){
 
-/* DASHBOARD */
 if(p=="dashboard"){
-let total=0;
 
+let total=0;
 db.forEach(x=>{
 if(x.status==="SUKSES") total+=Number(x.harga);
 });
@@ -126,15 +81,12 @@ app.innerHTML=`
 <div onclick="page('buat')">📦 Buat Struk</div>
 <div onclick="page('riwayat')">📊 Riwayat</div>
 <div onclick="page('grafik')">📈 Grafik</div>
-<div onclick="page('setting')">⚙️ Setting</div>
 </div>
 `;
 }
 
-/* BUAT STRUK */
+/* ================= BUAT STRUK ================= */
 if(p=="buat"){
-
-let opt=db.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
 
 app.innerHTML=`
 <div class="card">
@@ -144,7 +96,6 @@ app.innerHTML=`
 
 <input id="nama" placeholder="Nama">
 <input id="produk" placeholder="Nama Produk">
-
 <input id="harga" placeholder="Harga">
 
 <select id="status">
@@ -154,19 +105,19 @@ app.innerHTML=`
 <option>GAGAL</option>
 </select>
 
-<button onclick="buat()">Buat</button>
+<button onclick="buat()">Buat Struk</button>
 
 <div id="hasil"></div>
 </div>
 `;
 }
 
-/* BUAT */
+/* ================= BUAT ================= */
 window.buat=function(){
 
-let nama=document.getElementById("nama").value;
-let produk=document.getElementById("produk").value;
-let harga=document.getElementById("harga").value;
+let nama=namaInput("nama");
+let produk=namaInput("produk");
+let harga=namaInput("harga");
 let status=document.getElementById("status").value;
 
 if(!nama||!produk||!harga)return alert("Isi lengkap!");
@@ -181,7 +132,7 @@ save();
 
 /* STRUK */
 document.getElementById("hasil").innerHTML=`
-<div id="strukBox" class="struk">
+<div class="struk" id="strukBox">
 <h3>K7N STORE</h3>
 <div class="line"></div>
 
@@ -192,37 +143,46 @@ Produk: ${produk}<br>
 <div class="line"></div>
 
 Harga: ${rp(harga)}<br>
-Status: ${status}<br>
+Status: ${status}
 </div>
 
-<button onclick="download()">Download</button>
-<button onclick="sendStruk(${db.length-1})">Kirim WA</button>
+<button onclick="kirimStruk(${db.length-1})">Kirim ke Discord</button>
 `;
 
 }
 
-/* DOWNLOAD */
-window.download=function(){
-html2canvas(document.getElementById("strukBox")).then(c=>{
-let a=document.createElement("a");
-a.href=c.toDataURL();
-a.download="struk.png";
-a.click();
-});
-}
+/* ================= KIRIM STRUK ================= */
+async function kirimStruk(i){
 
-/* WA */
-window.sendStruk=function(i){
 let x=db[i];
-let text=`ID:${x.id}\nProduk:${x.produk}\nHarga:${x.harga}`;
-window.open("https://wa.me/?text="+encodeURIComponent(text));
+
+await fetch(WEBHOOK_STRUK,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:"K7N STORE",
+content:`🧾 STRUK BARU`,
+embeds:[{
+title:"STRUK TRANSAKSI",
+fields:[
+{name:"ID",value:x.id},
+{name:"Nama",value:x.nama},
+{name:"Produk",value:x.produk},
+{name:"Harga",value:rp(x.harga)},
+{name:"Status",value:x.status}
+]
+}]
+})
+});
+
 }
 
-/* RIWAYAT */
+/* ================= RIWAYAT ================= */
 if(p=="riwayat"){
+
 let html=`<button onclick="page('dashboard')">⬅</button>`;
 
-db.forEach((x,i)=>{
+db.slice().reverse().forEach((x,i)=>{
 html+=`
 <div class="card">
 <b>${x.id}</b><br>
@@ -230,7 +190,6 @@ ${x.nama} - ${x.produk}<br>
 ${rp(x.harga)}<br>
 ${x.status}<br>
 
-<button onclick="edit(${i})">Edit</button>
 <button onclick="hapus(${i})">Hapus</button>
 </div>
 `;
@@ -239,21 +198,6 @@ ${x.status}<br>
 app.innerHTML=html;
 }
 
-/* EDIT */
-window.edit=function(i){
-let x=db[i];
-
-let nama=prompt("Nama",x.nama);
-let produk=prompt("Produk",x.produk);
-let harga=prompt("Harga",x.harga);
-let status=prompt("Status",x.status);
-
-db[i]={...x,nama,produk,harga,status};
-save();
-page("riwayat");
-}
-
-/* HAPUS */
 window.hapus=function(i){
 if(confirm("Hapus?")){
 db.splice(i,1);
@@ -262,81 +206,110 @@ page("riwayat");
 }
 }
 
-/* GRAFIK */
+/* ================= GRAFIK ASCII ================= */
 if(p=="grafik"){
 
-let map={}, total=0;
+let map={}, total=0,jumlah=0;
 
 db.forEach(x=>{
 if(x.status==="SUKSES"){
 let t=new Date(x.tanggal).toLocaleDateString("id-ID");
 map[t]=(map[t]||0)+Number(x.harga);
 total+=Number(x.harga);
+jumlah++;
 }
 });
+
+let keys=Object.keys(map);
+let values=Object.values(map);
+let max=Math.max(...values);
+
+let height=5;
+
+let msg="📊 LAPORAN GRAFIK K7N STORE\n━━━━━━━━━━━━━━━━━━\n\n";
+msg+=`💰 TOTAL: ${rp(total)}\n`;
+msg+=`📦 TRANSAKSI: ${jumlah}\n\n`;
+msg+=`📈 PER HARI:\n\n`;
+
+/* BAR VERTICAL */
+for(let i=height;i>=1;i--){
+let line="";
+values.forEach(v=>{
+let level=Math.round((v/max)*height);
+line+= level>=i ? "   ███  " : "       ";
+});
+msg+=line+"\n";
+}
+
+msg+="──────────────\n";
+msg+=keys.map(k=>k.slice(0,5)).join("  ")+"\n\n";
+msg+=values.map(v=>"("+Math.round(v/1000)+"k)").join("   ");
 
 app.innerHTML=`
+<div class="card">
 <button onclick="page('dashboard')">⬅</button>
-<canvas id="chart"></canvas>
-
-<button onclick="sendGrafik()">Kirim Grafik Discord</button>
+<pre>${msg}</pre>
+<button onclick="kirimGrafik()">Kirim Grafik Discord</button>
+</div>
 `;
+}
 
-setTimeout(()=>{
+/* ================= KIRIM GRAFIK ================= */
+window.kirimGrafik=function(){
 
-window.myChart=new Chart(chart,{
-type:"bar",
-data:{
-labels:Object.keys(map),
-datasets:[{
-data:Object.values(map),
-backgroundColor:"#22d3ee"
-}]
-},
-options:{
-plugins:{legend:{display:false}}
+let map={}, total=0,jumlah=0;
+
+db.forEach(x=>{
+if(x.status==="SUKSES"){
+let t=new Date(x.tanggal).toLocaleDateString("id-ID");
+map[t]=(map[t]||0)+Number(x.harga);
+total+=Number(x.harga);
+jumlah++;
 }
 });
 
-},300);
+let keys=Object.keys(map);
+let values=Object.values(map);
+let max=Math.max(...values);
+let height=5;
+
+let msg="📊 LAPORAN GRAFIK K7N STORE\n━━━━━━━━━━━━━━━━━━\n\n";
+msg+=`💰 TOTAL: ${rp(total)}\n`;
+msg+=`📦 TRANSAKSI: ${jumlah}\n\n`;
+msg+=`📈 PER HARI:\n\n`;
+
+for(let i=height;i>=1;i--){
+let line="";
+values.forEach(v=>{
+let level=Math.round((v/max)*height);
+line+= level>=i ? "   ███  " : "       ";
+});
+msg+=line+"\n";
 }
 
-/* KIRIM GRAFIK */
-window.sendGrafik=function(){
-
-html2canvas(document.getElementById("chart")).then(img=>{
+msg+="──────────────\n";
+msg+=keys.map(k=>k.slice(0,5)).join("  ")+"\n\n";
+msg+=values.map(v=>"("+Math.round(v/1000)+"k)").join("   ");
 
 fetch(WEBHOOK_GRAFIK,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 username:"K7N STORE",
-content:"📊 GRAFIK PENJUALAN",
-embeds:[{
-image:{url:img.toDataURL()}
-}]
+content:msg
 })
 });
 
-});
-
 }
 
-/* SETTING */
-if(p=="setting"){
-app.innerHTML=`
-<div class="card">
-<button onclick="page('dashboard')">⬅</button>
-<h3>Setting</h3>
-<p>Coming soon...</p>
-</div>
-`;
-}
-
+/* ================= HELP ================= */
+function namaInput(id){
+return document.getElementById(id).value.trim();
 }
 
 window.page=page;
 page("dashboard");
+
 </script>
 
 </body>
