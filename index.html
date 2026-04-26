@@ -2,168 +2,92 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>K7N STORE PRO MAX STABLE</title>
+<title>K7N STORE FINAL PRO</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <style>
-:root{
---tema:#4f46e5;
---bg:#0f172a;
---card:#1e293b;
---text:#e5e7eb;
-}
+body{margin:0;font-family:Arial;background:#0f172a;color:white}
+.header{padding:15px;text-align:center;background:linear-gradient(90deg,#4f46e5,#06b6d4);font-weight:bold}
+.content{padding:20px}
 
-body{
-margin:0;
-font-family:Arial;
-background:var(--bg);
-color:var(--text);
-}
+.card{background:#1e293b;padding:15px;border-radius:12px;margin-bottom:10px}
 
-.header{
-background:linear-gradient(90deg,#4f46e5,#06b6d4);
-padding:15px;
-text-align:center;
-font-weight:bold;
-color:white;
-}
+input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;background:#020617;color:white}
 
-.container{
-display:flex;
-flex-direction:column;
-height:100vh;
-}
+button{width:100%;padding:10px;margin-top:5px;border:none;border-radius:8px;background:#4f46e5;color:white}
 
-.content{
-flex:1;
-padding:20px;
-overflow:auto;
-}
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 
-.card{
-background:var(--card);
-padding:15px;
-border-radius:15px;
-margin-bottom:10px;
-}
+.menu div{background:#1e293b;padding:20px;text-align:center;border-radius:10px;cursor:pointer}
 
-input,select{
-width:100%;
-padding:10px;
-margin:5px 0;
-border-radius:10px;
-border:none;
-background:#020617;
-color:white;
-}
-
-button{
-width:100%;
-padding:10px;
-margin-top:5px;
-border:none;
-border-radius:10px;
-background:var(--tema);
-color:white;
-cursor:pointer;
-}
-
-.menu{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-}
-
-.menu div{
-background:var(--card);
-padding:20px;
-text-align:center;
-border-radius:10px;
-cursor:pointer;
-}
-
-.struk{
-background:white;
-color:black;
-padding:15px;
-border-radius:10px;
-margin-top:10px;
-font-family:monospace;
-}
-
-.line{
-border-bottom:1px dashed #aaa;
-margin:8px 0;
-}
+.struk{background:white;color:black;padding:15px;border-radius:10px;font-family:monospace}
 </style>
 </head>
 
 <body>
 
-<div class="container">
 <div class="header">K7N STORE</div>
-<div class="content" id="app"></div>
-</div>
+<div class="content" id="app">Loading...</div>
 
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
 
-const app=document.getElementById("app");
+let app=document.getElementById("app");
 
-/* 🔥 AUTO SAVE DATABASE (ANTI HILANG) */
-let db = JSON.parse(localStorage.getItem("k7n_db")) || [];
+/* DATABASE */
+let db=JSON.parse(localStorage.getItem("k7n_db"))||[];
 
 function save(){
 localStorage.setItem("k7n_db",JSON.stringify(db));
 }
 
-/* WEBHOOK */
-const WEBHOOK_STRUK="https://discord.com/api/webhooks/1497806134692810943/giut3tk-1F64WHwCyas9p6fQcl5q3JCWpWlvhXc3A3yNKiQal6WWLXHfRedlwmcTVVVH";
-const WEBHOOK_GRAFIK="https://discord.com/api/webhooks/1497825833295806477/9avVXxaqYpdlCiR-Rwzgsnw8FeKW218LXMUt9K5BzsxHxVn7ccty8VP7cj2K5gDcQH9V";
-
-/* FORMAT RUPIAH */
 function rp(x){
 return "Rp "+Number(x).toLocaleString("id-ID");
 }
 
-/* PRODUK */
-const produk=[
-{nama:"Follower Indo 100",harga:10500},
-{nama:"Follower Global 100",harga:5000},
-{nama:"Like TikTok 100",harga:800},
-{nama:"Viewer 1000",harga:800}
-];
+/* 🔥 WEBHOOK (PASTE DI SINI) */
+const WEBHOOK="PASTE_WEBHOOK_DISCORD_KAMU";
 
 /* =========================
    DISCORD STRUK
 ========================= */
-async function kirimStruk(d){
-fetch(WEBHOOK_STRUK,{
+async function kirimDiscord(d){
+
+if(!WEBHOOK) return;
+
+try{
+
+fetch(WEBHOOK,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 username:"K7N STORE",
 embeds:[{
-title:"🧾 STRUK BARU",
+title:"🧾 TRANSAKSI BARU",
+color:3066993,
 fields:[
 {name:"ID",value:d.id},
 {name:"Nama",value:d.nama},
-{name:"Produk",value:d.produk},
 {name:"Harga",value:rp(d.harga)},
 {name:"Status",value:d.status}
-]
+],
+timestamp:new Date()
 }]
 })
 });
+
+}catch(e){
+console.log("Discord error",e);
+}
 }
 
 /* =========================
-   DASHBOARD
+   PAGE SYSTEM
 ========================= */
 function page(p){
 
+/* DASHBOARD */
 if(p==="dashboard"){
 
 let total=0;
@@ -175,36 +99,26 @@ app.innerHTML=`
 <div class="card">
 <h3>Dashboard</h3>
 <p>💰 ${rp(total)}</p>
-<p>📦 ${db.length} transaksi</p>
+<p>📦 ${db.length}</p>
 </div>
 
 <div class="menu">
-<div onclick="page('buat')">📦 Buat</div>
-<div onclick="page('riwayat')">📊 Riwayat</div>
-<div onclick="page('grafik')">📈 Grafik</div>
-</div>`;
+<div onclick="page('buat')">Buat</div>
+<div onclick="page('riwayat')">Riwayat</div>
+<div onclick="page('grafik')">Grafik</div>
+<div onclick="location.reload()">Reload</div>
+</div>
+`;
 }
 
-/* =========================
-   BUAT STRUK
-========================= */
+/* BUAT */
 if(p==="buat"){
-
-let opt=produk.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
 
 app.innerHTML=`
 <div class="card">
-<button onclick="page('dashboard')">⬅️ Kembali</button>
+<button onclick="page('dashboard')">⬅ Kembali</button>
 
 <input id="nama" placeholder="Nama">
-
-<select id="produk" onchange="autoHarga()">
-<option value="">Pilih</option>
-${opt}
-<option value="custom">Custom</option>
-</select>
-
-<input id="customNama" placeholder="Custom Produk">
 <input id="harga" placeholder="Harga">
 
 <select id="status">
@@ -215,36 +129,24 @@ ${opt}
 </select>
 
 <button onclick="buat()">Buat Struk</button>
+
 <div id="hasil"></div>
-</div>`;
+</div>
+`;
 }
 
-window.autoHarga=function(){
-let v=document.getElementById("produk").value;
-if(v!=="" && v!=="custom"){
-document.getElementById("harga").value=produk[v].harga;
-}
-}
-
-/* =========================
-   BUAT FUNCTION
-========================= */
+/* BUAT STRUK */
 window.buat=function(){
 
 let nama=document.getElementById("nama").value;
 let harga=document.getElementById("harga").value;
 let status=document.getElementById("status").value;
-let p=document.getElementById("produk").value;
-let custom=document.getElementById("customNama").value;
 
 if(!nama||!harga)return alert("Isi data!");
 
-let namaProduk = p==="custom" ? (custom||"Custom") : produk[p].nama;
-
 let obj={
-id:"K7N-"+Math.random().toString(36).substr(2,5),
+id:"K7N-"+Math.random().toString(36).substr(2,6),
 nama,
-produk:namaProduk,
 harga:Number(harga),
 status,
 tanggal:new Date().toISOString()
@@ -253,27 +155,23 @@ tanggal:new Date().toISOString()
 db.push(obj);
 save();
 
-/* kirim discord */
-kirimStruk(obj);
+/* 🔥 KIRIM DISCORD */
+kirimDiscord(obj);
 
-/* tampil struk */
+/* STRUK */
 document.getElementById("hasil").innerHTML=`
-<div id="strukBox" class="struk">
+<div class="struk" id="strukBox">
 <h3>K7N STORE</h3>
-<div class="line"></div>
 <p>ID: ${obj.id}</p>
-<p>Nama: ${nama}</p>
-<p>Produk: ${namaProduk}</p>
-<div class="line"></div>
-<p>Harga: ${rp(obj.harga)}</p>
-<div class="line"></div>
-<p>Status: ${status}</p>
+<p>Nama: ${obj.nama}</p>
+<p>${rp(obj.harga)}</p>
+<p>Status: ${obj.status}</p>
 </div>
 
 <button onclick="download()">Download</button>
-<button onclick='wa(${JSON.stringify(obj)})'>WhatsApp</button>
+<button onclick="wa()">WhatsApp</button>
 `;
-}
+};
 
 /* DOWNLOAD */
 window.download=function(){
@@ -283,166 +181,72 @@ a.href=c.toDataURL();
 a.download="struk.png";
 a.click();
 });
-}
+};
 
 /* WA */
-window.wa=function(x){
-let t=`ID:${x.id}\nNama:${x.nama}\nProduk:${x.produk}\nHarga:${rp(x.harga)}`;
-window.open("https://wa.me/?text="+encodeURIComponent(t));
-}
+window.wa=function(){
+let x=db[db.length-1];
+window.open("https://wa.me/?text="+encodeURIComponent(
+`ID:${x.id}\nNama:${x.nama}\nHarga:${x.harga}`
+));
+};
 
-/* =========================
-   RIWAYAT
-========================= */
+/* RIWAYAT */
 if(p==="riwayat"){
-let html=`<button onclick="page('dashboard')">⬅️</button>`;
-db.slice().reverse().forEach((x,i)=>{
+
+let html=`<button onclick="page('dashboard')">⬅</button>`;
+
+db.slice().reverse().forEach(x=>{
 html+=`
 <div class="card">
 <b>${x.id}</b><br>
-${x.nama} - ${x.produk}<br>
+${x.nama}<br>
 ${rp(x.harga)}<br>
 ${x.status}
 </div>`;
 });
+
 app.innerHTML=html;
 }
 
-/* =========================
-   GRAFIK + AUTO + MANUAL
-========================= */
+/* GRAFIK */
 if(p==="grafik"){
 
-function dataGrafik(){
-let map={}, total=0,jumlah=0;
+let map={};
 
 db.forEach(x=>{
 if(x.status==="SUKSES"){
 let t=new Date(x.tanggal).toLocaleDateString("id-ID");
 map[t]=(map[t]||0)+Number(x.harga);
-total+=Number(x.harga);
-jumlah++;
 }
 });
 
-return {map,total,jumlah};
-}
-
-let d=dataGrafik();
-
 app.innerHTML=`
 <div class="card">
-<button onclick="page('dashboard')">⬅️ Kembali</button>
-
-<h3>📊 Grafik Realtime</h3>
-
-<p>⏰ ${new Date().toLocaleString("id-ID")}</p>
-<p>💰 ${rp(d.total)}</p>
-<p>📦 ${d.jumlah}</p>
-
-<button onclick="kirimManual()">📤 Kirim Manual</button>
-
+<button onclick="page('dashboard')">⬅ Kembali</button>
+<h3>Grafik Penjualan</h3>
 </div>
 
 <canvas id="chart"></canvas>
 `;
 
-/* chart */
 setTimeout(()=>{
-new Chart(chart,{
+new Chart(document.getElementById("chart"),{
 type:"line",
 data:{
-labels:Object.keys(d.map),
-datasets:[{data:Object.values(d.map),tension:0.3}]
+labels:Object.keys(map),
+datasets:[{data:Object.values(map),tension:0.3}]
 }
 });
-},100);
-
-/* =========================
-   MANUAL SEND
-========================= */
-window.kirimManual = async function(){
-
-let d=dataGrafik();
-
-let canvas=document.createElement("canvas");
-canvas.width=800;
-canvas.height=400;
-
-new Chart(canvas,{
-type:"line",
-data:{
-labels:Object.keys(d.map),
-datasets:[{data:Object.values(d.map),tension:0.3}]
+},200);
 }
-});
-
-await new Promise(r=>setTimeout(r,500));
-
-const blob=await new Promise(res=>canvas.toBlob(res));
-
-let form=new FormData();
-form.append("file",blob,"grafik.png");
-
-form.append("payload_json",JSON.stringify({
-username:"K7N STORE",
-content:`📊 MANUAL REPORT
-⏰ ${new Date().toLocaleString("id-ID")}
-💰 ${rp(d.total)}
-📦 ${d.jumlah}`
-}));
-
-fetch(WEBHOOK_GRAFIK,{method:"POST",body:form});
-
-alert("Terkirim!");
-};
-
-/* =========================
-   AUTO SEND 1 JAM
-========================= */
-setInterval(()=>{
-
-let d=dataGrafik();
-
-let canvas=document.createElement("canvas");
-canvas.width=800;
-canvas.height=400;
-
-new Chart(canvas,{
-type:"line",
-data:{
-labels:Object.keys(d.map),
-datasets:[{data:Object.values(d.map),tension:0.3}]
-}
-});
-
-setTimeout(async ()=>{
-
-const blob=await new Promise(res=>canvas.toBlob(res));
-
-let form=new FormData();
-form.append("file",blob,"auto.png");
-
-form.append("payload_json",JSON.stringify({
-username:"AUTO BOT",
-content:`🤖 AUTO REPORT
-⏰ ${new Date().toLocaleString("id-ID")}
-💰 ${rp(d.total)}`
-}));
-
-fetch(WEBHOOK_GRAFIK,{method:"POST",body:form});
-
-},500);
-
-},3600000);
 
 }
 
-/* LOAD */
+/* START */
 window.page=page;
 page("dashboard");
 
-});
 </script>
 
 </body>
