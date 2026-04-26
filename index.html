@@ -29,9 +29,6 @@ button{width:100%;padding:10px;margin-top:5px;border:none;border-radius:8px;back
 
 .struk{background:white;color:black;padding:15px;border-radius:10px;margin-top:10px;font-family:monospace;}
 .line{border-bottom:1px dashed #aaa;margin:8px 0;}
-
-.status{padding:4px;border-radius:5px;color:white;font-size:12px;}
-.sukses{background:green}.pending{background:orange}.proses{background:blue}.gagal{background:red}
 </style>
 </head>
 
@@ -50,9 +47,17 @@ let db = JSON.parse(localStorage.getItem("k7n"))||[];
 
 const WEBHOOK="https://discord.com/api/webhooks/1497825833295806477/9avVXxaqYpdlCiR-Rwzgsnw8FeKW218LXMUt9K5BzsxHxVn7ccty8VP7cj2K5gDcQH9V";
 
+/* PRODUK */
+const produk=[
+{nama:"Follower Indo 100",harga:10500},
+{nama:"Follower Global 100",harga:5000},
+{nama:"Like TikTok 100",harga:800},
+{nama:"Viewer TikTok 1000",harga:800}
+];
+
 function save(){localStorage.setItem("k7n",JSON.stringify(db));}
 
-/* ===== DISCORD STRUK ===== */
+/* DISCORD STRUK */
 async function kirimDiscord(d){
 try{
 await fetch(WEBHOOK,{
@@ -66,6 +71,7 @@ title:"STRUK BARU",
 fields:[
 {name:"ID",value:d.id},
 {name:"Nama",value:d.nama},
+{name:"Produk",value:d.produk},
 {name:"Harga",value:"Rp "+d.harga},
 {name:"Status",value:d.status}
 ]
@@ -75,7 +81,7 @@ fields:[
 }catch(e){}
 }
 
-/* ===== DISCORD GRAFIK ===== */
+/* DISCORD GRAFIK */
 async function kirimGrafik(){
 try{
 let map={}, total=0, jumlah=0;
@@ -97,12 +103,7 @@ new Chart(canvas,{
 type:"line",
 data:{
 labels:Object.keys(map),
-datasets:[{
-label:"Pendapatan",
-data:Object.values(map),
-borderWidth:3,
-tension:0.3
-}]
+datasets:[{data:Object.values(map),tension:0.3}]
 },
 options:{animation:false}
 });
@@ -123,16 +124,14 @@ content:`📊 LAPORAN OTOMATIS
 }));
 
 await fetch(WEBHOOK,{method:"POST",body:form});
-}catch(e){console.log(e);}
+}catch(e){}
 }
 
-/* AUTO 1 JAM */
 setInterval(()=>kirimGrafik(),3600000);
 
-/* ===== PAGE ===== */
+/* PAGE */
 function page(p){
 
-/* DASHBOARD */
 if(p=="dashboard"){
 let total=0;
 db.forEach(x=>{if(x.status=="SUKSES")total+=Number(x.harga)});
@@ -153,11 +152,22 @@ app.innerHTML=`
 
 /* BUAT */
 if(p=="buat"){
+let opt=produk.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
+
 app.innerHTML=`
 <div class="card">
 <button onclick="page('dashboard')">⬅️</button>
 
+<h3>Buat Struk</h3>
 <input id="nama" placeholder="Nama">
+
+<select id="produk" onchange="isiHarga()">
+<option value="">Pilih Produk</option>
+${opt}
+<option value="custom">Custom</option>
+</select>
+
+<input id="customNama" placeholder="Nama Custom (jika custom)">
 <input id="harga" placeholder="Harga">
 
 <select id="status">
@@ -172,17 +182,37 @@ app.innerHTML=`
 </div>`;
 }
 
-/* BUAT LOGIC */
+/* AUTO HARGA */
+window.isiHarga=function(){
+let v=document.getElementById("produk").value;
+if(v!=="custom" && v!==""){
+document.getElementById("harga").value=produk[v].harga;
+}
+}
+
+/* BUAT */
 window.buat=function(){
 let nama=nama.value;
 let harga=harga.value;
 let status=status.value;
+let p=document.getElementById("produk").value;
 
 if(!nama||!harga)return alert("Isi data!");
 
+let namaProduk="";
+if(p==="custom"){
+namaProduk=document.getElementById("customNama").value || "Custom";
+}else{
+namaProduk=produk[p].nama;
+}
+
 let obj={
 id:"K7N-"+Math.random().toString(36).substr(2,5),
-nama,harga,status,tanggal:new Date().toISOString()
+nama,
+produk:namaProduk,
+harga,
+status,
+tanggal:new Date().toISOString()
 };
 
 db.push(obj);save();
@@ -194,6 +224,7 @@ hasil.innerHTML=`
 <div class="line"></div>
 <p>ID: ${obj.id}</p>
 <p>Nama: ${nama}</p>
+<p>Produk: ${namaProduk}</p>
 <div class="line"></div>
 <p>Harga: Rp ${Number(harga).toLocaleString("id-ID")}</p>
 <div class="line"></div>
@@ -217,7 +248,7 @@ a.click();
 
 /* WA */
 window.wa=function(x){
-let t=`ID:${x.id}\nNama:${x.nama}\nHarga:${x.harga}`;
+let t=`ID:${x.id}\nNama:${x.nama}\nProduk:${x.produk}\nHarga:${x.harga}`;
 window.open("https://wa.me/?text="+encodeURIComponent(t));
 }
 
@@ -228,7 +259,7 @@ db.slice().reverse().forEach((x,i)=>{
 html+=`
 <div class="card">
 <b>${x.id}</b><br>
-${x.nama}<br>
+${x.nama} - ${x.produk}<br>
 Rp ${Number(x.harga).toLocaleString("id-ID")}<br>
 ${x.status}
 <button onclick="edit(${i})">Edit</button>
@@ -242,12 +273,13 @@ app.innerHTML=html;
 window.edit=function(i){
 let x=db[i];
 let namaBaru=prompt("Nama",x.nama);
+let produkBaru=prompt("Produk",x.produk);
 let hargaBaru=prompt("Harga",x.harga);
 let statusBaru=prompt("Status",x.status);
 
 if(!namaBaru||!hargaBaru||!statusBaru)return;
 
-db[i]={...x,nama:namaBaru,harga:hargaBaru,status:statusBaru};
+db[i]={...x,nama:namaBaru,produk:produkBaru,harga:hargaBaru,status:statusBaru};
 save();page("riwayat");
 }
 
@@ -269,10 +301,7 @@ map[t]=(map[t]||0)+Number(x.harga);
 });
 app.innerHTML=`<button onclick="page('dashboard')">⬅️</button><canvas id="c"></canvas>`;
 setTimeout(()=>{
-new Chart(c,{
-type:"line",
-data:{labels:Object.keys(map),datasets:[{data:Object.values(map),tension:0.3}]}
-});
+new Chart(c,{type:"line",data:{labels:Object.keys(map),datasets:[{data:Object.values(map),tension:0.3}]}})
 },100);
 }
 
