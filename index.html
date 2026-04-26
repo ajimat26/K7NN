@@ -8,18 +8,18 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#0f172a;color:#e5e7eb}
-.header{background:#4f46e5;padding:15px;text-align:center;color:white;font-weight:bold}
-
+.header{padding:15px;text-align:center;background:#4f46e5;font-weight:bold;color:white}
 .container{padding:15px}
-.card{background:#1e293b;padding:12px;border-radius:12px;margin-bottom:10px}
+
+.card{background:#1e293b;padding:15px;border-radius:12px;margin-bottom:10px}
 
 input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none}
-button{width:100%;padding:10px;border:none;border-radius:8px;background:#4f46e5;color:white}
+button{width:100%;padding:10px;border:none;border-radius:8px;background:#4f46e5;color:white;cursor:pointer}
 
 .menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.menu div{background:#1e293b;padding:15px;text-align:center;border-radius:10px;cursor:pointer}
+.menu div{background:#1e293b;padding:20px;text-align:center;border-radius:10px;cursor:pointer}
 
-.struk{background:white;color:black;padding:10px;border-radius:10px}
+.struk{background:white;color:black;padding:10px;border-radius:10px;font-family:monospace}
 </style>
 </head>
 
@@ -30,111 +30,101 @@ button{width:100%;padding:10px;border:none;border-radius:8px;background:#4f46e5;
 
 <script>
 const app=document.getElementById("app");
+
 let db=JSON.parse(localStorage.getItem("k7n"))||[];
 
 const WEBHOOK_STRUK="https://discord.com/api/webhooks/1497806134692810943/giut3tk-1F64WHwCyas9p6fQcl5q3JCWpWlvhXc3A3yNKiQal6WWLXHfRedlwmcTVVVH";
 const WEBHOOK_GRAFIK="https://discord.com/api/webhooks/1497825833295806477/9avVXxaqYpdlCiR-Rwzgsnw8FeKW218LXMUt9K5BzsxHxVn7ccty8VP7cj2K5gDcQH9V";
 
-function save(){localStorage.setItem("k7n",JSON.stringify(db))}
-function rp(n){return Number(n||0).toLocaleString("id-ID")}
+function save(){
+localStorage.setItem("k7n",JSON.stringify(db));
+}
 
-/* ================= STRUK DISCORD FIX ================= */
+function formatRp(v){
+return "Rp "+Number(v).toLocaleString("id-ID");
+}
+
+/* ================= DISCORD STRUK ================= */
 async function sendStruk(x){
 
 await fetch(WEBHOOK_STRUK,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-username:"K7N STORE BOT",
 embeds:[{
-title:"🧾 TRANSAKSI BARU",
-color:5814783,
+title:"🧾 STRUK TRANSAKSI K7N STORE",
+color:5763719,
 fields:[
-{name:"🆔 ID",value:x.id,inline:true},
-{name:"👤 Nama",value:x.nama,inline:true},
-{name:"📦 Produk",value:x.produk,inline:false},
-{name:"💰 Harga",value:"Rp "+rp(x.harga),inline:true},
-{name:"📊 Status",value:x.status||"UNKNOWN",inline:true}
+{name:"ID",value:x.id,inline:true},
+{name:"Nama",value:x.nama,inline:true},
+{name:"Produk",value:x.produk,inline:true},
+{name:"Harga",value:formatRp(x.harga),inline:true},
+{name:"Status",value:x.status,inline:true},
+{name:"Waktu",value:new Date(x.tanggal).toLocaleString("id-ID"),inline:false}
 ],
-footer:{text:"K7N STORE • "+new Date().toLocaleString("id-ID")}
+footer:{text:"K7N STORE SYSTEM"}
 }]
 })
 });
+
 }
 
-/* ================= GRAFIK DISCORD (EMBED BOT ASLI) ================= */
+/* ================= DISCORD GRAFIK EMBED ================= */
 async function sendGrafik(){
 
-let map={}, total=0;
+let map={};
 
 db.forEach(x=>{
 if(x.status==="SUKSES"){
 let d=new Date(x.tanggal).toLocaleDateString("id-ID");
 map[d]=(map[d]||0)+Number(x.harga);
-total+=Number(x.harga);
 }
 });
 
 let keys=Object.keys(map);
 let values=Object.values(map);
 
-let max=Math.max(...values,1);
-let h=6;
+let total=values.reduce((a,b)=>a+b,0);
 
-let grafik="";
-
-for(let i=h;i>=1;i--){
-let line="";
-values.forEach(v=>{
-let lv=Math.round((v/max)*h);
-line+=lv>=i?" ███ ":"     ";
-});
-grafik+=line+"\n";
-}
-
-grafik+="────────────\n";
-grafik+=keys.join(" ");
+let lines=keys.map((k,i)=>{
+return `${k} → ${formatRp(values[i])}`;
+}).join("\n");
 
 await fetch(WEBHOOK_GRAFIK,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-username:"K7N GRAPH BOT",
 embeds:[{
 title:"📊 LAPORAN GRAFIK K7N STORE",
 color:3447003,
+description:
+"```"+lines+"```",
 fields:[
-{
-name:"💰 TOTAL PENDAPATAN",
-value:"Rp "+rp(total),
-inline:false
-},
-{
-name:"📈 GRAFIK HARIAN",
-value:"```"+grafik+"```",
-inline:false
-}
+{name:"TOTAL",value:formatRp(total),inline:true},
+{name:"TRANSAKSI",value:String(db.length),inline:true}
 ],
-footer:{
-text:"Auto Report • "+new Date().toLocaleString("id-ID")
-}
+footer:{text:"Auto Report System"}
 }]
 })
 });
+
 }
 
+/* AUTO 1 JAM */
 setInterval(sendGrafik,3600000);
 
 /* ================= DASHBOARD ================= */
 function dashboard(){
 
 let total=0;
-db.forEach(x=>{if(x.status==="SUKSES") total+=Number(x.harga)});
+db.forEach(x=>{
+if(x.status==="SUKSES") total+=Number(x.harga);
+});
 
 app.innerHTML=`
 <div class="card">
 <h3>Dashboard</h3>
-<p>💰 Rp ${rp(total)}</p>
+<p>💰 ${formatRp(total)}</p>
 <p>📦 ${db.length} transaksi</p>
 </div>
 
@@ -153,20 +143,21 @@ app.innerHTML=`
 <div class="card">
 <button onclick="dashboard()">⬅ Kembali</button>
 
-<h3>Buat Struk</h3>
+<h3>Tambah Transaksi</h3>
 
 <input id="nama" placeholder="Nama">
 <input id="produk" placeholder="Produk">
 <input id="harga" placeholder="Harga">
 
 <select id="status">
-<option>SUKSES</option>
-<option>PENDING</option>
-<option>PROSES</option>
-<option>GAGAL</option>
+<option value="SUKSES">SUKSES</option>
+<option value="PENDING">PENDING</option>
+<option value="PROSES">PROSES</option>
+<option value="GAGAL">GAGAL</option>
 </select>
 
-<button onclick="buat()">Buat</button>
+<button onclick="buat()">Simpan</button>
+
 <div id="hasil"></div>
 </div>
 `;
@@ -180,7 +171,7 @@ id:"K7N-"+Math.random().toString(36).slice(2,7),
 nama:nama.value,
 produk:produk.value,
 harga:harga.value,
-status:status.value,
+status:document.getElementById("status").value || "PENDING",
 tanggal:new Date().toISOString()
 };
 
@@ -192,17 +183,17 @@ sendStruk(obj);
 hasil.innerHTML=`
 <div class="struk">
 <b>STRUK BERHASIL</b><br><br>
-ID: ${obj.id}<br>
-Nama: ${obj.nama}<br>
-Produk: ${obj.produk}<br>
-Harga: Rp ${rp(obj.harga)}<br>
-Status: ${obj.status}
-</div>`;
+ID:${obj.id}<br>
+Nama:${obj.nama}<br>
+Produk:${obj.produk}<br>
+Harga:${formatRp(obj.harga)}<br>
+Status:${obj.status}
+</div>
+`;
 }
 
-/* ================= RIWAYAT ================= */
+/* ================= RIWAYAT (EDIT + HAPUS) ================= */
 function riwayat(){
-
 let html=`<button onclick="dashboard()">⬅ Kembali</button>`;
 
 db.slice().reverse().forEach((x,i)=>{
@@ -210,12 +201,13 @@ html+=`
 <div class="card">
 <b>${x.id}</b><br>
 ${x.nama} - ${x.produk}<br>
-Rp ${rp(x.harga)}<br>
+${formatRp(x.harga)}<br>
 ${x.status}<br>
 
 <button onclick="edit(${i})">Edit</button>
 <button onclick="hapus(${i})">Hapus</button>
-</div>`;
+</div>
+`;
 });
 
 app.innerHTML=html;
@@ -235,14 +227,12 @@ riwayat();
 }
 
 window.hapus=function(i){
-if(confirm("Hapus?")){
 db.splice(i,1);
 save();
 riwayat();
 }
-}
 
-/* ================= GRAFIK WEB ================= */
+/* ================= GRAFIK WEB (LINE CHART) ================= */
 function grafik(){
 
 let map={};
@@ -257,17 +247,20 @@ map[d]=(map[d]||0)+Number(x.harga);
 app.innerHTML=`
 <div class="card">
 <button onclick="dashboard()">⬅ Kembali</button>
-<h3>Grafik Web</h3>
-<canvas id="c"></canvas>
+<canvas id="chart"></canvas>
 </div>
 `;
 
 setTimeout(()=>{
-new Chart(document.getElementById("c"),{
+new Chart(chart,{
 type:"line",
 data:{
 labels:Object.keys(map),
-datasets:[{data:Object.values(map),borderColor:"#4f46e5",tension:0.3}]
+datasets:[{
+data:Object.values(map),
+borderColor:"#4f46e5",
+tension:0.4
+}]
 }
 });
 },200);
