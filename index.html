@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>K7N STORE PRO</title>
+<title>K7N STORE PRO MAX</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -13,55 +13,25 @@
 --bg:#0f172a;
 --card:#1e293b;
 --text:#e5e7eb;
---accent:#22d3ee;
 }
 
 body{margin:0;font-family:Arial;background:var(--bg);color:var(--text);}
-
-.header{
-background:linear-gradient(90deg,#4f46e5,#06b6d4);
-padding:15px;text-align:center;color:white;font-weight:bold;
-}
-
+.header{background:linear-gradient(90deg,#4f46e5,#06b6d4);padding:15px;text-align:center;color:white;font-weight:bold;}
 .container{display:flex;flex-direction:column;height:100vh;}
 .content{flex:1;padding:20px;overflow:auto;}
 
-.card{
-background:var(--card);
-padding:15px;border-radius:15px;margin-bottom:10px;
-box-shadow:0 10px 25px rgba(0,0,0,0.4);
-}
+.card{background:var(--card);padding:15px;border-radius:12px;margin-bottom:10px;}
+input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;background:#020617;color:white;}
+button{width:100%;padding:10px;margin-top:5px;border:none;border-radius:8px;background:#4f46e5;color:white;}
 
-input,select{
-width:100%;padding:10px;margin:5px 0;border-radius:10px;
-border:none;background:#020617;color:white;
-}
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.menu div{background:var(--card);padding:20px;text-align:center;border-radius:10px;cursor:pointer;}
 
-button{
-width:100%;padding:10px;margin-top:5px;border:none;
-border-radius:10px;background:linear-gradient(90deg,#4f46e5,#06b6d4);
-color:white;cursor:pointer;
-}
-
-.menu{
-display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
-}
-
-.menu div{
-background:var(--card);padding:20px;text-align:center;
-border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.1);
-}
-
-.struk{
-background:white;color:black;padding:15px;border-radius:10px;margin-top:10px;
-font-family:monospace;
-}
-
+.struk{background:white;color:black;padding:15px;border-radius:10px;margin-top:10px;font-family:monospace;}
 .line{border-bottom:1px dashed #aaa;margin:8px 0;}
 
 .status{padding:4px;border-radius:5px;color:white;font-size:12px;}
 .sukses{background:green}.pending{background:orange}.proses{background:blue}.gagal{background:red}
-
 </style>
 </head>
 
@@ -78,7 +48,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
 const app = document.getElementById("app");
 let db = JSON.parse(localStorage.getItem("k7n"))||[];
 
-function save(){localStorage.setItem("k7n",JSON.stringify(db));}
+const WEBHOOK="https://discord.com/api/webhooks/1497806134692810943/giut3tk-1F64WHwCyas9p6fQcl5q3JCWpWlvhXc3A3yNKiQal6WWLXHfRedlwmcTVVVH";
 
 const produk=[
 {nama:"Follower Indo 100",harga:10500},
@@ -87,17 +57,41 @@ const produk=[
 {nama:"Viewer 1000",harga:800}
 ];
 
+function save(){localStorage.setItem("k7n",JSON.stringify(db));}
+
+/* DISCORD */
+async function kirimDiscord(d){
+await fetch(WEBHOOK,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:"K7N STORE",
+content:"💸 Transaksi baru!",
+embeds:[{
+title:"STRUK BARU",
+fields:[
+{name:"ID",value:d.id},
+{name:"Nama",value:d.nama},
+{name:"Harga",value:"Rp "+d.harga},
+{name:"Status",value:d.status}
+]
+}]
+})
+});
+}
+
+/* PAGE */
 function page(p){
 
+/* DASHBOARD */
 if(p=="dashboard"){
 let total=0;
 db.forEach(x=>{if(x.status=="SUKSES")total+=Number(x.harga)});
-
 app.innerHTML=`
 <div class="card">
 <h3>Dashboard</h3>
 <p>💰 Rp ${total.toLocaleString("id-ID")}</p>
-<p>📦 ${db.length} Transaksi</p>
+<p>📦 ${db.length} transaksi</p>
 </div>
 
 <div class="menu">
@@ -105,14 +99,12 @@ app.innerHTML=`
 <div onclick="page('riwayat')">📊 Riwayat</div>
 <div onclick="page('grafik')">📈 Grafik</div>
 <div onclick="page('setting')">⚙️ Setting</div>
-</div>
-`;
+</div>`;
 }
 
 /* BUAT */
 if(p=="buat"){
 let opt=produk.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
-
 app.innerHTML=`
 <div class="card">
 <button onclick="page('dashboard')">⬅️ Kembali</button>
@@ -120,7 +112,7 @@ app.innerHTML=`
 <h3>Buat Struk</h3>
 <input id="nama" placeholder="Nama">
 
-<select id="produk" onchange="autoHarga()">
+<select id="produk" onchange="isiHarga()">
 <option value="">Pilih</option>
 ${opt}
 <option value="custom">Custom</option>
@@ -137,12 +129,11 @@ ${opt}
 
 <button onclick="buat()">Buat</button>
 <div id="hasil"></div>
-</div>
-`;
+</div>`;
 }
 
 /* AUTO HARGA */
-window.autoHarga=function(){
+window.isiHarga=function(){
 let v=document.getElementById("produk").value;
 if(v!=="custom" && v!==""){
 document.getElementById("harga").value=produk[v].harga;
@@ -151,11 +142,11 @@ document.getElementById("harga").value=produk[v].harga;
 
 /* BUAT */
 window.buat=function(){
-let nama=namaInput("nama");
-let harga=namaInput("harga");
+let nama=document.getElementById("nama").value;
+let harga=document.getElementById("harga").value;
 let status=document.getElementById("status").value;
 
-if(!nama||!harga)return alert("Isi dulu!");
+if(!nama||!harga)return alert("Isi data!");
 
 let id="K7N-"+Math.random().toString(36).substr(2,5);
 let t=new Date().toISOString();
@@ -163,6 +154,10 @@ let t=new Date().toISOString();
 let obj={id,nama,harga,status,tanggal:t};
 db.push(obj);save();
 
+/* DISCORD */
+kirimDiscord(obj);
+
+/* STRUK */
 hasil.innerHTML=`
 <div id="strukBox" class="struk">
 <h3>K7N STORE</h3>
@@ -172,7 +167,7 @@ hasil.innerHTML=`
 <div class="line"></div>
 <p>Harga: Rp ${Number(harga).toLocaleString("id-ID")}</p>
 <div class="line"></div>
-<p>Status: <span class="${status.toLowerCase()}">${status}</span></p>
+<p>Status: ${status}</p>
 </div>
 
 <button onclick="download()">Download</button>
@@ -180,14 +175,9 @@ hasil.innerHTML=`
 `;
 }
 
-/* HELPER */
-function namaInput(id){
-return document.getElementById(id).value.trim();
-}
-
 /* DOWNLOAD */
 window.download=function(){
-html2canvas(document.getElementById("strukBox")).then(c=>{
+html2canvas(strukBox).then(c=>{
 let a=document.createElement("a");
 a.href=c.toDataURL();
 a.download="struk.png";
@@ -245,20 +235,9 @@ let t=new Date(x.tanggal).toLocaleDateString("id-ID");
 map[t]=(map[t]||0)+Number(x.harga);
 }
 });
-
-app.innerHTML=`
-<button onclick="page('dashboard')">⬅️ Kembali</button>
-<canvas id="chart"></canvas>
-`;
-
+app.innerHTML=`<button onclick="page('dashboard')">⬅️</button><canvas id="c"></canvas>`;
 setTimeout(()=>{
-new Chart(chart,{
-type:"line",
-data:{
-labels:Object.keys(map),
-datasets:[{data:Object.values(map),tension:0.3}]
-}
-});
+new Chart(c,{type:"line",data:{labels:Object.keys(map),datasets:[{data:Object.values(map),tension:0.3}]}})
 },100);
 }
 
@@ -274,27 +253,26 @@ app.innerHTML=`
 <h3>Setting</h3>
 
 <label>Tema</label>
-<input type="color" id="color" value="${tema}">
+<input type="color" id="t" value="${tema}">
 
 <label>Background</label>
-<input type="color" id="bgcolor" value="${bg}">
+<input type="color" id="b" value="${bg}">
 
 <button onclick="saveTheme()">Simpan</button>
-</div>
-`;
-}
-
+</div>`;
 }
 
 /* SAVE THEME */
 window.saveTheme=function(){
-let t=document.getElementById("color").value;
-let b=document.getElementById("bgcolor").value;
+let t=document.getElementById("t").value;
+let b=document.getElementById("b").value;
 localStorage.setItem("tema",t);
 localStorage.setItem("bg",b);
 document.documentElement.style.setProperty('--tema',t);
 document.documentElement.style.setProperty('--bg',b);
 alert("Disimpan!");
+}
+
 }
 
 window.page=page;
