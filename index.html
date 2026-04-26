@@ -2,30 +2,51 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>K7N STORE PRO FIX</title>
+<title>K7N STORE SHOPEE PRO</title>
 
 <style>
 body{
 margin:0;
 font-family:Arial;
 background:#0f172a;
-color:white;
+color:#e5e7eb;
 }
 
 .header{
 padding:15px;
 text-align:center;
-background:linear-gradient(90deg,#4f46e5,#06b6d4);
 font-weight:bold;
+background:linear-gradient(90deg,#4f46e5,#06b6d4);
+color:white;
 }
 
 .container{padding:15px;}
 
+/* SHOPEE STYLE DASHBOARD */
 .card{
 background:#1e293b;
 padding:15px;
-border-radius:10px;
+border-radius:12px;
 margin-bottom:10px;
+box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+}
+
+button{
+width:100%;
+padding:10px;
+border:none;
+border-radius:8px;
+background:#22d3ee;
+color:black;
+font-weight:bold;
+cursor:pointer;
+margin-top:5px;
 }
 
 input,select{
@@ -36,17 +57,6 @@ border:none;
 border-radius:8px;
 background:#0b1220;
 color:white;
-}
-
-button{
-width:100%;
-padding:10px;
-margin-top:5px;
-border:none;
-border-radius:8px;
-background:#22d3ee;
-color:black;
-font-weight:bold;
 }
 
 .menu{
@@ -67,30 +77,28 @@ cursor:pointer;
 
 <body>
 
-<div class="header">K7N STORE</div>
+<div class="header">📦 K7N STORE SHOPEE PRO</div>
 <div class="container" id="app"></div>
 
 <script>
-/* ================= SAFETY INIT ================= */
 let app=document.getElementById("app");
 
-/* kalau error pun tetap tampil */
 let db=JSON.parse(localStorage.getItem("k7n"))||[];
 
-/* save */
+const WEBHOOK_STRUK="https://discord.com/api/webhooks/1497806134692810943/giut3tk-1F64WHwCyas9p6fQcl5q3JCWpWlvhXc3A3yNKiQal6WWLXHfRedlwmcTVVVH";
+const WEBHOOK_GRAFIK="https://discord.com/api/webhooks/1497825833295806477/9avVXxaqYpdlCiR-Rwzgsnw8FeKW218LXMUt9K5BzsxHxVn7ccty8VP7cj2K5gDcQH9V";
+
 function save(){
 localStorage.setItem("k7n",JSON.stringify(db));
 }
 
-/* format rupiah */
 function rp(x){
 return "Rp "+Number(x||0).toLocaleString("id-ID");
 }
 
-/* ================= RENDER ================= */
+/* ================= DASHBOARD SHOPEE ================= */
 function page(p){
 
-/* DASHBOARD */
 if(p==="dashboard"){
 
 let total=0;
@@ -100,15 +108,16 @@ if(x.status==="SUKSES") total+=Number(x.harga);
 
 app.innerHTML=`
 <div class="card">
-<h3>Dashboard</h3>
-<p>💰 ${rp(total)}</p>
-<p>📦 ${db.length} transaksi</p>
+<h2>📊 Dashboard Shopee K7N</h2>
+<p>💰 Omset: ${rp(total)}</p>
+<p>📦 Transaksi: ${db.length}</p>
 </div>
 
 <div class="menu">
-<div onclick="page('buat')">📦 Buat</div>
+<div onclick="page('buat')">📦 Buat Struk</div>
 <div onclick="page('riwayat')">📊 Riwayat</div>
 <div onclick="page('grafik')">📈 Grafik</div>
+<div onclick="kirimGrafik()">⏱ Kirim Grafik</div>
 </div>
 `;
 }
@@ -143,26 +152,27 @@ app.innerHTML=`
 /* ================= CREATE ================= */
 window.buat=function(){
 
-let nama=document.getElementById("nama").value;
-let produk=document.getElementById("produk").value;
-let harga=document.getElementById("harga").value;
-let status=document.getElementById("status").value;
+let obj={
+id:"K7N-"+Math.random().toString(36).slice(2,7),
+nama:nama.value,
+produk:produk.value,
+harga:harga.value,
+status:status.value,
+tanggal:new Date().toISOString()
+};
 
-if(!nama||!produk||!harga){
+if(!obj.nama||!obj.produk||!obj.harga){
 alert("Isi lengkap!");
 return;
 }
 
-let obj={
-id:"K7N-"+Math.random().toString(36).slice(2,7),
-nama,produk,harga,status,
-tanggal:new Date().toISOString()
-};
-
 db.push(obj);
 save();
 
-document.getElementById("hasil").innerHTML=`
+/* kirim struk */
+kirimStruk(obj);
+
+hasil.innerHTML=`
 <div class="card" style="background:white;color:black">
 <b>STRUK BERHASIL</b><br><br>
 ID: ${obj.id}<br>
@@ -172,6 +182,25 @@ Harga: ${rp(obj.harga)}<br>
 Status: ${obj.status}
 </div>
 `;
+
+}
+
+/* ================= KIRIM STRUK ================= */
+async function kirimStruk(x){
+
+await fetch(WEBHOOK_STRUK,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:"K7N STORE",
+content:`🧾 STRUK
+ID: ${x.id}
+Nama: ${x.nama}
+Produk: ${x.produk}
+Harga: ${rp(x.harga)}
+Status: ${x.status}`
+})
+});
 
 }
 
@@ -187,6 +216,7 @@ html+=`
 ${x.nama} - ${x.produk}<br>
 ${rp(x.harga)}<br>
 ${x.status}<br>
+
 <button onclick="hapus(${i})">Hapus</button>
 </div>
 `;
@@ -195,7 +225,6 @@ ${x.status}<br>
 app.innerHTML=html;
 }
 
-/* delete */
 window.hapus=function(i){
 db.splice(i,1);
 save();
@@ -205,9 +234,7 @@ page("riwayat");
 /* ================= GRAFIK ASCII ================= */
 if(p==="grafik"){
 
-let map={};
-let total=0;
-let jumlah=0;
+let map={}, total=0,jumlah=0;
 
 db.forEach(x=>{
 if(x.status==="SUKSES"){
@@ -222,15 +249,15 @@ let keys=Object.keys(map);
 let values=Object.values(map);
 
 let max=Math.max(...values,1);
-let height=5;
+let h=5;
 
-let out="📊 GRAFIK K7N STORE\n\n";
+let out="📊 GRAFIK SHOPEE K7N\n\n";
 
-for(let i=height;i>=1;i--){
+for(let i=h;i>=1;i--){
 let line="";
 values.forEach(v=>{
-let level=Math.round((v/max)*height);
-line+= level>=i ? " ███ " : "    ";
+let lv=Math.round((v/max)*h);
+line+=lv>=i?" ███ ":"     ";
 });
 out+=line+"\n";
 }
@@ -247,7 +274,44 @@ app.innerHTML=`
 `;
 }
 
-/* ================= INIT SAFE ================= */
+/* ================= KIRIM GRAFIK ================= */
+async function kirimGrafik(){
+
+let map={}, total=0,jumlah=0;
+
+db.forEach(x=>{
+if(x.status==="SUKSES"){
+let t=new Date(x.tanggal).toLocaleDateString("id-ID");
+map[t]=(map[t]||0)+Number(x.harga);
+total+=Number(x.harga);
+jumlah++;
+}
+});
+
+let msg="📊 AUTO GRAFIK K7N STORE\n\n";
+msg+=`💰 Total: ${rp(total)}\n📦 ${jumlah} transaksi\n\n`;
+
+for(let t in map){
+msg+=`${t} → ${rp(map[t])}\n`;
+}
+
+await fetch(WEBHOOK_GRAFIK,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:"K7N STORE",
+content:msg
+})
+});
+
+}
+
+/* ================= AUTO 1 JAM ================= */
+setInterval(()=>{
+kirimGrafik();
+}, 3600000);
+
+/* START */
 window.page=page;
 page("dashboard");
 
