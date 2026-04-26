@@ -15,7 +15,7 @@
 }
 
 body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
-.header{padding:15px;text-align:center;background:var(--main);font-weight:bold;color:white}
+.header{padding:15px;text-align:center;background:var(--main);color:white;font-weight:bold}
 
 .container{padding:15px}
 .card{background:var(--card);padding:12px;border-radius:12px;margin-bottom:10px}
@@ -42,34 +42,41 @@ let db=JSON.parse(localStorage.getItem("k7n"))||[];
 const WEBHOOK_STRUK="https://discord.com/api/webhooks/1497806134692810943/giut3tk-1F64WHwCyas9p6fQcl5q3JCWpWlvhXc3A3yNKiQal6WWLXHfRedlwmcTVVVH";
 const WEBHOOK_GRAFIK="https://discord.com/api/webhooks/1497825833295806477/9avVXxaqYpdlCiR-Rwzgsnw8FeKW218LXMUt9K5BzsxHxVn7ccty8VP7cj2K5gDcQH9V";
 
-function save(){localStorage.setItem("k7n",JSON.stringify(db))}
-
-function formatRupiah(n){
-return Number(n).toLocaleString("id-ID")
+function save(){
+localStorage.setItem("k7n",JSON.stringify(db));
 }
 
-/* ================= STRUK DISCORD ================= */
+function formatRupiah(n){
+return Number(n||0).toLocaleString("id-ID");
+}
+
+/* ================= STRUK DISCORD FIX ================= */
 async function sendStruk(x){
+
+const statusFix = x.status || "UNKNOWN";
+
 await fetch(WEBHOOK_STRUK,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 username:"K7N STORE BOT",
-content:
-`🧾 **STRUK TRANSAKSI**
-━━━━━━━━━━━━━━
-🆔 ID: ${x.id}
-👤 Nama: ${x.nama}
-📦 Produk: ${x.produk}
-💰 Harga: Rp ${formatRupiah(x.harga)}
-📊 Status: ${x.status}
-📅 ${new Date(x.tanggal).toLocaleString("id-ID")}
-━━━━━━━━━━━━━━`
+embeds:[{
+title:"🧾 TRANSAKSI K7N STORE",
+color:5814783,
+fields:[
+{ name:"🆔 ID", value:x.id || "-", inline:true },
+{ name:"👤 Nama", value:x.nama || "-", inline:true },
+{ name:"📦 Produk", value:x.produk || "-", inline:false },
+{ name:"💰 Harga", value:"Rp "+formatRupiah(x.harga), inline:true },
+{ name:"📊 Status", value:statusFix, inline:true }
+],
+footer:{ text:"K7N STORE • "+new Date().toLocaleString("id-ID") }
+}]
 })
-})
+});
 }
 
-/* ================= GRAFIK DISCORD (VERTICAL SHOOPE STYLE) ================= */
+/* ================= GRAFIK DISCORD ================= */
 async function sendGrafik(){
 
 let map={}, total=0;
@@ -92,12 +99,11 @@ let msg="📊 LAPORAN GRAFIK K7N STORE\n━━━━━━━━━━━━━�
 msg+="💰 TOTAL: Rp "+formatRupiah(total)+"\n\n";
 msg+="📈 PER HARI:\n\n";
 
-/* grafik vertical kotak naik turun */
 for(let i=h;i>=1;i--){
 let line="";
 values.forEach(v=>{
-let level=Math.round((v/max)*h);
-line+=level>=i?" ███ ":"     ";
+let lv=Math.round((v/max)*h);
+line+=lv>=i?" ███ ":"     ";
 });
 msg+=line+"\n";
 }
@@ -112,14 +118,15 @@ body:JSON.stringify({content:msg})
 });
 }
 
-/* AUTO 1 JAM */
 setInterval(sendGrafik,3600000);
 
 /* ================= DASHBOARD ================= */
 function dashboard(){
 
 let total=0;
-db.forEach(x=>{if(x.status==="SUKSES") total+=Number(x.harga)});
+db.forEach(x=>{
+if(x.status==="SUKSES") total+=Number(x.harga);
+});
 
 app.innerHTML=`
 <div class="card">
@@ -144,6 +151,7 @@ app.innerHTML=`
 <button onclick="dashboard()">⬅ Kembali</button>
 
 <h3>Buat Struk</h3>
+
 <input id="nama" placeholder="Nama">
 <input id="produk" placeholder="Produk">
 <input id="harga" placeholder="Harga">
@@ -166,10 +174,10 @@ window.buat=function(){
 
 let obj={
 id:"K7N-"+Math.random().toString(36).slice(2,7),
-nama:nama.value,
-produk:produk.value,
-harga:harga.value,
-status:status.value,
+nama:document.getElementById("nama").value,
+produk:document.getElementById("produk").value,
+harga:document.getElementById("harga").value,
+status:document.getElementById("status").value,
 tanggal:new Date().toISOString()
 };
 
@@ -178,7 +186,7 @@ save();
 
 sendStruk(obj);
 
-hasil.innerHTML=`
+document.getElementById("hasil").innerHTML=`
 <div class="struk">
 <b>STRUK BERHASIL</b><br><br>
 ID: ${obj.id}<br>
@@ -186,11 +194,13 @@ Nama: ${obj.nama}<br>
 Produk: ${obj.produk}<br>
 Harga: Rp ${formatRupiah(obj.harga)}<br>
 Status: ${obj.status}
-</div>`;
+</div>
+`;
 }
 
-/* ================= RIWAYAT (EDIT + HAPUS) ================= */
+/* ================= RIWAYAT ================= */
 function riwayat(){
+
 let html=`<button onclick="dashboard()">⬅ Kembali</button>`;
 
 db.slice().reverse().forEach((x,i)=>{
@@ -232,20 +242,11 @@ riwayat();
 }
 }
 
-/* ================= GRAFIK WEB REALTIME ================= */
-let chart;
-
+/* ================= GRAFIK WEB ================= */
 function grafik(){
 
-app.innerHTML=`
-<div class="card">
-<button onclick="dashboard()">⬅ Kembali</button>
-<h3>Grafik Realtime</h3>
-<canvas id="c"></canvas>
-</div>
-`;
-
 let map={};
+
 db.forEach(x=>{
 if(x.status==="SUKSES"){
 let d=new Date(x.tanggal).toLocaleDateString("id-ID");
@@ -253,24 +254,26 @@ map[d]=(map[d]||0)+Number(x.harga);
 }
 });
 
-setTimeout(()=>{
-let ctx=document.getElementById("c");
+app.innerHTML=`
+<div class="card">
+<button onclick="dashboard()">⬅ Kembali</button>
+<h3>Grafik Web</h3>
+<canvas id="c"></canvas>
+</div>
+`;
 
-chart=new Chart(ctx,{
+setTimeout(()=>{
+new Chart(document.getElementById("c"),{
 type:"line",
 data:{
 labels:Object.keys(map),
-datasets:[{
-data:Object.values(map),
-borderColor:"#4f46e5",
-tension:0.3
-}]
+datasets:[{data:Object.values(map),borderColor:"#4f46e5",tension:0.3}]
 }
 });
 },200);
 }
 
-/* INIT */
+/* START */
 dashboard();
 </script>
 
