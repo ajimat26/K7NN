@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>K7N STORE PRO MAX</title>
+<title>K7N STORE PRO MAX FINAL</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -22,7 +22,7 @@ body{margin:0;font-family:Arial;background:var(--bg);color:var(--text);}
 
 .card{background:var(--card);padding:15px;border-radius:12px;margin-bottom:10px;}
 input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;background:#020617;color:white;}
-button{width:100%;padding:10px;margin-top:5px;border:none;border-radius:8px;background:#4f46e5;color:white;}
+button{width:100%;padding:10px;margin-top:5px;border:none;border-radius:8px;background:var(--tema);color:white;}
 
 .menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
 .menu div{background:var(--card);padding:20px;text-align:center;border-radius:10px;cursor:pointer;}
@@ -48,19 +48,13 @@ document.addEventListener("DOMContentLoaded", ()=>{
 const app = document.getElementById("app");
 let db = JSON.parse(localStorage.getItem("k7n"))||[];
 
-const WEBHOOK="https://discord.com/api/webhooks/1497806134692810943/giut3tk-1F64WHwCyas9p6fQcl5q3JCWpWlvhXc3A3yNKiQal6WWLXHfRedlwmcTVVVH";
-
-const produk=[
-{nama:"Follower Indo 100",harga:10500},
-{nama:"Follower Global 100",harga:5000},
-{nama:"Like TikTok 100",harga:800},
-{nama:"Viewer 1000",harga:800}
-];
+const WEBHOOK="https://discord.com/api/webhooks/1497825833295806477/9avVXxaqYpdlCiR-Rwzgsnw8FeKW218LXMUt9K5BzsxHxVn7ccty8VP7cj2K5gDcQH9V";
 
 function save(){localStorage.setItem("k7n",JSON.stringify(db));}
 
-/* DISCORD */
+/* ===== DISCORD STRUK ===== */
 async function kirimDiscord(d){
+try{
 await fetch(WEBHOOK,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
@@ -78,9 +72,64 @@ fields:[
 }]
 })
 });
+}catch(e){}
 }
 
-/* PAGE */
+/* ===== DISCORD GRAFIK ===== */
+async function kirimGrafik(){
+try{
+let map={}, total=0, jumlah=0;
+
+db.forEach(x=>{
+if(x.status=="SUKSES"){
+let t=new Date(x.tanggal).toLocaleDateString("id-ID");
+map[t]=(map[t]||0)+Number(x.harga);
+total+=Number(x.harga);
+jumlah++;
+}
+});
+
+let canvas=document.createElement("canvas");
+canvas.width=800;
+canvas.height=400;
+
+new Chart(canvas,{
+type:"line",
+data:{
+labels:Object.keys(map),
+datasets:[{
+label:"Pendapatan",
+data:Object.values(map),
+borderWidth:3,
+tension:0.3
+}]
+},
+options:{animation:false}
+});
+
+await new Promise(r=>setTimeout(r,500));
+
+const blob=await new Promise(res=>canvas.toBlob(res));
+
+let form=new FormData();
+form.append("file",blob,"grafik.png");
+
+form.append("payload_json",JSON.stringify({
+username:"K7N STORE",
+content:`📊 LAPORAN OTOMATIS
+🕒 ${new Date().toLocaleString("id-ID")}
+💰 Total: Rp ${total.toLocaleString("id-ID")}
+📦 Transaksi: ${jumlah}`
+}));
+
+await fetch(WEBHOOK,{method:"POST",body:form});
+}catch(e){console.log(e);}
+}
+
+/* AUTO 1 JAM */
+setInterval(()=>kirimGrafik(),3600000);
+
+/* ===== PAGE ===== */
 function page(p){
 
 /* DASHBOARD */
@@ -104,20 +153,11 @@ app.innerHTML=`
 
 /* BUAT */
 if(p=="buat"){
-let opt=produk.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
 app.innerHTML=`
 <div class="card">
-<button onclick="page('dashboard')">⬅️ Kembali</button>
+<button onclick="page('dashboard')">⬅️</button>
 
-<h3>Buat Struk</h3>
 <input id="nama" placeholder="Nama">
-
-<select id="produk" onchange="isiHarga()">
-<option value="">Pilih</option>
-${opt}
-<option value="custom">Custom</option>
-</select>
-
 <input id="harga" placeholder="Harga">
 
 <select id="status">
@@ -132,37 +172,27 @@ ${opt}
 </div>`;
 }
 
-/* AUTO HARGA */
-window.isiHarga=function(){
-let v=document.getElementById("produk").value;
-if(v!=="custom" && v!==""){
-document.getElementById("harga").value=produk[v].harga;
-}
-}
-
-/* BUAT */
+/* BUAT LOGIC */
 window.buat=function(){
-let nama=document.getElementById("nama").value;
-let harga=document.getElementById("harga").value;
-let status=document.getElementById("status").value;
+let nama=nama.value;
+let harga=harga.value;
+let status=status.value;
 
 if(!nama||!harga)return alert("Isi data!");
 
-let id="K7N-"+Math.random().toString(36).substr(2,5);
-let t=new Date().toISOString();
+let obj={
+id:"K7N-"+Math.random().toString(36).substr(2,5),
+nama,harga,status,tanggal:new Date().toISOString()
+};
 
-let obj={id,nama,harga,status,tanggal:t};
 db.push(obj);save();
-
-/* DISCORD */
 kirimDiscord(obj);
 
-/* STRUK */
 hasil.innerHTML=`
 <div id="strukBox" class="struk">
 <h3>K7N STORE</h3>
 <div class="line"></div>
-<p>ID: ${id}</p>
+<p>ID: ${obj.id}</p>
 <p>Nama: ${nama}</p>
 <div class="line"></div>
 <p>Harga: Rp ${Number(harga).toLocaleString("id-ID")}</p>
@@ -193,7 +223,7 @@ window.open("https://wa.me/?text="+encodeURIComponent(t));
 
 /* RIWAYAT */
 if(p=="riwayat"){
-let html=`<button onclick="page('dashboard')">⬅️ Kembali</button>`;
+let html=`<button onclick="page('dashboard')">⬅️</button>`;
 db.slice().reverse().forEach((x,i)=>{
 html+=`
 <div class="card">
@@ -211,11 +241,13 @@ app.innerHTML=html;
 /* EDIT */
 window.edit=function(i){
 let x=db[i];
-let nama=prompt("Nama",x.nama);
-let harga=prompt("Harga",x.harga);
-let status=prompt("Status",x.status);
-if(!nama||!harga||!status)return;
-db[i]={...x,nama,harga,status};
+let namaBaru=prompt("Nama",x.nama);
+let hargaBaru=prompt("Harga",x.harga);
+let statusBaru=prompt("Status",x.status);
+
+if(!namaBaru||!hargaBaru||!statusBaru)return;
+
+db[i]={...x,nama:namaBaru,harga:hargaBaru,status:statusBaru};
 save();page("riwayat");
 }
 
@@ -237,7 +269,10 @@ map[t]=(map[t]||0)+Number(x.harga);
 });
 app.innerHTML=`<button onclick="page('dashboard')">⬅️</button><canvas id="c"></canvas>`;
 setTimeout(()=>{
-new Chart(c,{type:"line",data:{labels:Object.keys(map),datasets:[{data:Object.values(map),tension:0.3}]}})
+new Chart(c,{
+type:"line",
+data:{labels:Object.keys(map),datasets:[{data:Object.values(map),tension:0.3}]}
+});
 },100);
 }
 
@@ -248,7 +283,7 @@ let bg=localStorage.getItem("bg")||"#0f172a";
 
 app.innerHTML=`
 <div class="card">
-<button onclick="page('dashboard')">⬅️ Kembali</button>
+<button onclick="page('dashboard')">⬅️</button>
 
 <h3>Setting</h3>
 
@@ -266,11 +301,14 @@ app.innerHTML=`
 window.saveTheme=function(){
 let t=document.getElementById("t").value;
 let b=document.getElementById("b").value;
+
 localStorage.setItem("tema",t);
 localStorage.setItem("bg",b);
+
 document.documentElement.style.setProperty('--tema',t);
 document.documentElement.style.setProperty('--bg',b);
-alert("Disimpan!");
+
+alert("Tema disimpan!");
 }
 
 }
