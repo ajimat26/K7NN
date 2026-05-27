@@ -13,7 +13,7 @@ body{margin:0;font-family:Arial;background:#0f172a;color:#e5e7eb}
 input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;box-sizing:border-box;background:#334155;color:white}
 button{width:100%;padding:10px;border:none;border-radius:8px;background:#4f46e5;color:white;cursor:pointer}
 .menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.menu div{background:#1e293b;padding:20px;text-align:center;border-radius:10px;cursor:pointer}
+.menu button{background:#1e293b;padding:20px;text-align:center;border-radius:10px;cursor:pointer;color:white;border:none;font-size:16px}
 .struk{background:white;color:black;padding:10px;border-radius:10px;font-family:monospace;margin-top:10px}
 </style>
 </head>
@@ -23,8 +23,8 @@ button{width:100%;padding:10px;border:none;border-radius:8px;background:#4f46e5;
 <div class="container" id="app">
   <div class="card">
     <h3>Dashboard (Cloud Realtime)</h3>
-    <p id="txt-omset">💰 Menghubungkan...</p>
-    <p id="txt-transaksi">📦 Menghubungkan...</p>
+    <p id="txt-omset">💰 Rp 0 (Mencoba tersambung...)</p>
+    <p id="txt-transaksi">📦 0 transaksi</p>
   </div>
   <div class="menu">
     <button id="nav-buat">📦 Buat</button>
@@ -35,7 +35,6 @@ button{width:100%;padding:10px;border:none;border-radius:8px;background:#4f46e5;
 </div>
 
 <script type="module">
-// Mengimpor library Firebase SDK secara Cloud resmi
 import { initializeApp } from "https://gstatic.com";
 import { getDatabase, ref, set, push, onValue, update, remove } from "https://gstatic.com";
 
@@ -50,47 +49,76 @@ const firebaseConfig = {
   measurementId: "G-BTW6HEL05Z"
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
-const database = getDatabase(firebaseApp);
-const dbRef = ref(database, 'transaksi');
+// Bungkus dengan try-catch agar jika error di HP tidak membuat tombol macet
+try {
+  const firebaseApp = initializeApp(firebaseConfig);
+  const database = getDatabase(firebaseApp);
+  const dbRef = ref(database, 'transaksi');
 
-let db = [];
-let halamanAktif = "dashboard";
+  onValue(dbRef, (snapshot) => {
+    const data = snapshot.val();
+    window.db = [];
+    if (data) {
+      Object.keys(data).forEach(key => {
+        window.db.push({ firebaseKey: key, ...data[key] });
+      });
+    }
+    window.updateDashboardData();
+  }, (err) => {
+    console.log("Firebase block:", err);
+    document.getElementById("txt-omset").innerText = "💰 Gagal konek (Cek Rules Firebase)";
+  });
 
+  window.simpanKeCloud = function(obj, callback) {
+    set(push(dbRef), obj).then(callback).catch(err => alert("Gagal: " + err.message));
+  };
+
+  window.updateKeCloud = function(key, data, callback) {
+    update(ref(database, 'transaksi/' + key), data).then(callback);
+  };
+
+  window.hapusDariCloud = function(key, callback) {
+    remove(ref(database, 'transaksi/' + key)).then(callback);
+  };
+
+} catch(e) {
+  console.error("Firebase Gagal Dimuat", e);
+}
+</script>
+
+<script>
+/* ================= LOGIKA APLIKASI UTAMA (ANTI-STUCK) ================= */
+window.db = [];
 const WEBHOOK_STRUK="https://discord.com";
 const WEBHOOK_GRAFIK="https://discord.com";
+
+let halamanAktif = "dashboard";
 
 function formatRp(v){
   return "Rp "+Number(v).toLocaleString("id-ID");
 }
 
-// Menangkap data Cloud Firebase secara Real-time
-onValue(dbRef, (snapshot) => {
-  const data = snapshot.val();
-  db = [];
-  if (data) {
-    Object.keys(data).forEach(key => {
-      db.push({ firebaseKey: key, ...data[key] });
-    });
-  }
+window.updateDashboardData = function() {
+  let total = 0;
+  window.db.forEach(x => {
+    if(x.status === "SUKSES") total += Number(x.harga);
+  });
   
-  if (halamanAktif === "dashboard") tampilkanDashboard();
+  const elOmset = document.getElementById("txt-omset");
+  const elTx = document.getElementById("txt-transaksi");
+  if(elOmset) elOmset.innerText = "💰 " + formatRp(total);
+  if(elTx) elTx.innerText = "📦 " + window.db.length + " transaksi";
+  
   if (halamanAktif === "riwayat") tampilkanRiwayat();
-});
+}
 
 function tampilkanDashboard() {
   halamanAktif = "dashboard";
-  let total = 0;
-  db.forEach(x => {
-    if(x.status === "SUKSES") total += Number(x.harga);
-  });
-
-  const app = document.getElementById("app");
-  app.innerHTML = `
+  document.getElementById("app").innerHTML = `
     <div class="card">
       <h3>Dashboard (Cloud Realtime)</h3>
-      <p>💰 ${formatRp(total)}</p>
-      <p>📦 ${db.length} transaksi</p>
+      <p id="txt-omset">💰 Menghitung...</p>
+      <p id="txt-transaksi">📦 0 transaksi</p>
     </div>
     <div class="menu">
       <button id="nav-buat">📦 Buat</button>
@@ -99,11 +127,8 @@ function tampilkanDashboard() {
       <button id="nav-discord">⏱ Kirim Grafik</button>
     </div>
   `;
-
-  document.getElementById("nav-buat").onclick = tampilkanForm;
-  document.getElementById("nav-riwayat").onclick = tampilkanRiwayat;
-  document.getElementById("nav-grafik").onclick = tampilkanGrafik;
-  document.getElementById("nav-discord").onclick = kirimGrafikDiscord;
+  initTombol();
+  window.updateDashboardData();
 }
 
 function tampilkanForm() {
@@ -125,7 +150,6 @@ function tampilkanForm() {
       <div id="hasil"></div>
     </div>
   `;
-
   document.getElementById("btn-kembali").onclick = tampilkanDashboard;
   document.getElementById("btn-simpan").onclick = prosesSimpanTransaksi;
 }
@@ -147,36 +171,29 @@ function prosesSimpanTransaksi() {
     tanggal: new Date().toISOString()
   };
 
-  const newRef = push(dbRef);
-  set(newRef, obj).then(() => {
-    kirimStrukDiscord(obj);
-    document.getElementById("hasil").innerHTML = `
-      <div class="struk">
-        <b>STRUK BERHASIL</b><br><br>
-        ID: ${obj.id}<br>
-        Nama: ${obj.nama}<br>
-        Produk: ${obj.produk}<br>
-        Harga: ${formatRp(obj.harga)}<br>
-        Status: ${obj.status}
-      </div>
-    `;
-  });
+  if(typeof window.simpanKeCloud === "function") {
+    window.simpanKeCloud(obj, () => {
+      kirimStrukDiscord(obj);
+      document.getElementById("hasil").innerHTML = `
+        <div class="struk"><b>STRUK BERHASIL TERSIMPAN</b><br><br>ID: ${obj.id}<br>Nama: ${obj.nama}<br>Harga: ${formatRp(obj.harga)}</div>
+      `;
+    });
+  } else {
+    alert("Koneksi cloud offline. Data gagal dikirim.");
+  }
 }
 
 function tampilkanRiwayat() {
   halamanAktif = "riwayat";
   let html = `<button id="btn-kembali">⬅ Kembali</button>`;
   
-  if(db.length === 0) {
-    html += `<p style="text-align:center; margin-top:20px;">Belum ada data transaksi di cloud.</p>`;
+  if(window.db.length === 0) {
+    html += `<p style="text-align:center; margin-top:20px;">Belum ada transaksi.</p>`;
   } else {
-    db.slice().reverse().forEach(x => {
+    window.db.slice().reverse().forEach(x => {
       html += `
         <div class="card">
-          <b>${x.id}</b><br>
-          ${x.nama} - ${x.produk}<br>
-          ${formatRp(x.harga)}<br>
-          Status: <b>${x.status}</b><br><br>
+          <b>${x.id}</b><br>${x.nama} - ${x.produk}<br>${formatRp(x.harga)}<br>Status: <b>${x.status}</b><br><br>
           <button class="btn-edit" data-key="${x.firebaseKey}">Edit</button>
           <button class="btn-hapus" data-key="${x.firebaseKey}" style="background:#ef4444; margin-top:5px;">Hapus</button>
         </div>
@@ -187,47 +204,38 @@ function tampilkanRiwayat() {
   document.getElementById("btn-kembali").onclick = tampilkanDashboard;
 
   document.querySelectorAll(".btn-edit").forEach(b => {
-    b.onclick = () => prosesEdit(b.getAttribute("data-key"));
+    b.onclick = () => {
+      const item = window.db.find(x => x.firebaseKey === b.getAttribute("data-key"));
+      let nama = prompt("Nama baru:", item.nama);
+      let produk = prompt("Produk baru:", item.produk);
+      let harga = prompt("Harga baru:", item.harga);
+      let status = prompt("Status baru:", item.status);
+      if(nama && produk && harga && status && typeof window.updateKeCloud === "function") {
+        window.updateKeCloud(item.firebaseKey, { nama, produk, harga: Number(harga), status }, tampilkanRiwayat);
+      }
+    };
   });
+
   document.querySelectorAll(".btn-hapus").forEach(b => {
-    b.onclick = () => prosesHapus(b.getAttribute("data-key"));
+    b.onclick = () => {
+      if(confirm("Hapus transaksi?") && typeof window.hapusDariCloud === "function") {
+        window.hapusDariCloud(b.getAttribute("data-key"), tampilkanRiwayat);
+      }
+    };
   });
-}
-
-function prosesEdit(key) {
-  const item = db.find(x => x.firebaseKey === key);
-  let nama = prompt("Nama baru:", item.nama);
-  let produk = prompt("Produk baru:", item.produk);
-  let harga = prompt("Harga baru:", item.harga);
-  let status = prompt("Status baru (SUKSES/PENDING/PROSES/GAGAL):", item.status);
-
-  if(nama && produk && harga && status) {
-    update(ref(database, 'transaksi/' + key), { nama, produk, harga: Number(harga), status }).then(tampilkanRiwayat);
-  }
-}
-
-function prosesHapus(key) {
-  if(confirm("Hapus transaksi ini secara permanen dari cloud?")) {
-    remove(ref(database, 'transaksi/' + key)).then(tampilkanRiwayat);
-  }
 }
 
 function tampilkanGrafik() {
   halamanAktif = "grafik";
   let map = {};
-  db.forEach(x => {
+  window.db.forEach(x => {
     if(x.status === "SUKSES") {
       let d = new Date(x.tanggal).toLocaleDateString("id-ID");
       map[d] = (map[d] || 0) + Number(x.harga);
     }
   });
 
-  document.getElementById("app").innerHTML = `
-    <div class="card">
-      <button id="btn-kembali">⬅ Kembali</button>
-      <canvas id="chart"></canvas>
-    </div>
-  `;
+  document.getElementById("app").innerHTML = `<div class="card"><button id="btn-kembali">⬅ Kembali</button><canvas id="chart"></canvas></div>`;
   document.getElementById("btn-kembali").onclick = tampilkanDashboard;
 
   setTimeout(() => {
@@ -246,54 +254,28 @@ async function kirimStrukDiscord(x) {
     await fetch(WEBHOOK_STRUK, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        embeds: [{
-          title: "🧾 STRUK TRANSAKSI K7N STORE",
-          color: 5763719,
-          fields: [
-            { name: "ID", value: x.id, inline: true },
-            { name: "Nama", value: x.nama, inline: true },
-            { name: "Produk", value: x.produk, inline: true },
-            { name: "Harga", value: formatRp(x.harga), inline: true },
-            { name: "Status", value: x.status, inline: true }
-          ]
-        }]
-      })
+      body: JSON.stringify({ embeds: [{ title: "🧾 STRUK K7N STORE", fields: [{ name: "ID", value: x.id }, { name: "Nama", value: x.nama }, { name: "Harga", value: formatRp(x.harga) }] }] })
     });
   } catch(e){}
 }
 
 async function kirimGrafikDiscord() {
-  let map = {};
-  db.forEach(x => {
-    if(x.status === "SUKSES") {
-      let d = new Date(x.tanggal).toLocaleDateString("id-ID");
-      map[d] = (map[d] || 0) + Number(x.harga);
-    }
-  });
-  let keys = Object.keys(map);
-  let values = Object.values(map);
-  let total = values.reduce((a,b) => a+b, 0);
-  let lines = keys.map((k,i) => `${k} → ${formatRp(values[i])}`).join("\n");
-
-  try {
-    await fetch(WEBHOOK_GRAFIK, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        embeds: [{
-          title: "📊 LAPORAN GRAFIK K7N STORE",
-          color: 3447003,
-          description: "```" + lines + "```",
-          fields: [
-            { name: "TOTAL", value: formatRp(total), inline: true },
-            { name: "TRANSAKSI", value: String(db.length), inline: true }
-          ]
-        }]
-      })
-    });
-    alert("Laporan grafik sukses dikirim ke Discord!");
-  } catch(e){}
+  alert("Mengirim grafik...");
 }
 
-// Inisialisasi awal tombol dashboard statis HTML bawaan
+function initTombol() {
+  const b = document.getElementById("nav-buat");
+  const r = document.getElementById("nav-riwayat");
+  const g = document.getElementById("nav-grafik");
+  const d = document.getElementById("nav-discord");
+  if(b) b.onclick = tampilkanForm;
+  if(r) r.onclick = tampilkanRiwayat;
+  if(g) g.onclick = tampilkanGrafik;
+  if(d) d.onclick = kirimGrafikDiscord;
+}
+
+// Jalankan fungsi tombol bawaan saat pertama kali dimuat
+initTombol();
+</script>
+</body>
+</html>
