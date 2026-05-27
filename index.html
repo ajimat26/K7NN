@@ -139,7 +139,7 @@ window.buat = function(){
   const hg = document.getElementById("harga").value.trim();
   const st = document.getElementById("status").value;
 
-  if(!nm || !pr || !hg) return alert("Semua data wajib diisi!");
+  if(!nm || !pr || !hg) return alert("All data field must be filled!");
 
   let obj = {
     id: "K7N-" + Math.random().toString(36).slice(2,7).toUpperCase(),
