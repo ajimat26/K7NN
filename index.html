@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>K7N STORE PRO</title>
-
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#0f172a;color:#e5e7eb;-webkit-tap-highlight-color:transparent}
 .header{padding:15px;text-align:center;background:#4f46e5;font-weight:bold;color:white;position:relative}
@@ -21,20 +20,19 @@ button{width:100%;padding:12px;border:none;border-radius:8px;background:#4f46e5;
 .bar-fill {background:#4f46e5;height:100%;width:0%;transition:width 0.5s ease-in-out}
 </style>
 </head>
-
 <body>
 
 <div id="header-area" class="header">K7N STORE</div>
 <div class="container" id="app"></div>
 
 <script>
-const app = document.getElementById("app");
-const headerArea = document.getElementById("header-area");
+var app = document.getElementById("app");
+var headerArea = document.getElementById("header-area");
 
 var db = JSON.parse(localStorage.getItem("k7n_store_db")) || [];
 var currentAdmin = localStorage.getItem("k7n_admin_logged") || "";
 
-const WEBHOOK_STRUK = "https://discord.com";
+var WEBHOOK_STRUK = "https://discord.com";
 
 function formatRp(v){
   return "Rp "+Number(v).toLocaleString("id-ID");
@@ -44,7 +42,7 @@ function saveDB() {
   localStorage.setItem("k7n_store_db", JSON.stringify(db));
 }
 
-/* ================= SYSTEM AUTH ================= */
+/* ================= VALIDASI LOGIN ================= */
 function checkAuth() {
   if (!currentAdmin) {
     tampilkanHalamanLogin();
@@ -95,7 +93,7 @@ function prosesLogout() {
   }
 }
 
-/* ================= VIEW: DASHBOARD ================= */
+/* ================= DASHBOARD UTAMA ================= */
 function dashboard(){
   var total = 0;
   db.forEach(function(x){
@@ -114,7 +112,7 @@ function dashboard(){
   '</div>';
 }
 
-/* ================= VIEW: BUAT TRANSAKSI ================= */
+/* ================= INPUT TRANSAKSI ================= */
 function form(){
   app.innerHTML = '<div class="card">' +
     '<button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button>' +
@@ -196,27 +194,31 @@ async function sendStruk(x){
   } catch(e) {}
 }
 
-/* ================= VIEW: RIWAYAT ================= */
+/* ================= RIWAYAT PENJUALAN ================= */
 function riwayat(){
   var html = '<button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button><h3>Riwayat Transaksi</h3>';
 
   if(db.length === 0) {
     html += '<p style="text-align:center; margin-top:20px;">Belum ada riwayat transaksi.</p>';
   } else {
-    db.map(function(x, idx){ return { item: x, originalIndex: idx }; })
-      .reverse()
-      .forEach(function(itemObj){
-        var x = itemObj.item;
-        html += '<div class="card">' +
-          '<b>ID: ' + x.id + '</b><br>' +
-          'Oleh Admin: <b>' + x.admin + '</b><br>' +
-          'Pelanggan: ' + x.nama + ' - ' + x.produk + '<br>' +
-          'Harga: ' + formatRp(x.harga) + '<br>' +
-          'Status: <b>' + x.status + '</b><br><br>' +
-          '<button onclick="edit(' + itemObj.originalIndex + ')" style="width:auto; padding:5px 15px; background:#3b82f6;">Edit</button> ' +
-          '<button onclick="hapus(' + itemObj.originalIndex + ')" style="width:auto; padding:5px 15px; background:#ef4444;">Hapus</button>' +
-        '</div>';
-      });
+    var tempArray = [];
+    for(var i = 0; i < db.length; i++) {
+      tempArray.push({ item: db[i], idxAsli: i });
+    }
+    tempArray.reverse();
+
+    tempArray.forEach(function(objekData){
+      var x = objekData.item;
+      html += '<div class="card">' +
+        '<b>ID: ' + x.id + '</b><br>' +
+        'Oleh Admin: <b>' + x.admin + '</b><br>' +
+        'Pelanggan: ' + x.nama + ' - ' + x.produk + '<br>' +
+        'Harga: ' + formatRp(x.harga) + '<br>' +
+        'Status: <b>' + x.status + '</b><br><br>' +
+        '<button onclick="edit(' + objekData.idxAsli + ')" style="width:auto; padding:5px 15px; background:#3b82f6;">Edit</button> ' +
+        '<button onclick="hapus(' + objekData.idxAsli + ')" style="width:auto; padding:5px 15px; background:#ef4444;">Hapus</button>' +
+      '</div>';
+    });
   }
   app.innerHTML = html;
 }
@@ -243,7 +245,7 @@ window.hapus = function(i){
   }
 }
 
-/* ================= VIEW: GRAFIK PERSENTASE ================= */
+/* ================= GRAFIK PERSENTASE RINGAN ================= */
 function grafik(){
   var totalSukses = 0;
   var totalGagal = 0;
