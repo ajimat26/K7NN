@@ -31,7 +31,6 @@ button{width:100%;padding:12px;border:none;border-radius:8px;background:#4f46e5;
 var app = document.getElementById("app");
 var headerArea = document.getElementById("header-area");
 
-// Database internal tersimpan permanen di web browser masing-masing kasir (bisa direfresh)
 var db = JSON.parse(localStorage.getItem("k7n_store_db")) || [];
 var currentAdmin = localStorage.getItem("k7n_admin_logged") || "";
 
@@ -45,9 +44,9 @@ function saveDB() {
   localStorage.setItem("k7n_store_db", JSON.stringify(db));
 }
 
-/* ================= VALIDASI LOGIN ================= */
+/* ================= SYSTEM AUTH ================= */
 function checkAuth() {
-  if (!currentAdmin) {
+  if (!currentAdmin || currentAdmin === "") {
     tampilkanHalamanLogin();
   } else {
     headerArea.innerHTML = 'K7N STORE <button class="logout-btn" onclick="prosesLogout()">Keluar</button>';
@@ -76,8 +75,8 @@ function prosesLogin() {
     var decoded = atob(base64Part); 
     var parts = decoded.split("||");
     
-    if(parts.length === 2 && parts[0] !== "") {
-      currentAdmin = parts[0]; // Membaca username akun secara murni
+    if(parts.length === 2 && parts !== "") {
+      currentAdmin = parts[0]; 
       localStorage.setItem("k7n_admin_logged", currentAdmin);
       checkAuth();
     } else {
@@ -171,7 +170,7 @@ window.buat = function(){
   document.getElementById("harga").value = "";
 }
 
-/* ================= WEBHOOK DISCORD (FORMAT SESUAI REQUEST) ================= */
+/* ================= KIRIM NOTA DISCORD ================= */
 async function sendStruk(x){
   try {
     await fetch(WEBHOOK_STRUK,{
@@ -183,7 +182,7 @@ async function sendStruk(x){
           color:5763719,
           fields:[
             {name:"ID NOTA", value:x.id, inline:true},
-            {name:"admin", value: "admin:" + x.admin, inline:true}, // Format request: admin:username_akun
+            {name:"admin", value: "admin:" + x.admin, inline:true}, 
             {name:"Pelanggan", value:x.nama, inline:true},
             {name:"Produk", value:x.produk, inline:true},
             {name:"Harga", value:formatRp(x.harga), inline:true},
@@ -199,7 +198,7 @@ async function sendStruk(x){
 
 /* ================= RIWAYAT PENJUALAN ================= */
 function riwayat(){
-  let html = '<button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button><h3>Riwayat Transaksi</h3>';
+  var html = '<button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button><h3>Riwayat Transaksi</h3>';
 
   if(db.length === 0) {
     html += '<p style="text-align:center; margin-top:20px;">Belum ada riwayat transaksi.</p>';
@@ -248,7 +247,7 @@ window.hapus = function(i){
   }
 }
 
-/* ================= GRAFIK PERSENTASE RINGAN (PENGGANTI CHART.JS) ================= */
+/* ================= GRAFIK PERSENTASE RINGAN ================= */
 function grafik(){
   var totalSukses = 0;
   var totalGagal = 0;
@@ -266,3 +265,6 @@ function grafik(){
   var persenGagal = Math.round((totalGagal / totalSemua) * 100);
 
   app.innerHTML = '<div class="card">' +
+    '<button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button>' +
+    '<h3>Persentase Status Nota</h3>' +
+    '<p>✅ SUKSES (' + totalSukses + ' Nota)</p>' +
