@@ -21,21 +21,21 @@ button{width:100%;padding:10px;border:none;border-radius:8px;background:#4f46e5;
 
 <div class="header">K7N STORE</div>
 <div class="container" id="app">
-  <!-- Struktur Dashboard langsung dipasang statis agar tidak tersangkut loading screen -->
   <div class="card">
     <h3>Dashboard (Cloud Realtime)</h3>
-    <p id="txt-omset">💰 Rp 0</p>
-    <p id="txt-transaksi">📦 0 transaksi</p>
+    <p id="txt-omset">💰 Menghubungkan...</p>
+    <p id="txt-transaksi">📦 Menghubungkan...</p>
   </div>
   <div class="menu">
-    <div onclick="bukaForm()">📦 Buat</div>
-    <div onclick="bukaRiwayat()">📊 Riwayat</div>
-    <div onclick="bukaGrafik()">📈 Grafik</div>
-    <div onclick="kirimGrafikDiscord()">⏱ Kirim Grafik</div>
+    <button id="nav-buat">📦 Buat</button>
+    <button id="nav-riwayat">📊 Riwayat</button>
+    <button id="nav-grafik">📈 Grafik</button>
+    <button id="nav-discord">⏱ Kirim Grafik</button>
   </div>
 </div>
 
 <script type="module">
+// Mengimpor library Firebase SDK secara Cloud resmi
 import { initializeApp } from "https://gstatic.com";
 import { getDatabase, ref, set, push, onValue, update, remove } from "https://gstatic.com";
 
@@ -54,82 +54,63 @@ const firebaseApp = initializeApp(firebaseConfig);
 const database = getDatabase(firebaseApp);
 const dbRef = ref(database, 'transaksi');
 
-window.db = [];
+let db = [];
+let halamanAktif = "dashboard";
 
-onValue(dbRef, (snapshot) => {
-  const data = snapshot.val();
-  window.db = [];
-  if (data) {
-    Object.keys(data).forEach(key => {
-      window.db.push({ firebaseKey: key, ...data[key] });
-    });
-  }
-  updateDashboardData();
-});
-
-window.simpanKeCloud = function(obj, callback) {
-  const newRef = push(dbRef);
-  set(newRef, obj).then(callback).catch(err => alert("Gagal Simpan Cloud: " + err.message));
-};
-
-window.updateKeCloud = function(key, data, callback) {
-  update(ref(database, 'transaksi/' + key), data).then(callback);
-};
-
-window.hapusDariCloud = function(key, callback) {
-  remove(ref(database, 'transaksi/' + key)).then(callback);
-};
-</script>
-
-<script>
-/* ================= LOGIKA APLIKASI UTAMA ================= */
 const WEBHOOK_STRUK="https://discord.com";
 const WEBHOOK_GRAFIK="https://discord.com";
-
-let halamanAktif = "dashboard";
 
 function formatRp(v){
   return "Rp "+Number(v).toLocaleString("id-ID");
 }
 
-function updateDashboardData() {
-  let total = 0;
-  if(window.db) {
-    window.db.forEach(x => {
-      if(x.status === "SUKSES") total += Number(x.harga);
+// Menangkap data Cloud Firebase secara Real-time
+onValue(dbRef, (snapshot) => {
+  const data = snapshot.val();
+  db = [];
+  if (data) {
+    Object.keys(data).forEach(key => {
+      db.push({ firebaseKey: key, ...data[key] });
     });
-    // Update data teks angka jika elemennya ada di layar
-    const elOmset = document.getElementById("txt-omset");
-    const elTx = document.getElementById("txt-transaksi");
-    if(elOmset) elOmset.innerText = "💰 " + formatRp(total);
-    if(elTx) elTx.innerText = "📦 " + window.db.length + " transaksi";
   }
-  if(halamanAktif === "riwayat") bukaRiwayat();
-}
+  
+  if (halamanAktif === "dashboard") tampilkanDashboard();
+  if (halamanAktif === "riwayat") tampilkanRiwayat();
+});
 
-function kembaliKeDashboard() {
+function tampilkanDashboard() {
   halamanAktif = "dashboard";
-  document.getElementById("app").innerHTML = `
+  let total = 0;
+  db.forEach(x => {
+    if(x.status === "SUKSES") total += Number(x.harga);
+  });
+
+  const app = document.getElementById("app");
+  app.innerHTML = `
     <div class="card">
       <h3>Dashboard (Cloud Realtime)</h3>
-      <p id="txt-omset">💰 Rp 0</p>
-      <p id="txt-transaksi">📦 0 transaksi</p>
+      <p>💰 ${formatRp(total)}</p>
+      <p>📦 ${db.length} transaksi</p>
     </div>
     <div class="menu">
-      <div onclick="bukaForm()">📦 Buat</div>
-      <div onclick="bukaRiwayat()">📊 Riwayat</div>
-      <div onclick="bukaGrafik()">📈 Grafik</div>
-      <div onclick="kirimGrafikDiscord()">⏱ Kirim Grafik</div>
+      <button id="nav-buat">📦 Buat</button>
+      <button id="nav-riwayat">📊 Riwayat</button>
+      <button id="nav-grafik">📈 Grafik</button>
+      <button id="nav-discord">⏱ Kirim Grafik</button>
     </div>
   `;
-  updateDashboardData();
+
+  document.getElementById("nav-buat").onclick = tampilkanForm;
+  document.getElementById("nav-riwayat").onclick = tampilkanRiwayat;
+  document.getElementById("nav-grafik").onclick = tampilkanGrafik;
+  document.getElementById("nav-discord").onclick = kirimGrafikDiscord;
 }
 
-function bukaForm() {
+function tampilkanForm() {
   halamanAktif = "form";
   document.getElementById("app").innerHTML = `
     <div class="card">
-      <button onclick="kembaliKeDashboard()">⬅ Kembali</button>
+      <button id="btn-kembali">⬅ Kembali</button>
       <h3>Tambah Transaksi</h3>
       <input id="nama" placeholder="Nama">
       <input id="produk" placeholder="Produk">
@@ -140,19 +121,22 @@ function bukaForm() {
         <option value="PROSES">PROSES</option>
         <option value="GAGAL">GAGAL</option>
       </select>
-      <button onclick="prosesSimpan()">Simpan</button>
+      <button id="btn-simpan">Simpan</button>
       <div id="hasil"></div>
     </div>
   `;
+
+  document.getElementById("btn-kembali").onclick = tampilkanDashboard;
+  document.getElementById("btn-simpan").onclick = prosesSimpanTransaksi;
 }
 
-function prosesSimpan() {
+function prosesSimpanTransaksi() {
   const nm = document.getElementById("nama").value;
   const pr = document.getElementById("produk").value;
   const hg = document.getElementById("harga").value;
   const st = document.getElementById("status").value;
 
-  if(!nm || !pr || !hg) return alert("Semua data harus diisi!");
+  if(!nm || !pr || !hg) return alert("Semua data wajib diisi!");
 
   let obj = {
     id: "K7N-" + Math.random().toString(36).slice(2,7).toUpperCase(),
@@ -163,70 +147,75 @@ function prosesSimpan() {
     tanggal: new Date().toISOString()
   };
 
-  if(typeof window.simpanKeCloud === "function") {
-    window.simpanKeCloud(obj, () => {
-      kirimStrukDiscord(obj);
-      document.getElementById("hasil").innerHTML = `
-        <div class="struk">
-          <b>STRUK BERHASIL</b><br><br>
-          ID: ${obj.id}<br>
-          Nama: ${obj.nama}<br>
-          Produk: ${obj.produk}<br>
-          Harga: ${formatRp(obj.harga)}<br>
-          Status: ${obj.status}
-        </div>
-      `;
-    });
-  } else {
-    alert("Koneksi cloud sedang bersiap, silakan klik tombol Simpan lagi dalam 2 detik.");
-  }
+  const newRef = push(dbRef);
+  set(newRef, obj).then(() => {
+    kirimStrukDiscord(obj);
+    document.getElementById("hasil").innerHTML = `
+      <div class="struk">
+        <b>STRUK BERHASIL</b><br><br>
+        ID: ${obj.id}<br>
+        Nama: ${obj.nama}<br>
+        Produk: ${obj.produk}<br>
+        Harga: ${formatRp(obj.harga)}<br>
+        Status: ${obj.status}
+      </div>
+    `;
+  });
 }
 
-function bukaRiwayat() {
+function tampilkanRiwayat() {
   halamanAktif = "riwayat";
-  let html = `<button onclick="kembaliKeDashboard()">⬅ Kembali</button>`;
+  let html = `<button id="btn-kembali">⬅ Kembali</button>`;
   
-  if(!window.db || window.db.length === 0) {
+  if(db.length === 0) {
     html += `<p style="text-align:center; margin-top:20px;">Belum ada data transaksi di cloud.</p>`;
   } else {
-    window.db.slice().reverse().forEach(x => {
+    db.slice().reverse().forEach(x => {
       html += `
         <div class="card">
           <b>${x.id}</b><br>
           ${x.nama} - ${x.produk}<br>
           ${formatRp(x.harga)}<br>
           Status: <b>${x.status}</b><br><br>
-          <button onclick="prosesEdit('${x.firebaseKey}')">Edit</button>
-          <button onclick="prosesHapus('${x.firebaseKey}')" style="background:#ef4444; margin-top:5px;">Hapus</button>
+          <button class="btn-edit" data-key="${x.firebaseKey}">Edit</button>
+          <button class="btn-hapus" data-key="${x.firebaseKey}" style="background:#ef4444; margin-top:5px;">Hapus</button>
         </div>
       `;
     });
   }
   document.getElementById("app").innerHTML = html;
+  document.getElementById("btn-kembali").onclick = tampilkanDashboard;
+
+  document.querySelectorAll(".btn-edit").forEach(b => {
+    b.onclick = () => prosesEdit(b.getAttribute("data-key"));
+  });
+  document.querySelectorAll(".btn-hapus").forEach(b => {
+    b.onclick = () => prosesHapus(b.getAttribute("data-key"));
+  });
 }
 
 function prosesEdit(key) {
-  const item = window.db.find(x => x.firebaseKey === key);
+  const item = db.find(x => x.firebaseKey === key);
   let nama = prompt("Nama baru:", item.nama);
   let produk = prompt("Produk baru:", item.produk);
   let harga = prompt("Harga baru:", item.harga);
   let status = prompt("Status baru (SUKSES/PENDING/PROSES/GAGAL):", item.status);
 
   if(nama && produk && harga && status) {
-    window.updateKeCloud(key, { nama, produk, harga: Number(harga), status }, bukaRiwayat);
+    update(ref(database, 'transaksi/' + key), { nama, produk, harga: Number(harga), status }).then(tampilkanRiwayat);
   }
 }
 
 function prosesHapus(key) {
   if(confirm("Hapus transaksi ini secara permanen dari cloud?")) {
-    window.hapusDariCloud(key, bukaRiwayat);
+    remove(ref(database, 'transaksi/' + key)).then(tampilkanRiwayat);
   }
 }
 
-function bukaGrafik() {
+function tampilkanGrafik() {
   halamanAktif = "grafik";
   let map = {};
-  window.db.forEach(x => {
+  db.forEach(x => {
     if(x.status === "SUKSES") {
       let d = new Date(x.tanggal).toLocaleDateString("id-ID");
       map[d] = (map[d] || 0) + Number(x.harga);
@@ -235,10 +224,11 @@ function bukaGrafik() {
 
   document.getElementById("app").innerHTML = `
     <div class="card">
-      <button onclick="kembaliKeDashboard()">⬅ Kembali</button>
+      <button id="btn-kembali">⬅ Kembali</button>
       <canvas id="chart"></canvas>
     </div>
   `;
+  document.getElementById("btn-kembali").onclick = tampilkanDashboard;
 
   setTimeout(() => {
     new Chart(document.getElementById("chart"), {
@@ -275,7 +265,7 @@ async function kirimStrukDiscord(x) {
 
 async function kirimGrafikDiscord() {
   let map = {};
-  window.db.forEach(x => {
+  db.forEach(x => {
     if(x.status === "SUKSES") {
       let d = new Date(x.tanggal).toLocaleDateString("id-ID");
       map[d] = (map[d] || 0) + Number(x.harga);
@@ -297,3 +287,13 @@ async function kirimGrafikDiscord() {
           description: "```" + lines + "```",
           fields: [
             { name: "TOTAL", value: formatRp(total), inline: true },
+            { name: "TRANSAKSI", value: String(db.length), inline: true }
+          ]
+        }]
+      })
+    });
+    alert("Laporan grafik sukses dikirim ke Discord!");
+  } catch(e){}
+}
+
+// Inisialisasi awal tombol dashboard statis HTML bawaan
