@@ -240,4 +240,48 @@ window.edit=function(i){
 }
 
 window.hapus=function(i){
-  if(confirm("Hapus tran
+  if(confirm("Hapus transaksi ini?")) {
+    db.splice(i,1);
+    saveDB();
+    riwayat();
+  }
+}
+
+/* ================= GRAFIK LOKAL ================= */
+function grafik(){
+  let map={};
+  db.forEach(x=>{
+    if(x.status==="SUKSES"){
+      let d=new Date(x.tanggal).toLocaleDateString("id-ID");
+      map[d]=(map[d]||0)+Number(x.harga);
+    }
+  });
+
+  app.innerHTML=`
+    <div class="card">
+      <button onclick="dashboard()">⬅ Kembali</button>
+      <canvas id="chart"></canvas>
+    </div>
+  `;
+
+  setTimeout(() => {
+    new Chart(document.getElementById("chart"),{
+      type:"line",
+      data:{
+        labels:Object.keys(map),
+        datasets:[{
+          label: 'Omset Sukses',
+          data:Object.values(map),
+          borderColor:"#4f46e5",
+          tension:0.4
+        }]
+      }
+    });
+  },200);
+}
+
+// Jalankan sistem otentikasi login saat web dibuka
+checkAuth();
+</script>
+</body>
+</html>
