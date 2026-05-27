@@ -2,22 +2,22 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>K7N STORE PRO</title>
+<script src="https://jsdelivr.net"></script>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#0f172a;color:#e5e7eb;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:Arial;background:#0f172a;color:#e5e7eb}
 .header{padding:15px;text-align:center;background:#4f46e5;font-weight:bold;color:white;position:relative}
-.logout-btn{position:absolute;right:15px;top:12px;background:#ef4444;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:bold;border:none;color:white;cursor:pointer}
+.logout-btn{position:absolute;right:15px;top:12px;background:#ef4444;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:bold}
 .container{padding:15px}
 .card{background:#1e293b;padding:15px;border-radius:12px;margin-bottom:10px}
-input,select{width:100%;padding:12px;margin:5px 0;border-radius:8px;border:none;box-sizing:border-box;background:#334155;color:white;font-size:16px}
-button{width:100%;padding:12px;border:none;border-radius:8px;background:#4f46e5;color:white;cursor:pointer;font-size:16px;font-weight:bold}
+input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;box-sizing:border-box;background:#334155;color:white}
+button{width:100%;padding:10px;border:none;border-radius:8px;background:#4f46e5;color:white;cursor:pointer}
 .menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.menu div{background:#1e293b;padding:20px;text-align:center;border-radius:10px;cursor:pointer;font-weight:bold}
+.menu div{background:#1e293b;padding:20px;text-align:center;border-radius:10px;cursor:pointer}
 .struk{background:white;color:black;padding:10px;border-radius:10px;font-family:monospace;margin-top:10px}
-.login-screen{display:flex;justify-content:center;align-items:center;height:70vh}
-.bar-container {background:#334155;border-radius:8px;height:20px;width:100%;margin-top:8px;overflow:hidden}
-.bar-fill {background:#4f46e5;height:100%;width:0%;transition:width 0.5s ease-in-out}
+/* Desain Login Box */
+.login-screen{display:flex;justify-content:center;align-items:center;height:80vh}
 </style>
 </head>
 <body>
@@ -26,13 +26,14 @@ button{width:100%;padding:12px;border:none;border-radius:8px;background:#4f46e5;
 <div class="container" id="app"></div>
 
 <script>
-var app = document.getElementById("app");
-var headerArea = document.getElementById("header-area");
+const app = document.getElementById("app");
+const headerArea = document.getElementById("header-area");
 
-var db = JSON.parse(localStorage.getItem("k7n_store_db")) || [];
-var currentAdmin = localStorage.getItem("k7n_admin_logged") || "";
+// Pusat database lokal di masing-masing perangkat (Aman saat direfresh)
+let db = JSON.parse(localStorage.getItem("k7n_store_db")) || [];
+let currentAdmin = localStorage.getItem("k7n_admin_logged") || "";
 
-var WEBHOOK_STRUK = "https://discord.com";
+const WEBHOOK_STRUK = "https://discord.com";
 
 function formatRp(v){
   return "Rp "+Number(v).toLocaleString("id-ID");
@@ -42,39 +43,41 @@ function saveDB() {
   localStorage.setItem("k7n_store_db", JSON.stringify(db));
 }
 
-/* ================= VALIDASI LOGIN ================= */
+/* ================= HALAMAN CEK LOGIN ================= */
 function checkAuth() {
   if (!currentAdmin) {
     tampilkanHalamanLogin();
   } else {
-    headerArea.innerHTML = 'K7N STORE <button class="logout-btn" onclick="prosesLogout()">Keluar</button>';
+    headerArea.innerHTML = `K7N STORE <button class="logout-btn" onclick="prosesLogout()">Keluar</button>`;
     dashboard();
   }
 }
 
 function tampilkanHalamanLogin() {
-  headerArea.innerHTML = 'K7N STORE - LOGIN';
-  app.innerHTML = '<div class="login-screen">' +
-    '<div class="card" style="width:100%; max-width:320px;">' +
-      '<h3 style="text-align:center; margin-top:0; color:#818cf8;">Akses Masuk Admin</h3>' +
-      '<p style="font-size:12px; color:#94a3b8; text-align:center; line-height:1.4;">Masukkan kode login akses admin yang didapatkan dari halaman pendaftaran NVRZ.</p>' +
-      '<input id="tokenInput" placeholder="Masukkan Kode Login (K7N-...)">' +
-      '<button onclick="prosesLogin()" style="margin-top:10px;">Masuk Ke Web</button>' +
-    '</div>' +
-  '</div>';
+  headerArea.innerHTML = `K7N STORE - LOGIN`;
+  app.innerHTML = `
+    <div class="login-screen">
+      <div class="card" style="width:100%; max-width:320px;">
+        <h3 style="text-align:center; margin-top:0;">Akses Masuk Admin</h3>
+        <p style="font-size:12px; color:#94a3b8; text-align:center;">Masukkan kode login yang didapatkan dari halaman NVRZ.</p>
+        <input id="tokenInput" placeholder="Masukkan Kode Login (K7N-...)">
+        <button onclick="prosesLogin()" style="margin-top:10px;">Masuk Ke Web</button>
+      </div>
+    </div>
+  `;
 }
 
 function prosesLogin() {
-  var token = document.getElementById("tokenInput").value.trim();
+  const token = document.getElementById("tokenInput").value.trim();
   if(!token.startsWith("K7N-")) return alert("Kode Login Tidak Valid!");
 
   try {
-    var base64Part = token.replace("K7N-", "");
-    var decoded = atob(base64Part); 
-    var parts = decoded.split("||");
+    const base64Part = token.replace("K7N-", "");
+    const decoded = atob(base64Part); // Memecah kode rahasia menjadi teks asli
+    const parts = decoded.split("||");
     
     if(parts.length === 2 && parts[0] !== "") {
-      currentAdmin = parts[0]; 
+      currentAdmin = parts[0]; // Mengambil Nama Admin dari token
       localStorage.setItem("k7n_admin_logged", currentAdmin);
       checkAuth();
     } else {
@@ -86,66 +89,70 @@ function prosesLogin() {
 }
 
 function prosesLogout() {
-  if(confirm("Keluar dari akun admin?")) {
-    localStorage.removeItem("k7n_admin_logged");
-    currentAdmin = "";
-    checkAuth();
-  }
+  localStorage.removeItem("k7n_admin_logged");
+  currentAdmin = "";
+  checkAuth();
 }
 
-/* ================= DASHBOARD UTAMA ================= */
+/* ================= DASHBOARD KASIR ================= */
 function dashboard(){
-  var total = 0;
-  db.forEach(function(x){
-    if(x.status === "SUKSES") total += Number(x.harga);
+  let total=0;
+  db.forEach(x=>{
+    if(x.status==="SUKSES") total+=Number(x.harga);
   });
 
-  app.innerHTML = '<div class="card">' +
-    '<h3>Selamat Datang, <span style="color:#a5b4fc;">' + currentAdmin + '</span> 👋</h3>' +
-    '<p>💰 Total Omset: <b>' + formatRp(total) + '</b></p>' +
-    '<p>📦 Total Penjualan: <b>' + db.length + ' transaksi</b></p>' +
-  '</div>' +
-  '<div class="menu">' +
-    '<div onclick="form()">📦 Buat</div>' +
-    '<div onclick="riwayat()">📊 Riwayat</div>' +
-    '<div onclick="grafik()">📈 Grafik</div>' +
-  '</div>';
+  app.innerHTML=`
+    <div class="card">
+      <h3>Selamat Datang, <span style="color:#a5b4fc;">${currentAdmin}</span> 👋</h3>
+      <p>💰 Total Omset: <b>${formatRp(total)}</b></p>
+      <p>📦 Total Penjualan: <b>${db.length} transaksi</b></p>
+    </div>
+
+    <div class="menu">
+      <div onclick="form()">📦 Buat</div>
+      <div onclick="riwayat()">📊 Riwayat</div>
+      <div onclick="grafik()">📈 Grafik</div>
+    </div>
+  `;
 }
 
 /* ================= INPUT TRANSAKSI ================= */
 function form(){
-  app.innerHTML = '<div class="card">' +
-    '<button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button>' +
-    '<h3>Tambah Transaksi</h3>' +
-    '<input id="nama" placeholder="Nama Pelanggan" autocomplete="off">' +
-    '<input id="produk" placeholder="Produk" autocomplete="off">' +
-    '<input id="harga" type="number" placeholder="Harga" inputmode="numeric">' +
-    '<select id="status">' +
-      '<option value="SUKSES">SUKSES</option>' +
-      '<option value="PENDING">PENDING</option>' +
-      '<option value="PROSES">PROSES</option>' +
-      '<option value="GAGAL">GAGAL</option>' +
-    '</select>' +
-    '<button onclick="buat()">Simpan Transaksi</button>' +
-    '<div id="hasil"></div>' +
-  '</div>';
+  app.innerHTML=`
+    <div class="card">
+      <button onclick="dashboard()">⬅ Kembali</button>
+      <h3>Tambah Transaksi</h3>
+      <input id="nama" placeholder="Nama Pelanggan">
+      <input id="produk" placeholder="Produk">
+      <input id="harga" type="number" placeholder="Harga">
+      <select id="status">
+        <option value="SUKSES">SUKSES</option>
+        <option value="PENDING">PENDING</option>
+        <option value="PROSES">PROSES</option>
+        <option value="GAGAL">GAGAL</option>
+      </select>
+      <button onclick="buat()">Simpan Transaksi</button>
+      <div id="hasil"></div>
+    </div>
+  `;
 }
 
-window.buat = function(){
-  var nm = document.getElementById("nama").value.trim();
-  var pr = document.getElementById("produk").value.trim();
-  var hg = document.getElementById("harga").value.trim();
-  var st = document.getElementById("status").value;
+/* ================= PROSES SIMPAN & DISCORD ================= */
+window.buat=function(){
+  const nm = document.getElementById("nama").value;
+  const pr = document.getElementById("produk").value;
+  const hg = document.getElementById("harga").value;
+  const st = document.getElementById("status").value;
 
   if(!nm || !pr || !hg) return alert("Semua data wajib diisi!");
 
-  var obj = {
+  let obj={
     id: "K7N-" + Math.random().toString(36).slice(2,7).toUpperCase(),
     nama: nm,
     produk: pr,
     harga: Number(hg),
     status: st,
-    admin: currentAdmin, 
+    admin: currentAdmin, // Nama admin login direkam di sini
     tanggal: new Date().toISOString()
   };
 
@@ -153,22 +160,20 @@ window.buat = function(){
   saveDB();
   sendStruk(obj);
 
-  document.getElementById("hasil").innerHTML = '<div class="struk">' +
-    '<b>STRUK BERHASIL</b><br><br>' +
-    'ID: ' + obj.id + '<br>' +
-    'Admin Kasir: ' + obj.admin + '<br>' +
-    'Pelanggan: ' + obj.nama + '<br>' +
-    'Produk: ' + obj.produk + '<br>' +
-    'Harga: ' + formatRp(obj.harga) + '<br>' +
-    'Status: ' + obj.status +
-  '</div>';
-
-  document.getElementById("nama").value = "";
-  document.getElementById("produk").value = "";
-  document.getElementById("harga").value = "";
+  document.getElementById("hasil").innerHTML=`
+    <div class="struk">
+      <b>STRUK BERHASIL</b><br><br>
+      ID: ${obj.id}<br>
+      Admin Kasir: ${obj.admin}<br>
+      Pelanggan: ${obj.nama}<br>
+      Produk: ${obj.produk}<br>
+      Harga: ${formatRp(obj.harga)}<br>
+      Status: ${obj.status}
+    </div>
+  `;
 }
 
-/* ================= WEBHOOK DISCORD ================= */
+/* ================= KIRIM STRUK DISCORD ================= */
 async function sendStruk(x){
   try {
     await fetch(WEBHOOK_STRUK,{
@@ -179,8 +184,8 @@ async function sendStruk(x){
           title:"🧾 STRUK TRANSAKSI K7N STORE",
           color:5763719,
           fields:[
-            {name:"ID NOTA", value:x.id, inline:true},
-            {name:"admin", value: "admin:" + x.admin, inline:true}, 
+            {name:"ID", value:x.id, inline:true},
+            {name:"admin", value: "admin:" + x.admin, inline:true}, // Format "admin:username" terpasang otomatis
             {name:"Pelanggan", value:x.nama, inline:true},
             {name:"Produk", value:x.produk, inline:true},
             {name:"Harga", value:formatRp(x.harga), inline:true},
@@ -194,75 +199,45 @@ async function sendStruk(x){
   } catch(e) {}
 }
 
-/* ================= RIWAYAT PENJUALAN ================= */
+/* ================= RIWAYAT KASIR ================= */
 function riwayat(){
-  var html = '<button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button><h3>Riwayat Transaksi</h3>';
+  let html=`<button onclick="dashboard()">⬅ Kembali</button><h3>Riwayat Transaksi</h3>`;
 
   if(db.length === 0) {
-    html += '<p style="text-align:center; margin-top:20px;">Belum ada riwayat transaksi.</p>';
+    html += `<p style="text-align:center; margin-top:20px;">Belum ada riwayat transaksi.</p>`;
   } else {
-    var tempArray = [];
-    for(var i = 0; i < db.length; i++) {
-      tempArray.push({ item: db[i], idxAsli: i });
-    }
-    tempArray.reverse();
-
-    tempArray.forEach(function(objekData){
-      var x = objekData.item;
-      html += '<div class="card">' +
-        '<b>ID: ' + x.id + '</b><br>' +
-        'Oleh Admin: <b>' + x.admin + '</b><br>' +
-        'Pelanggan: ' + x.nama + ' - ' + x.produk + '<br>' +
-        'Harga: ' + formatRp(x.harga) + '<br>' +
-        'Status: <b>' + x.status + '</b><br><br>' +
-        '<button onclick="edit(' + objekData.idxAsli + ')" style="width:auto; padding:5px 15px; background:#3b82f6;">Edit</button> ' +
-        '<button onclick="hapus(' + objekData.idxAsli + ')" style="width:auto; padding:5px 15px; background:#ef4444;">Hapus</button>' +
-      '</div>';
-    });
+    db.map((x, idx) => ({ ...x, originalIndex: idx }))
+      .reverse()
+      .forEach((x)=>{
+        html+=`
+          <div class="card">
+            <b>ID: ${x.id}</b><br>
+            Oleh Admin: <b>${x.admin}</b><br>
+            Pelanggan: ${x.nama} - ${x.produk}<br>
+            Harga: ${formatRp(x.harga)}<br>
+            Status: <b>${x.status}</b><br><br>
+            <button onclick="edit(${x.originalIndex})" style="width:auto; padding:5px 15px;">Edit</button>
+            <button onclick="hapus(${x.originalIndex})" style="width:auto; padding:5px 15px; background:#ef4444;">Hapus</button>
+          </div>
+        `;
+      });
   }
-  app.innerHTML = html;
+  app.innerHTML=html;
 }
 
-window.edit = function(i){
-  var x = db[i];
-  var nama = prompt("Nama Pelanggan:", x.nama);
-  var produk = prompt("Produk:", x.produk);
-  var harga = prompt("Harga:", x.harga);
-  var status = prompt("Status (SUKSES/PENDING/PROSES/GAGAL):", x.status);
+window.edit=function(i){
+  let x=db[i];
+  let nama=prompt("Nama Pelanggan:", x.nama);
+  let produk=prompt("Produk:", x.produk);
+  let harga=prompt("Harga:", x.harga);
+  let status=prompt("Status:", x.status);
 
   if(nama && produk && harga && status) {
-    db[i] = {id: x.id, nama: nama.trim(), produk: produk.trim(), harga: Number(harga), status: status.toUpperCase().trim(), admin: x.admin, tanggal: x.tanggal};
+    db[i]={...x, nama, produk, harga: Number(harga), status: status.toUpperCase()};
     saveDB();
     riwayat();
   }
 }
 
-window.hapus = function(i){
-  if(confirm("Hapus transaksi ini secara permanen?")) {
-    db.splice(i,1);
-    saveDB();
-    riwayat();
-  }
-}
-
-/* ================= GRAFIK PERSENTASE RINGAN ================= */
-function grafik(){
-  var totalSukses = 0;
-  var totalGagal = 0;
-  var totalPending = 0;
-  
-  db.forEach(function(x){
-    if(x.status === "SUKSES") totalSukses++;
-    else if(x.status === "GAGAL") totalGagal++;
-    else totalPending++;
-  });
-  
-  var totalSemua = db.length || 1;
-  var persenSukses = Math.round((totalSukses / totalSemua) * 100);
-  var persenPending = Math.round((totalPending / totalSemua) * 100);
-  var persenGagal = Math.round((totalGagal / totalSemua) * 100);
-
-  app.innerHTML = '<div class="card">' +
-    '<button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button>' +
-    '<h3>Persentase Status Nota</h3>' +
-    '<p>✅ SUKSES (' + totalSukses + ' Nota)</p>' +
+window.hapus=function(i){
+  if(confirm("Hapus tran
