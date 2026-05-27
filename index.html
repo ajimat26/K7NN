@@ -2,7 +2,6 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<!-- Mengunci ukuran layar HP agar pas, proporsional, dan tidak rusak saat mengetik -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>K7N STORE PRO</title>
 
@@ -11,20 +10,13 @@ body{margin:0;font-family:Arial;background:#0f172a;color:#e5e7eb;-webkit-tap-hig
 .header{padding:15px;text-align:center;background:#4f46e5;font-weight:bold;color:white;position:relative}
 .logout-btn{position:absolute;right:15px;top:12px;background:#ef4444;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:bold;border:none;color:white;cursor:pointer}
 .container{padding:15px}
-
 .card{background:#1e293b;padding:15px;border-radius:12px;margin-bottom:10px}
-
-/* Ukuran input minimal 16px agar browser Android tidak melakukan pembesaran (auto-zoom) otomatis */
 input,select{width:100%;padding:12px;margin:5px 0;border-radius:8px;border:none;box-sizing:border-box;background:#334155;color:white;font-size:16px}
 button{width:100%;padding:12px;border:none;border-radius:8px;background:#4f46e5;color:white;cursor:pointer;font-size:16px;font-weight:bold}
-
 .menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .menu div{background:#1e293b;padding:20px;text-align:center;border-radius:10px;cursor:pointer;font-weight:bold}
-
 .struk{background:white;color:black;padding:10px;border-radius:10px;font-family:monospace;margin-top:10px}
 .login-screen{display:flex;justify-content:center;align-items:center;height:70vh}
-
-/* Gaya Grafik CSS Ringan Anda */
 .bar-container {background:#334155;border-radius:8px;height:20px;width:100%;margin-top:8px;overflow:hidden}
 .bar-fill {background:#4f46e5;height:100%;width:0%;transition:width 0.5s ease-in-out}
 </style>
@@ -39,7 +31,6 @@ button{width:100%;padding:12px;border:none;border-radius:8px;background:#4f46e5;
 const app = document.getElementById("app");
 const headerArea = document.getElementById("header-area");
 
-// Memori internal super cepat langsung dari penyimpanan lokal HP/PC
 let db = JSON.parse(localStorage.getItem("k7n_store_db")) || [];
 let currentAdmin = localStorage.getItem("k7n_admin_logged") || "";
 
@@ -53,7 +44,7 @@ function saveDB() {
   localStorage.setItem("k7n_store_db", JSON.stringify(db));
 }
 
-/* ================= VALIDASI AKSES MASUK ================= */
+/* ================= VALIDASI LOGIN ================= */
 function checkAuth() {
   if (!currentAdmin) {
     tampilkanHalamanLogin();
@@ -108,12 +99,12 @@ function prosesLogout() {
 
 /* ================= DASHBOARD UTAMA ================= */
 function dashboard(){
-  let total=0;
-  db.forEach(x=>{
+  let total = 0;
+  db.forEach(x => {
     if(x.status === "SUKSES") total += Number(x.harga);
   });
 
-  app.innerHTML=`
+  app.innerHTML = `
     <div class="card">
       <h3>Selamat Datang, <span style="color:#a5b4fc;">\${currentAdmin}</span> 👋</h3>
       <p>💰 Total Omset: <b>\${formatRp(total)}</b></p>
@@ -128,9 +119,9 @@ function dashboard(){
   `;
 }
 
-/* ================= PEMBUATAN NOTA TRANSAKSI ================= */
+/* ================= INPUT TRANSAKSI ================= */
 function form(){
-  app.innerHTML=`
+  app.innerHTML = `
     <div class="card">
       <button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button>
       <h3>Tambah Transaksi</h3>
@@ -149,7 +140,7 @@ function form(){
   `;
 }
 
-window.buat=function(){
+window.buat = function(){
   const nm = document.getElementById("nama").value.trim();
   const pr = document.getElementById("produk").value.trim();
   const hg = document.getElementById("harga").value.trim();
@@ -157,7 +148,7 @@ window.buat=function(){
 
   if(!nm || !pr || !hg) return alert("Semua data wajib diisi!");
 
-  let obj={
+  let obj = {
     id: "K7N-" + Math.random().toString(36).slice(2,7).toUpperCase(),
     nama: nm,
     produk: pr,
@@ -171,7 +162,7 @@ window.buat=function(){
   saveDB();
   sendStruk(obj);
 
-  document.getElementById("hasil").innerHTML=`
+  document.getElementById("hasil").innerHTML = `
     <div class="struk">
       <b>STRUK BERHASIL</b><br><br>
       ID: \${obj.id}<br>
@@ -183,7 +174,6 @@ window.buat=function(){
     </div>
   `;
 
-  // Reset kolom agar siap digunakan kembali
   document.getElementById("nama").value = "";
   document.getElementById("produk").value = "";
   document.getElementById("harga").value = "";
@@ -208,7 +198,7 @@ async function sendStruk(x){
             {name:"Status", value:x.status, inline:true},
             {name:"Waktu", value:new Date(x.tanggal).toLocaleString("id-ID"), inline:false}
           ],
-          footer:{text:"K7N STORE SYSTEM MOBILE"}
+          footer:{text:"K7N STORE SYSTEM"}
         }]
       })
     });
@@ -217,7 +207,7 @@ async function sendStruk(x){
 
 /* ================= RIWAYAT PENJUALAN ================= */
 function riwayat(){
-  let html=`<button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button><h3>Riwayat Transaksi</h3>`;
+  let html = `<button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button><h3>Riwayat Transaksi</h3>`;
 
   if(db.length === 0) {
     html += `<p style="text-align:center; margin-top:20px;">Belum ada riwayat transaksi.</p>`;
@@ -225,7 +215,7 @@ function riwayat(){
     db.map((x, idx) => ({ ...x, originalIndex: idx }))
       .reverse()
       .forEach((x)=>{
-        html+=`
+        html += `
           <div class="card">
             <b>ID: \${x.id}</b><br>
             Oleh Admin: <b>\${x.admin}</b><br>
@@ -238,24 +228,24 @@ function riwayat(){
         `;
       });
   }
-  app.innerHTML=html;
+  app.innerHTML = html;
 }
 
-window.edit=function(i){
-  let x=db[i];
-  let nama=prompt("Nama Pelanggan:", x.nama);
-  let produk=prompt("Produk:", x.produk);
-  let harga=prompt("Harga:", x.harga);
-  let status=prompt("Status (SUKSES/PENDING/PROSES/GAGAL):", x.status);
+window.edit = function(i){
+  let x = db[i];
+  let nama = prompt("Nama Pelanggan:", x.nama);
+  let produk = prompt("Produk:", x.produk);
+  let harga = prompt("Harga:", x.harga);
+  let status = prompt("Status (SUKSES/PENDING/PROSES/GAGAL):", x.status);
 
   if(nama && produk && harga && status) {
-    db[i]={...x, nama: nama.trim(), produk: produk.trim(), harga: Number(harga), status: status.toUpperCase().trim()};
+    db[i] = {...x, nama: nama.trim(), produk: produk.trim(), harga: Number(harga), status: status.toUpperCase().trim()};
     saveDB();
     riwayat();
   }
 }
 
-window.hapus=function(i){
+window.hapus = function(i){
   if(confirm("Hapus transaksi ini secara permanen?")) {
     db.splice(i,1);
     saveDB();
@@ -263,7 +253,7 @@ window.hapus=function(i){
   }
 }
 
-/* ================= GRAFIK PERSENTASE CSS RINGAN ================= */
+/* ================= GRAFIK PERSENTASE RINGAN ================= */
 function grafik(){
   let totalSukses = 0;
   let totalGagal = 0;
@@ -286,3 +276,8 @@ function grafik(){
       <h3>Persentase Status Nota</h3>
       
       <p>✅ SUKSES (\${totalSukses} Nota)</p>
+      <div class="bar-container"><div class="bar-fill" style="width: \${persenSukses}%; background:#34d399;"></div></div>
+      
+      <p style="margin-top:15px;">⏳ PENDING/PROSES (\${totalPending} Nota)</p>
+      <div class="bar-container"><div class="bar-fill" style="width: \${persenPending}%; background:#fbbf24;"></div></div>
+      
