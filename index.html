@@ -211,19 +211,19 @@ function buat(){
   };
 
   if(typeof window.buatTransaksiCloud === "function") {
-    window.buatTransaksiCloud(obj, () => {
-      sendStruk(obj);
-      document.getElementById("hasil").innerHTML=`
-        <div class="struk">
-          <b>STRUK BERHASIL</b><br><br>
-          ID:${obj.id}<br>
-          Nama:${obj.nama}<br>
-          Produk:${obj.produk}<br>
-          Harga:${formatRp(obj.harga)}<br>
-          Status:${obj.status}
-        </div>
-      `;
-    });
+     window.buatTransaksiCloud(obj, () => {
+    sendStruk(obj);
+    document.getElementById("hasil").innerHTML=`
+      <div class="struk">
+        <b>STRUK BERHASIL</b><br><br>
+        ID:${obj.id}<br>
+        Nama:${obj.nama}<br>
+        Produk:${obj.produk}<br>
+        Harga:${formatRp(obj.harga)}<br>
+        Status:${obj.status}
+      </div>
+    `;
+  });
   } else {
     alert("Koneksi database belum siap, tunggu 2 detik lalu coba lagi.");
   }
