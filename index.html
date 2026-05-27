@@ -210,8 +210,7 @@ function buat(){
     tanggal: new Date().toISOString()
   };
 
-  if(typeof window.buatTransaksiCloud === "function") {
-     window.buatTransaksiCloud(obj, () => {
+  window.buatTransaksiCloud(obj, () => {
     sendStruk(obj);
     document.getElementById("hasil").innerHTML=`
       <div class="struk">
@@ -224,6 +223,7 @@ function buat(){
       </div>
     `;
   });
+}
   } else {
     alert("Koneksi database belum siap, tunggu 2 detik lalu coba lagi.");
   }
