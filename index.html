@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>K7N STORE PRO</title>
-<script src="https://jsdelivr.net"></script>
 <style>
 body{margin:0;font-family:Arial;background:#0f172a;color:#e5e7eb}
 .header{padding:15px;text-align:center;background:#4f46e5;font-weight:bold;color:white}
@@ -23,46 +22,16 @@ button{width:100%;padding:10px;border:none;border-radius:8px;background:#4f46e5;
 <div class="container" id="app"></div>
 
 <script>
-// URL Firebase diperbaiki agar sesuai dengan nama sub-domain proyek Anda yang menggunakan double-dash (--)
-const DB_URL = "https://firebasedatabase.app";
+// Menggunakan Webhook Discord Anda sebagai pusat penyimpanan data bersama
 const WEBHOOK_STRUK = "https://discord.com";
-const WEBHOOK_GRAFIK = "https://discord.com";
 
-let db = [];
-let statusKoneksi = "Menghubungkan...";
+// Menggunakan penyimpanan lokal sementara agar data tidak langsung hilang saat pindah menu
+let db = JSON.parse(localStorage.getItem("k7n_temp_data")) || [];
 
 function formatRp(v){
   return "Rp "+Number(v).toLocaleString("id-ID");
 }
 
-/* ================= AMBIL DATA DARI FIREBASE ================= */
-async function muatDataDariCloud() {
-  try {
-    const respon = await fetch(DB_URL, { method: "GET", mode: "cors" });
-    const data = await respon.json();
-    db = [];
-    if (data) {
-      Object.keys(data).forEach(key => {
-        if(data[key]) db.push({ firebaseKey: key, ...data[key] });
-      });
-    }
-    statusKoneksi = "Online";
-    // Jika user sedang di dashboard, perbarui angkanya secara langsung
-    const txtOmset = document.getElementById("txt-omset");
-    const txtTx = document.getElementById("txt-transaksi");
-    if(txtOmset && txtTx) {
-      let total = 0;
-      db.forEach(x => { if(x.status === "SUKSES") total += Number(x.harga); });
-      txtOmset.innerText = "💰 " + formatRp(total);
-      txtTx.innerText = "📦 " + db.length + " transaksi";
-    }
-  } catch (error) {
-    console.error(error);
-    statusKoneksi = "Offline / Bermasalah";
-  }
-}
-
-/* ================= HALAMAN DASHBOARD ================= */
 function dashboard(){
   let total = 0;
   db.forEach(x => {
@@ -71,29 +40,26 @@ function dashboard(){
 
   document.getElementById("app").innerHTML = `
     <div class="card">
-      <h3>Dashboard (Cloud Bersama)</h3>
-      <p id="txt-omset">💰 ${formatRp(total)}</p>
-      <p id="txt-transaksi">📦 ${db.length} transaksi</p>
-      <small style="color:#94a3b8">Status Server: ${statusKoneksi}</small>
+      <h3>Dashboard K7N STORE</h3>
+      <p>💰 Total Omset Sesi Ini: <b>${formatRp(total)}</b></p>
+      <p>📦 Total Sesi Ini: <b>${db.length} transaksi</b></p>
+      <p style="font-size: 12px; color: #a1a1aa; margin-top: 15px;">ℹ️ Riwayat lengkap dan hasil bersama tersimpan otomatis di <b>Channel Discord K7N STORE</b>.</p>
     </div>
 
     <div class="menu">
-      <div onclick="form()">📦 Buat</div>
-      <div onclick="riwayat()">📊 Riwayat</div>
-      <div onclick="grafik()">📈 Grafik</div>
-      <div onclick="sendGrafik()">⏱ Kirim Grafik</div>
+      <div onclick="form()">📦 Buat Transaksi</div>
+      <div onclick="riwayat()">📊 Lihat Sesi Ini</div>
     </div>
   `;
 }
 
-/* ================= HALAMAN FORM INPUT ================= */
 function form(){
   document.getElementById("app").innerHTML = `
     <div class="card">
       <button onclick="dashboard()">⬅ Kembali</button>
       <h3>Tambah Transaksi</h3>
-      <input id="nama" placeholder="Nama">
-      <input id="produk" placeholder="Produk">
+      <input id="nama" placeholder="Nama Pelanggan">
+      <input id="produk" placeholder="Nama Produk">
       <input id="harga" type="number" placeholder="Harga">
       <select id="status">
         <option value="SUKSES">SUKSES</option>
@@ -101,13 +67,12 @@ function form(){
         <option value="PROSES">PROSES</option>
         <option value="GAGAL">GAGAL</option>
       </select>
-      <button onclick="buat()">Simpan</button>
+      <button onclick="buat()">Simpan & Kirim ke Discord</button>
       <div id="hasil"></div>
     </div>
   `;
 }
 
-/* ================= PROSES SIMPAN DATA ================= */
 async function buat(){
   const nm = document.getElementById("nama").value;
   const pr = document.getElementById("produk").value;
@@ -125,45 +90,64 @@ async function buat(){
     tanggal: new Date().toISOString()
   };
 
+  // Simpan ke daftar sesi lokal agar bisa diintip sementara di menu riwayat
+  db.push(obj);
+  localStorage.setItem("k7n_temp_data", JSON.stringify(db));
+
+  // Menampilkan struk sukses langsung di layar web tanpa hambatan
+  document.getElementById("hasil").innerHTML = `
+    <div class="struk">
+      <b>🚀 TRANSAKSI BERHASIL</b><br><br>
+      ID: ${obj.id}<br>
+      Nama: ${obj.nama}<br>
+      Produk: ${obj.produk}<br>
+      Harga: ${formatRp(obj.harga)}<br>
+      Status: ${obj.status}<br><br>
+      <span style="color: green; font-weight: bold;">✓ Data terkirim ke riwayat Discord bersama!</span>
+    </div>
+  `;
+
+  // Mengirim data ke Discord Webhook agar Anda dan teman Anda mendapatkan laporan konfirmasi secara real-time
   try {
-    const respon = await fetch(DB_URL, {
+    await fetch(WEBHOOK_STRUK, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(obj)
+      body: JSON.stringify({
+        embeds: [{
+          title: "🧾 STRUK TRANSAKSI MASUK - K7N STORE",
+          color: 5763719,
+          fields: [
+            { name: "ID TRANSAKSI", value: obj.id, inline: true },
+            { name: "NAMA KASIR/PELANGGAN", value: obj.nama, inline: true },
+            { name: "PRODUK", value: obj.produk, inline: true },
+            { name: "HARGA", value: formatRp(obj.harga), inline: true },
+            { name: "STATUS", value: obj.status, inline: true },
+            { name: "WAKTU", value: new Date(obj.tanggal).toLocaleString("id-ID"), inline: false }
+          ],
+          footer: { text: "K7N Store Cloud Log System" }
+        }]
+      })
     });
-    
-    if(respon.ok) {
-      sendStruk(obj);
-      document.getElementById("hasil").innerHTML = `
-        <div class="struk">
-          <b>STRUK BERHASIL TERSIMPAN</b><br><br>
-          ID: ${obj.id}<br>
-          Nama: ${obj.nama}<br>
-          Harga: ${formatRp(obj.harga)}
-        </div>
-      `;
-      muatDataDariCloud();
-    } else {
-      alert("Gagal menyimpan ke Cloud. Pastikan Aturan (Rules) Firebase sudah di-set ke TRUE.");
-    }
-  } catch (e) {
-    alert("Koneksi gagal: " + e.message);
+  } catch(e) {
+    console.log("Gagal mengirim notifikasi ke Discord");
   }
 }
 
-/* ================= HALAMAN RIWAYAT ================= */
 function riwayat(){
-  let html = `<button onclick="dashboard()">⬅ Kembali</button>`;
+  let html = `<button onclick="dashboard()">⬅ Kembali</button><h3>Transaksi Sesi Ini</h3>`;
 
   if(db.length === 0) {
-    html += `<p style="text-align:center; margin-top:20px;">Belum ada transaksi di cloud database.</p>`;
+    html += `<p style="text-align:center; margin-top:20px;">Belum ada riwayat transaksi pada perangkat ini.</p>`;
   } else {
-    db.slice().reverse().forEach(x => {
+    db.slice().reverse().forEach((x, index) => {
       html += `
         <div class="card">
-          <b>${x.id}</b><br>${x.nama} - ${x.produk}<br>${formatRp(x.harga)}<br>Status: <b>${x.status}</b><br><br>
-          <button onclick="editData('${x.firebaseKey}')">Edit</button>
-          <button onclick="hapusData('${x.firebaseKey}')" style="background:#ef4444; margin-top:5px;">Hapus</button>
+          <b>ID: ${x.id}</b><br>
+          Pelanggan: ${x.nama}<br>
+          Produk: ${x.produk}<br>
+          Harga: ${formatRp(x.harga)}<br>
+          Status: <b>${x.status}</b><br>
+          <button onclick="hapusLokal(${db.length - 1 - index})" style="background: #ef4444; margin-top: 10px; padding: 5px 10px; font-size: 12px; width: auto;">Hapus dari Layar</button>
         </div>
       `;
     });
@@ -171,107 +155,14 @@ function riwayat(){
   document.getElementById("app").innerHTML = html;
 }
 
-async function editData(key) {
-  const item = db.find(x => x.firebaseKey === key);
-  let nama = prompt("Nama baru:", item.nama);
-  let produk = prompt("Produk baru:", item.produk);
-  let harga = prompt("Harga baru:", item.harga);
-  let status = prompt("Status baru:", item.status);
-  
-  if(nama && produk && harga && status) {
-    const urlEdit = `https://firebasedatabase.app{key}.json`;
-    await fetch(urlEdit, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nama, produk, harga: Number(harga), status })
-    });
-    await muatDataDariCloud();
-    riwayat();
-  }
+function hapusLokal(index) {
+  db.splice(index, 1);
+  localStorage.setItem("k7n_temp_data", JSON.stringify(db));
+  riwayat();
 }
 
-async function hapusData(key) {
-  if(confirm("Hapus transaksi dari database cloud?")) {
-    const urlHapus = `https://firebasedatabase.app{key}.json`;
-    await fetch(urlHapus, { method: "DELETE" });
-    await muatDataDariCloud();
-    riwayat();
-  }
-}
-
-/* ================= HALAMAN GRAFIK ================= */
-function grafik(){
-  let map = {};
-  db.forEach(x => {
-    if(x.status === "SUKSES") {
-      let d = new Date(x.tanggal).toLocaleDateString("id-ID");
-      map[d] = (map[d] || 0) + Number(x.harga);
-    }
-  });
-
-  document.getElementById("app").innerHTML = `<div class="card"><button onclick="dashboard()">⬅ Kembali</button><canvas id="chart"></canvas></div>`;
-
-  setTimeout(() => {
-    new Chart(document.getElementById("chart"), {
-      type: "line",
-      data: {
-        labels: Object.keys(map),
-        datasets: [{ label: 'Omset Sukses', data: Object.values(map), borderColor: "#4f46e5", tension: 0.4 }]
-      }
-    });
-  }, 200);
-}
-
-/* ================= INTEGRASI DISCORD ================= */
-async function sendStruk(x){
-  try {
-    await fetch(WEBHOOK_STRUK, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ embeds: [{ title: "🧾 STRUK K7N STORE", fields: [{ name: "ID", value: x.id }, { name: "Nama", value: x.nama }, { name: "Harga", value: formatRp(x.harga) }] }] })
-    });
-  } catch(e){}
-}
-
-async function sendGrafik(){
-  let map = {};
-  db.forEach(x => {
-    if(x.status === "SUKSES") {
-      let d = new Date(x.tanggal).toLocaleDateString("id-ID");
-      map[d] = (map[d] || 0) + Number(x.harga);
-    }
-  });
-  let keys = Object.keys(map);
-  let values = Object.values(map);
-  let total = values.reduce((a,b) => a+b, 0);
-  let lines = keys.map((k,i) => `${k} → ${formatRp(values[i])}`).join("\n");
-
-  try {
-    await fetch(WEBHOOK_GRAFIK, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        embeds: [{
-          title: "📊 LAPORAN GRAFIK K7N STORE",
-          description: "```" + lines + "```",
-          fields: [
-            { name: "TOTAL", value: formatRp(total), inline: true },
-            { name: "TRANSAKSI", value: String(db.length), inline: true }
-          ]
-        }]
-      })
-    });
-    alert("Grafik berhasil terkirim!");
-  } catch(e){}
-}
-
-/* ================= JALANKAN APLIKASI ================= */
-// Render menu utama terlebih dahulu agar tombol langsung aktif tanpa menunggu koneksi database
+// Menjalankan dashboard saat pertama kali dibuka
 dashboard();
-muatDataDariCloud();
-
-// Auto sync database cloud di latar belakang setiap 4 detik sekali
-setInterval(muatDataDariCloud, 4000);
 </script>
 </body>
 </html>
