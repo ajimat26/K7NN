@@ -2,10 +2,11 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>K7N STORE PRO</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://jsdelivr.net"></script>
+<script src="https://hertzen.com"></script>
 
 <style>
 :root{
@@ -16,248 +17,94 @@
 --accent:#22d3ee;
 }
 
-body{
-margin:0;
-font-family:Arial;
-background:var(--bg);
-color:var(--text);
-}
+body{margin:0;font-family:Arial;background:var(--bg);color:var(--text);}
 
 .header{
-background:linear-gradient(90deg,#4f46e5,#06b6d4);
-padding:15px;
-text-align:center;
-color:white;
-font-weight:bold;
+background:linear-gradient(90deg, var(--tema), #06b6d4);
+padding:15px;text-align:center;color:white;font-weight:bold;
+display:flex;justify-content:between;align-items:center;
 }
+.header div{flex:1;}
+.logout-btn{background:rgba(255,255,255,0.2);padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px;max-width:fit-content;}
 
-.container{
-display:flex;
-flex-direction:column;
-height:100vh;
-}
-
-.content{
-flex:1;
-padding:20px;
-overflow:auto;
-}
+.container{display:flex;flex-direction:column;height:100vh;}
+.content{flex:1;padding:20px;overflow:auto;}
 
 .card{
 background:var(--card);
-padding:15px;
-border-radius:15px;
-margin-bottom:10px;
+padding:15px;border-radius:15px;margin-bottom:10px;
 box-shadow:0 10px 25px rgba(0,0,0,0.4);
 }
 
 input,select{
-width:100%;
-padding:10px;
-margin:5px 0;
-border-radius:10px;
-border:none;
-background:#020617;
-color:white;
+width:100%;padding:10px;box-sizing:border-box;margin:5px 0;border-radius:10px;
+border:none;background:#020617;color:white;
 }
 
 button{
-width:100%;
-padding:10px;
-margin-top:5px;
-border:none;
-border-radius:10px;
-background:linear-gradient(90deg,#4f46e5,#06b6d4);
-color:white;
-cursor:pointer;
+width:100%;padding:10px;margin-top:5px;border:none;
+border-radius:10px;background:linear-gradient(90deg, var(--tema), #06b6d4);
+color:white;cursor:pointer;font-weight:bold;
 }
 
-.menu{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-}
-
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
 .menu div{
-background:var(--card);
-padding:20px;
-text-align:center;
-border-radius:12px;
-cursor:pointer;
-border:1px solid rgba(255,255,255,0.1);
+background:var(--card);padding:20px;text-align:center;
+border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.1);
 }
 
-.struk{
-background:white;
-color:black;
-padding:15px;
-border-radius:10px;
-margin-top:10px;
-font-family:monospace;
-}
-
-.line{
-border-bottom:1px dashed #aaa;
-margin:8px 0;
-}
-
-.status{
-padding:4px;
-border-radius:5px;
-color:white;
-font-size:12px;
-}
-
-.sukses{background:green}
-.pending{background:orange}
-.proses{background:blue}
-.gagal{background:red}
-
+.struk{background:white;color:black;padding:15px;border-radius:10px;margin-top:10px;font-family:monospace;}
+.line{border-bottom:1px dashed #aaa;margin:8px 0;}
+.status{padding:4px;border-radius:5px;color:white;font-size:12px;}
+.sukses{background:green}.pending{background:orange}.proses{background:blue}.gagal{background:red}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-
 <div class="header">
-K7N STORE
+    <div style="text-align:left; font-size:14px;" id="adminInfo">Admin: -</div>
+    <div style="font-size:18px;">K7N STORE</div>
+    <div style="text-align:right;"><span class="logout-btn" id="logoutBtn" style="display:none;" onclick="logout()">Logout</span></div>
 </div>
-
 <div class="content" id="app"></div>
-
 </div>
 
 <script>
+// GANTI DENGAN URL WEBHOOK DISCORD ANDA
+const DISCORD_WEBHOOK_URL = "MASUKKAN_URL_WEBHOOK_DISCORD_DISINI";
 
 document.addEventListener("DOMContentLoaded", ()=>{
 
 const app = document.getElementById("app");
 
-/* LOGIN */
-let loginUser = JSON.parse(localStorage.getItem("nvrz_login"));
-
-if(!loginUser){
-
-app.innerHTML=`
-
-<div class="card">
-
-<h2>Login K7N STORE</h2>
-
-<input id="user" placeholder="Username">
-
-<input id="pass" type="password" placeholder="Password">
-
-<button onclick="login()">
-Login
-</button>
-
-<button onclick="window.open('https://ajimat26.github.io/NVRZ/')">
-Buat Akun
-</button>
-
-</div>
-
-`;
-
-window.login=function(){
-
-let u=document.getElementById("user").value.trim();
-let p=document.getElementById("pass").value.trim();
-
-let akun=JSON.parse(localStorage.getItem("akun")) || [];
-
-let user=akun.find(x=>
-x.username==u &&
-x.password==p
-);
-
-if(!user){
-return alert("Username / Password salah!");
+// Sinkronisasi data login & registrasi lintas domain lewat URL parameter
+let urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get('action') === 'register'){
+    let u = urlParams.get('user');
+    let p = urlParams.get('pass');
+    if(u && p){
+        let users = JSON.parse(localStorage.getItem("k7n_users")) || {};
+        users[u] = p;
+        localStorage.setItem("k7n_users", JSON.stringify(users));
+        alert("Akun berhasil dibuat! Silakan login menggunakan akun baru Anda.");
+        window.history.replaceState({}, document.title, window.location.pathname); // Bersihkan URL
+    }
 }
 
-localStorage.setItem("nvrz_login",JSON.stringify({
-username:user.username
-}));
+let db = JSON.parse(localStorage.getItem("k7n"))||[];
+let sessionUser = sessionStorage.getItem("k7n_session") || null;
 
-location.reload();
+function save(){localStorage.setItem("k7n",JSON.stringify(db));}
 
+function loadTheme() {
+    let t = localStorage.getItem("tema") || "#4f46e5";
+    let b = localStorage.getItem("bg") || "#0f172a";
+    document.documentElement.style.setProperty('--tema', t);
+    document.documentElement.style.setProperty('--bg', b);
 }
-
-return;
-
-}
-
-let username = loginUser.username || "Unknown";
-
-/* DATABASE */
-let db = JSON.parse(localStorage.getItem("k7n")) || [];
-
-function save(){
-localStorage.setItem("k7n",JSON.stringify(db));
-}
-
-/* WEBHOOK */
-async function kirimDiscord(data){
-
-const webhook = "WEBHOOK_DISCORD_KAMU";
-
-await fetch(webhook,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-
-username:"K7N STORE",
-
-embeds:[{
-
-title:"📦 STRUK BARU",
-
-color:5763719,
-
-fields:[
-{
-name:"🆔 ID",
-value:data.id,
-inline:true
-},
-{
-name:"👤 Nama",
-value:data.nama,
-inline:true
-},
-{
-name:"🛡️ Admin",
-value:data.admin,
-inline:true
-},
-{
-name:"💰 Harga",
-value:"Rp "+Number(data.harga).toLocaleString("id-ID"),
-inline:false
-},
-{
-name:"📌 Status",
-value:data.status,
-inline:true
-}
-],
-
-footer:{
-text:"K7N STORE"
-},
-
-timestamp:new Date()
-
-}]
-
-})
-});
-
-}
+loadTheme();
 
 const produk=[
 {nama:"Follower Indo 100",harga:10500},
@@ -266,446 +113,198 @@ const produk=[
 {nama:"Viewer 1000",harga:800}
 ];
 
-function page(p){
-
-/* DASHBOARD */
-if(p=="dashboard"){
-
-let total=0;
-
-db.forEach(x=>{
-if(x.status=="SUKSES"){
-total+=Number(x.harga);
+function checkAuth(){
+    if(!sessionUser){
+        showLoginPage();
+        document.getElementById("adminInfo").innerText = "Admin: -";
+        document.getElementById("logoutBtn").style.display = "none";
+        return false;
+    }
+    document.getElementById("adminInfo").innerText = "Admin: " + sessionUser;
+    document.getElementById("logoutBtn").style.display = "inline-block";
+    return true;
 }
-});
+
+function showLoginPage(){
+    app.innerHTML = `
+    <div class="card" style="max-width:350px; margin: 40px auto 0 auto;">
+        <h3 style="text-align:center; color:var(--accent);">Login Admin K7N</h3>
+        <input type="text" id="loginUser" placeholder="Username">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button onclick="login()">Masuk</button>
+        <p style="text-align:center; font-size:13px; color:#aaa; margin-top:15px;">
+            Belum punya akun? <a href="https://ajimat26.github.io/NVRZ/" style="color:var(--accent); text-decoration:none;">Buat Akun</a>
+        </p>
+    </div>
+    `;
+}
+
+window.login = function(){
+    let u = document.getElementById("loginUser").value.trim();
+    let p = document.getElementById("loginPass").value.trim();
+    let users = JSON.parse(localStorage.getItem("k7n_users")) || {};
+    
+    if(users[u] && users[u] === p){
+        sessionStorage.setItem("k7n_session", u);
+        sessionUser = u;
+        page("dashboard");
+    } else {
+        alert("Username atau Password salah!");
+    }
+}
+
+window.logout = function(){
+    sessionStorage.removeItem("k7n_session");
+    sessionUser = null;
+    checkAuth();
+}
+
+function page(p){
+if(!checkAuth()) return;
+
+if(p=="dashboard"){
+let total=0;
+db.forEach(x=>{if(x.status=="SUKSES")total+=Number(x.harga)});
 
 app.innerHTML=`
-
 <div class="card">
-
-<h3>Dashboard</h3>
-
-<p>
-👤 Admin:
-<b>${username}</b>
-</p>
-
-<p>
-💰 Rp ${total.toLocaleString("id-ID")}
-</p>
-
-<p>
-📦 ${db.length} Transaksi
-</p>
-
-<button onclick="logout()">
-Logout
-</button>
-
+<h3>Selamat Datang, \${sessionUser} 👋</h3>
+<p>💰 Total Pendapatan: Rp \${total.toLocaleString("id-ID")}</p>
+<p>📦 Total: \${db.length} Transaksi</p>
 </div>
 
 <div class="menu">
-
-<div onclick="page('buat')">
-📦 Buat
+<div onclick="page('buat')">📦 Buat</div>
+<div onclick="page('riwayat')">📊 Riwayat</div>
+<div onclick="page('grafik')">📈 Grafik</div>
+<div onclick="page('setting')">⚙️ Setting</div>
 </div>
-
-<div onclick="page('riwayat')">
-📊 Riwayat
-</div>
-
-<div onclick="page('grafik')">
-📈 Grafik
-</div>
-
-<div onclick="page('setting')">
-⚙️ Setting
-</div>
-
-</div>
-
 `;
-
 }
 
 /* BUAT */
 if(p=="buat"){
-
-let opt=produk.map((x,i)=>
-`<option value="${i}">
-${x.nama}
-</option>`
-).join("");
+let opt=produk.map((x,i)=>`<option value="\({i}">\){x.nama}</option>`).join("");
 
 app.innerHTML=`
-
 <div class="card">
-
-<button onclick="page('dashboard')">
-⬅️ Kembali
-</button>
-
+<button onclick="page('dashboard')">⬅️ Kembali</button>
 <h3>Buat Struk</h3>
-
-<input id="nama" placeholder="Nama">
-
+<input id="nama" placeholder="Nama Pembeli">
 <select id="produk" onchange="autoHarga()">
-
-<option value="">
-Pilih
-</option>
-
-${opt}
-
-<option value="custom">
-Custom
-</option>
-
+<option value="">Pilih Produk</option>
+\${opt}
+<option value="custom">Custom</option>
 </select>
-
-<input id="harga" placeholder="Harga">
-
+<input id="harga" type="number" placeholder="Harga">
 <select id="status">
 <option>SUKSES</option>
 <option>PENDING</option>
 <option>PROSES</option>
 <option>GAGAL</option>
 </select>
-
-<button onclick="buat()">
-Buat
-</button>
-
+<button onclick="buat()">Buat & Kirim</button>
 <div id="hasil"></div>
-
 </div>
-
 `;
-
 }
 
 /* AUTO HARGA */
 window.autoHarga=function(){
-
 let v=document.getElementById("produk").value;
-
 if(v!=="custom" && v!==""){
 document.getElementById("harga").value=produk[v].harga;
+} else {
+document.getElementById("harga").value="";
 }
-
 }
 
 /* BUAT STRUK */
 window.buat=function(){
+    let nama=namaInput("nama");
+    let harga=namaInput("harga");
+    let status=document.getElementById("status").value;
+    let hasilBox=document.getElementById("hasil");
 
-let nama=namaInput("nama");
-let harga=namaInput("harga");
-let status=document.getElementById("status").value;
+    if(!nama||!harga)return alert("Isi dulu semua data!");
 
-if(!nama || !harga){
-return alert("Isi dulu!");
+    let id="K7N-"+Math.random().toString(36).substr(2,5).toUpperCase();
+    let t=new Date().toISOString();
+
+    let obj={id,nama,harga: Number(harga),status,tanggal:t, admin: sessionUser};
+    db.push(obj);save();
+
+    hasilBox.innerHTML=`
+    <div id="strukBox" class="struk">
+    <h3 style="margin:0; text-align:center;">K7N STORE</h3>
+    <div class="line"></div>
+    <p style="margin:5px 0;">ID: \${id}</p>
+    <p style="margin:5px 0;">Nama: \${nama}</p>
+    <div class="line"></div>
+    <p style="margin:5px 0;">Harga: Rp \${Number(harga).toLocaleString("id-ID")}</p>
+    <p style="margin:5px 0;">Admin: \${sessionUser}</p>
+    <div class="line"></div>
+    <p style="margin:5px 0;">Status: <span class="status \({status.toLowerCase()}">\){status}</span></p>
+    </div>
+
+    <button onclick="download()">Download Gambar</button>
+    <button onclick='wa(\${JSON.stringify(obj)})'>Kirim ke WhatsApp</button>
+    `;
+
+    // Kirim Log Otomatis ke Discord Webhook
+    kirimKeDiscord(obj);
 }
 
-let id="K7N-"+Math.random().toString(36).substr(2,5);
+function kirimKeDiscord(x){
+    if(!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL.includes("MASUKKAN_URL")) return;
+    
+    let isiPesan = {
+        embeds: [{
+            title: "🚨 NOTIFIKASI TRANSAKSI BARU - K7N STORE",
+            color: x.status === "SUKSES" ? 3066993 : 15158332,
+            fields: [
+                { name: "ID Transaksi", value: "`"+x.id+"`", inline: true },
+                { name: "Pelanggan", value: x.nama, inline: true },
+                { name: "Harga", value: "Rp " + Number(x.harga).toLocaleString("id-ID"), inline: false },
+                { name: "Status", value: "**"+x.status+"**", inline: true },
+                { name: "Admin Penanggung Jawab", value: "👤 " + x.admin, inline: true }
+            ],
+            timestamp: x.tanggal
+        }]
+    };
 
-let t=new Date().toISOString();
-
-let obj={
-id,
-nama,
-harga,
-status,
-tanggal:t,
-admin:username
-};
-
-db.push(obj);
-
-save();
-
-kirimDiscord(obj);
-
-hasil.innerHTML=`
-
-<div id="strukBox" class="struk">
-
-<h3>K7N STORE</h3>
-
-<div class="line"></div>
-
-<p>ID: ${id}</p>
-
-<p>Nama: ${nama}</p>
-
-<p>Admin: ${username}</p>
-
-<div class="line"></div>
-
-<p>
-Harga:
-Rp ${Number(harga).toLocaleString("id-ID")}
-</p>
-
-<div class="line"></div>
-
-<p>
-Status:
-<span class="${status.toLowerCase()}">
-${status}
-</span>
-</p>
-
-</div>
-
-<button onclick="download()">
-Download
-</button>
-
-<button onclick='wa(${JSON.stringify(obj)})'>
-WhatsApp
-</button>
-
-`;
-
+    fetch(DISCORD_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(isiPesan)
+    }).catch(err => console.log("Gagal kirim ke Discord:", err));
 }
 
-/* HELPER */
-function namaInput(id){
-return document.getElementById(id).value.trim();
-}
+function namaInput(id){ return document.getElementById(id).value.trim(); }
 
-/* DOWNLOAD */
 window.download=function(){
-
 html2canvas(document.getElementById("strukBox")).then(c=>{
-
 let a=document.createElement("a");
-
-a.href=c.toDataURL();
-
-a.download="struk.png";
-
-a.click();
-
+a.href=c.toDataURL(); a.download="struk.png"; a.click();
 });
-
 }
 
-/* WA */
 window.wa=function(x){
-
-let t=
-`ID:${x.id}
-Nama:${x.nama}
-Admin:${x.admin}
-Harga:${x.harga}
-Status:${x.status}`;
-
-window.open(
-"https://wa.me/?text="+encodeURIComponent(t)
-);
-
+let t=`ID: \${x.id}\nNama: \({x.nama}\nHarga: Rp\){Number(x.harga).toLocaleString("id-ID")}\nAdmin: \({x.admin}\nStatus:\){x.status}`;
+window.open("https://wa.me"+encodeURIComponent(t));
 }
 
 /* RIWAYAT */
 if(p=="riwayat"){
-
-let html=`
-<button onclick="page('dashboard')">
-⬅️ Kembali
-</button>
-`;
-
-db.slice().reverse().forEach((x,i)=>{
-
-html+=`
-
-<div class="card">
-
-<b>${x.id}</b><br>
-
-${x.nama}<br>
-
-👤 ${x.admin}<br>
-
-Rp ${Number(x.harga).toLocaleString("id-ID")}<br>
-
-${x.status}
-
-<button onclick="edit(${i})">
-Edit
-</button>
-
-<button onclick="hapus(${i})">
-Hapus
-</button>
-
-</div>
-
-`;
-
-});
-
-app.innerHTML=html;
-
-}
-
-/* EDIT */
-window.edit=function(i){
-
-let x=db[i];
-
-let nama=prompt("Nama",x.nama);
-let harga=prompt("Harga",x.harga);
-let status=prompt("Status",x.status);
-
-if(!nama || !harga || !status)return;
-
-db[i]={
-...x,
-nama,
-harga,
-status
-};
-
-save();
-
-page("riwayat");
-
-}
-
-/* HAPUS */
-window.hapus=function(i){
-
-if(confirm("Hapus?")){
-
-db.splice(i,1);
-
-save();
-
-page("riwayat");
-
-}
-
-}
-
-/* GRAFIK */
-if(p=="grafik"){
-
-let map={};
-
-db.forEach(x=>{
-
-if(x.status=="SUKSES"){
-
-let t=new Date(x.tanggal)
-.toLocaleDateString("id-ID");
-
-map[t]=(map[t]||0)+Number(x.harga);
-
-}
-
-});
-
-app.innerHTML=`
-
-<button onclick="page('dashboard')">
-⬅️ Kembali
-</button>
-
-<canvas id="chart"></canvas>
-
-`;
-
-setTimeout(()=>{
-
-new Chart(chart,{
-
-type:"line",
-
-data:{
-labels:Object.keys(map),
-
-datasets:[{
-data:Object.values(map),
-tension:0.3
-}]
-}
-
-});
-
-},100);
-
-}
-
-/* SETTING */
-if(p=="setting"){
-
-let tema=localStorage.getItem("tema") || "#4f46e5";
-let bg=localStorage.getItem("bg") || "#0f172a";
-
-app.innerHTML=`
-
-<div class="card">
-
-<button onclick="page('dashboard')">
-⬅️ Kembali
-</button>
-
-<h3>Setting</h3>
-
-<label>Tema</label>
-
-<input type="color" id="color" value="${tema}">
-
-<label>Background</label>
-
-<input type="color" id="bgcolor" value="${bg}">
-
-<button onclick="saveTheme()">
-Simpan
-</button>
-
-</div>
-
-`;
-
-}
-
-}
-
-/* SAVE THEME */
-window.saveTheme=function(){
-
-let t=document.getElementById("color").value;
-let b=document.getElementById("bgcolor").value;
-
-localStorage.setItem("tema",t);
-localStorage.setItem("bg",b);
-
-document.documentElement.style.setProperty('--tema',t);
-document.documentElement.style.setProperty('--bg',b);
-
-alert("Disimpan!");
-
-}
-
-/* LOGOUT */
-window.logout=function(){
-
-localStorage.removeItem("nvrz_login");
-
-location.reload();
-
-}
-
-window.page=page;
-
-page("dashboard");
-
-});
-
-</script>
-
-</body>
-  </html>
+let html=`<button onclick="page('dashboard')">⬅️ Kembali</button><br><br>`;
+if(db.length === 0) {
+    html += `<div class="card"><p>Belum ada transaksi.</p></div>`;
+} else {
+    db.map((x, i) => ({...x, indexAsli: i}))
+      .reverse()
+      .forEach((x)=>{
+        html+=`
+        <div class="card">
+        <b>\${x.id}</b><br>
+        Pelanggan: \${x.nama}<br>
+  
