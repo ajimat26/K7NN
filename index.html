@@ -119,31 +119,86 @@ font-size:12px;
 <body>
 
 <div class="container">
-<div class="header">K7N STORE</div>
+
+<div class="header">
+K7N STORE
+</div>
+
 <div class="content" id="app"></div>
+
 </div>
 
 <script>
 
 document.addEventListener("DOMContentLoaded", ()=>{
 
-/* LOGIN CHECK */
+const app = document.getElementById("app");
+
+/* LOGIN */
 let loginUser = JSON.parse(localStorage.getItem("nvrz_login"));
 
 if(!loginUser){
-location.href="https://ajimat26.github.io/NVRZ/";
+
+app.innerHTML=`
+
+<div class="card">
+
+<h2>Login K7N STORE</h2>
+
+<input id="user" placeholder="Username">
+
+<input id="pass" type="password" placeholder="Password">
+
+<button onclick="login()">
+Login
+</button>
+
+<button onclick="window.open('https://ajimat26.github.io/NVRZ/')">
+Buat Akun
+</button>
+
+</div>
+
+`;
+
+window.login=function(){
+
+let u=document.getElementById("user").value.trim();
+let p=document.getElementById("pass").value.trim();
+
+let akun=JSON.parse(localStorage.getItem("akun")) || [];
+
+let user=akun.find(x=>
+x.username==u &&
+x.password==p
+);
+
+if(!user){
+return alert("Username / Password salah!");
+}
+
+localStorage.setItem("nvrz_login",JSON.stringify({
+username:user.username
+}));
+
+location.reload();
+
+}
+
+return;
+
 }
 
 let username = loginUser.username || "Unknown";
 
-const app = document.getElementById("app");
+/* DATABASE */
 let db = JSON.parse(localStorage.getItem("k7n")) || [];
 
 function save(){
 localStorage.setItem("k7n",JSON.stringify(db));
 }
 
-/* WEBHOOK DISCORD */
+/* WEBHOOK */
 async function kirimDiscord(data){
 
 const webhook = "WEBHOOK_DISCORD_KAMU";
@@ -158,7 +213,9 @@ body:JSON.stringify({
 username:"K7N STORE",
 
 embeds:[{
+
 title:"📦 STRUK BARU",
+
 color:5763719,
 
 fields:[
@@ -218,44 +275,70 @@ let total=0;
 
 db.forEach(x=>{
 if(x.status=="SUKSES"){
-total += Number(x.harga);
+total+=Number(x.harga);
 }
 });
 
 app.innerHTML=`
+
 <div class="card">
 
 <h3>Dashboard</h3>
 
 <p>
-👤 Login Sebagai:
+👤 Admin:
 <b>${username}</b>
 </p>
 
-<p>💰 Rp ${total.toLocaleString("id-ID")}</p>
-<p>📦 ${db.length} Transaksi</p>
+<p>
+💰 Rp ${total.toLocaleString("id-ID")}
+</p>
 
-<button onclick="logout()">Logout</button>
+<p>
+📦 ${db.length} Transaksi
+</p>
+
+<button onclick="logout()">
+Logout
+</button>
 
 </div>
 
 <div class="menu">
-<div onclick="page('buat')">📦 Buat</div>
-<div onclick="page('riwayat')">📊 Riwayat</div>
-<div onclick="page('grafik')">📈 Grafik</div>
-<div onclick="page('setting')">⚙️ Setting</div>
+
+<div onclick="page('buat')">
+📦 Buat
 </div>
+
+<div onclick="page('riwayat')">
+📊 Riwayat
+</div>
+
+<div onclick="page('grafik')">
+📈 Grafik
+</div>
+
+<div onclick="page('setting')">
+⚙️ Setting
+</div>
+
+</div>
+
 `;
+
 }
 
 /* BUAT */
 if(p=="buat"){
 
 let opt=produk.map((x,i)=>
-`<option value="${i}">${x.nama}</option>`
+`<option value="${i}">
+${x.nama}
+</option>`
 ).join("");
 
 app.innerHTML=`
+
 <div class="card">
 
 <button onclick="page('dashboard')">
@@ -267,9 +350,17 @@ app.innerHTML=`
 <input id="nama" placeholder="Nama">
 
 <select id="produk" onchange="autoHarga()">
-<option value="">Pilih</option>
+
+<option value="">
+Pilih
+</option>
+
 ${opt}
-<option value="custom">Custom</option>
+
+<option value="custom">
+Custom
+</option>
+
 </select>
 
 <input id="harga" placeholder="Harga">
@@ -281,12 +372,16 @@ ${opt}
 <option>GAGAL</option>
 </select>
 
-<button onclick="buat()">Buat</button>
+<button onclick="buat()">
+Buat
+</button>
 
 <div id="hasil"></div>
 
 </div>
+
 `;
+
 }
 
 /* AUTO HARGA */
@@ -300,7 +395,7 @@ document.getElementById("harga").value=produk[v].harga;
 
 }
 
-/* BUAT */
+/* BUAT STRUK */
 window.buat=function(){
 
 let nama=namaInput("nama");
@@ -312,6 +407,7 @@ return alert("Isi dulu!");
 }
 
 let id="K7N-"+Math.random().toString(36).substr(2,5);
+
 let t=new Date().toISOString();
 
 let obj={
@@ -330,6 +426,7 @@ save();
 kirimDiscord(obj);
 
 hasil.innerHTML=`
+
 <div id="strukBox" class="struk">
 
 <h3>K7N STORE</h3>
@@ -337,7 +434,9 @@ hasil.innerHTML=`
 <div class="line"></div>
 
 <p>ID: ${id}</p>
+
 <p>Nama: ${nama}</p>
+
 <p>Admin: ${username}</p>
 
 <div class="line"></div>
@@ -365,6 +464,7 @@ Download
 <button onclick='wa(${JSON.stringify(obj)})'>
 WhatsApp
 </button>
+
 `;
 
 }
@@ -391,7 +491,7 @@ a.click();
 
 }
 
-/* WHATSAPP */
+/* WA */
 window.wa=function(x){
 
 let t=
@@ -419,6 +519,7 @@ let html=`
 db.slice().reverse().forEach((x,i)=>{
 
 html+=`
+
 <div class="card">
 
 <b>${x.id}</b><br>
@@ -440,6 +541,7 @@ Hapus
 </button>
 
 </div>
+
 `;
 
 });
@@ -457,9 +559,7 @@ let nama=prompt("Nama",x.nama);
 let harga=prompt("Harga",x.harga);
 let status=prompt("Status",x.status);
 
-if(!nama || !harga || !status){
-return;
-}
+if(!nama || !harga || !status)return;
 
 db[i]={
 ...x,
@@ -508,11 +608,13 @@ map[t]=(map[t]||0)+Number(x.harga);
 });
 
 app.innerHTML=`
+
 <button onclick="page('dashboard')">
 ⬅️ Kembali
 </button>
 
 <canvas id="chart"></canvas>
+
 `;
 
 setTimeout(()=>{
@@ -543,6 +645,7 @@ let tema=localStorage.getItem("tema") || "#4f46e5";
 let bg=localStorage.getItem("bg") || "#0f172a";
 
 app.innerHTML=`
+
 <div class="card">
 
 <button onclick="page('dashboard')">
@@ -553,25 +656,18 @@ app.innerHTML=`
 
 <label>Tema</label>
 
-<input
-type="color"
-id="color"
-value="${tema}"
->
+<input type="color" id="color" value="${tema}">
 
 <label>Background</label>
 
-<input
-type="color"
-id="bgcolor"
-value="${bg}"
->
+<input type="color" id="bgcolor" value="${bg}">
 
 <button onclick="saveTheme()">
 Simpan
 </button>
 
 </div>
+
 `;
 
 }
@@ -587,13 +683,8 @@ let b=document.getElementById("bgcolor").value;
 localStorage.setItem("tema",t);
 localStorage.setItem("bg",b);
 
-document.documentElement
-.style
-.setProperty('--tema',t);
-
-document.documentElement
-.style
-.setProperty('--bg',b);
+document.documentElement.style.setProperty('--tema',t);
+document.documentElement.style.setProperty('--bg',b);
 
 alert("Disimpan!");
 
@@ -604,7 +695,7 @@ window.logout=function(){
 
 localStorage.removeItem("nvrz_login");
 
-location.href="https://ajimat26.github.io/NVRZ/";
+location.reload();
 
 }
 
@@ -617,4 +708,4 @@ page("dashboard");
 </script>
 
 </body>
-</html>
+  </html>
