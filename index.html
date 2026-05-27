@@ -5,10 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>K7N STORE PRO (CLOUD)</title>
 
-<!-- Ambil Chart.js -->
 <script src="https://jsdelivr.net"></script>
 
-<!-- Ambil SDK Firebase (Modular v9) -->
+<style>
+  body{margin:0;font-family:Arial;background:#0f172a;color:#e5e7eb}
+  .header{padding:15px;text-align:center;background:#4f46e5;font-weight:bold;color:white}
+  .container{padding:15px}
+  .card{background:#1e293b;padding:15px;border-radius:12px;margin-bottom:10px}
+  input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;box-sizing:border-box;background:#334155;color:white}
+  button{width:100%;padding:10px;border:none;border-radius:8px;background:#4f46e5;color:white;cursor:pointer}
+  .menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .menu div{background:#1e293b;padding:20px;text-align:center;border-radius:10px;cursor:pointer}
+  .struk{background:white;color:black;padding:10px;border-radius:10px;font-family:monospace;margin-top:10px}
+</style>
+</head>
+
+<body>
+  <input type="hidden" id="status-halaman" value="dashboard">
+  <div class="header">K7N STORE</div>
+  <div class="container" id="app">Membuka koneksi database...</div>
+
 <script type="module">
 import { initializeApp } from "https://gstatic.com";
 import { getDatabase, ref, set, push, onValue, update, remove } from "https://gstatic.com";
@@ -24,39 +40,55 @@ const firebaseConfig = {
   measurementId: "G-BTW6HEL05Z"
 };
 
-// Inisialisasi Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 const database = getDatabase(firebaseApp);
 const dbRef = ref(database, 'transaksi');
 
-const WEBHOOK_STRUK="https://discord.com";
-const WEBHOOK_GRAFIK="https://discord.com";
-
-let db = []; 
-
-// Mendengarkan data Real-Time dengan penanganan Error
+// Sinkronisasi data cloud ke array lokal beralih ke variabel global window
 onValue(dbRef, (snapshot) => {
   const data = snapshot.val();
-  db = [];
+  window.db = [];
   if (data) {
     Object.keys(data).forEach(key => {
-      db.push({ firebaseKey: key, ...data[key] });
+      window.db.push({ firebaseKey: key, ...data[key] });
     });
   }
-  // Selalu perbarui jika sedang di halaman dashboard atau riwayat
+  
+  // Render ulang otomatis jika sedang melihat Dashboard atau Riwayat
   const hal = document.getElementById("status-halaman").value;
-  if(hal === "dashboard") dashboard();
-  if(hal === "riwayat") riwayat();
+  if(hal === "dashboard") window.dashboard();
+  if(hal === "riwayat") window.riwayat();
 }, (error) => {
-  console.error("Firebase Error: ", error);
-  alert("Gagal terhubung ke Database! Periksa aturan (Rules) Firebase Anda.");
+  console.error(error);
 });
+
+// Daftarkan fungsi transaksi cloud agar bisa dipanggil dari luar modul script
+window.buatTransaksiCloud = function(obj, callback) {
+  const newTxRef = push(dbRef);
+  set(newTxRef, obj).then(callback).catch(err => alert(err.message));
+};
+
+window.editTransaksiCloud = function(key, data) {
+  const singleRef = ref(database, 'transaksi/' + key);
+  update(singleRef, data);
+};
+
+window.hapusTransaksiCloud = function(key) {
+  const singleRef = ref(database, 'transaksi/' + key);
+  remove(singleRef);
+};
+</script>
+
+<script>
+/* ================= LOGIKA APLIKASI UTAMA (NON-MODULE) ================= */
+window.db = [];
+const WEBHOOK_STRUK="https://discord.com";
+const WEBHOOK_GRAFIK="https://discord.com";
 
 function formatRp(v){
   return "Rp "+Number(v).toLocaleString("id-ID");
 }
 
-/* ================= DISCORD STRUK ================= */
 async function sendStruk(x){
   try {
     await fetch(WEBHOOK_STRUK,{
@@ -78,19 +110,17 @@ async function sendStruk(x){
         }]
       })
     });
-  } catch(e) { console.log(e); }
+  } catch(e){}
 }
 
-/* ================= DISCORD GRAFIK EMBED ================= */
 async function sendGrafik(){
   let map={};
-  db.forEach(x=>{
+  window.db.forEach(x=>{
     if(x.status==="SUKSES"){
       let d=new Date(x.tanggal).toLocaleDateString("id-ID");
       map[d]=(map[d]||0)+Number(x.harga);
     }
   });
-
   let keys=Object.keys(map);
   let values=Object.values(map);
   let total=values.reduce((a,b)=>a+b,0);
@@ -107,52 +137,46 @@ async function sendGrafik(){
           description: "```"+lines+"```",
           fields:[
             {name:"TOTAL",value:formatRp(total),inline:true},
-            {name:"TRANSAKSI",value:String(db.length),inline:true}
+            {name:"TRANSAKSI",value:String(window.db.length),inline:true}
           ],
           footer:{text:"Auto Report System"}
         }]
       })
     });
-  } catch(e) { console.log(e); }
+  } catch(e){}
 }
 
 setInterval(sendGrafik,3600000);
 
-/* ================= NAVIGATION & VIEW ================= */
 const app = document.getElementById("app");
 
 function dashboard(){
   document.getElementById("status-halaman").value = "dashboard";
   let total=0;
-  db.forEach(x=>{
+  window.db.forEach(x=>{
     if(x.status==="SUKSES") total+=Number(x.harga);
   });
 
   app.innerHTML=`
     <div class="card">
-      <h3>Dashboard (Cloud)</h3>
+      <h3>Dashboard (Cloud Realtime)</h3>
       <p>💰 ${formatRp(total)}</p>
-      <p>📦 ${db.length} transaksi</p>
+      <p>📦 ${window.db.length} transaksi</p>
     </div>
     <div class="menu">
-      <div id="btn-form">📦 Buat</div>
-      <div id="btn-riwayat">📊 Riwayat</div>
-      <div id="btn-grafik">📈 Grafik</div>
-      <div id="btn-send-grafik">⏱ Kirim Grafik</div>
+      <div onclick="form()">📦 Buat</div>
+      <div onclick="riwayat()">📊 Riwayat</div>
+      <div onclick="grafik()">📈 Grafik</div>
+      <div onclick="sendGrafik()">⏱ Kirim Grafik</div>
     </div>
   `;
-  
-  document.getElementById("btn-form").onclick = form;
-  document.getElementById("btn-riwayat").onclick = riwayat;
-  document.getElementById("btn-grafik").onclick = grafik;
-  document.getElementById("btn-send-grafik").onclick = sendGrafik;
 }
 
 function form(){
   document.getElementById("status-halaman").value = "form";
   app.innerHTML=`
     <div class="card">
-      <button id="btn-back">⬅ Kembali</button>
+      <button onclick="dashboard()">⬅ Kembali</button>
       <h3>Tambah Transaksi</h3>
       <input id="nama" placeholder="Nama">
       <input id="produk" placeholder="Produk">
@@ -163,103 +187,95 @@ function form(){
         <option value="PROSES">PROSES</option>
         <option value="GAGAL">GAGAL</option>
       </select>
-      <button id="btn-simpan">Simpan</button>
+      <button onclick="buat()">Simpan</button>
       <div id="hasil"></div>
     </div>
   `;
-  document.getElementById("btn-back").onclick = dashboard;
-  document.getElementById("btn-simpan").onclick = buat;
 }
 
 function buat(){
-  const namaVal = document.getElementById("nama").value;
-  const produkVal = document.getElementById("produk").value;
-  const hargaVal = document.getElementById("harga").value;
-  const statusVal = document.getElementById("status").value;
+  const nm = document.getElementById("nama").value;
+  const pr = document.getElementById("produk").value;
+  const hg = document.getElementById("harga").value;
+  const st = document.getElementById("status").value;
 
-  if(!namaVal || !produkVal || !hargaVal) return alert("Isi semua data!");
+  if(!nm || !pr || !hg) return alert("Semua data harus terisi!");
 
   let obj={
     id:"K7N-"+Math.random().toString(36).slice(2,7).toUpperCase(),
-    nama: namaVal,
-    produk: produkVal,
-    harga: Number(hargaVal),
-    status: statusVal,
-    tanggal:new Date().toISOString()
+    nama: nm,
+    produk: pr,
+    harga: Number(hg),
+    status: st,
+    tanggal: new Date().toISOString()
   };
 
-  const newTxRef = push(dbRef);
-  set(newTxRef, obj).then(() => {
-    sendStruk(obj);
-    document.getElementById("hasil").innerHTML=`
-      <div class="struk">
-        <b>STRUK BERHASIL</b><br><br>
-        ID:${obj.id}<br>
-        Nama:${obj.nama}<br>
-        Produk:${obj.produk}<br>
-        Harga:${formatRp(obj.harga)}<br>
-        Status:${obj.status}
-      </div>
-    `;
-  }).catch(err => alert("Gagal menyimpan ke cloud: " + err.message));
+  if(typeof window.buatTransaksiCloud === "function") {
+    window.buatTransaksiCloud(obj, () => {
+      sendStruk(obj);
+      document.getElementById("hasil").innerHTML=`
+        <div class="struk">
+          <b>STRUK BERHASIL</b><br><br>
+          ID:${obj.id}<br>
+          Nama:${obj.nama}<br>
+          Produk:${obj.produk}<br>
+          Harga:${formatRp(obj.harga)}<br>
+          Status:${obj.status}
+        </div>
+      `;
+    });
+  } else {
+    alert("Koneksi database belum siap, tunggu 2 detik lalu coba lagi.");
+  }
 }
 
 function riwayat(){
   document.getElementById("status-halaman").value = "riwayat";
-  let html=`<button id="btn-back-dash">⬅ Kembali</button>`;
+  let html=`<button onclick="dashboard()">⬅ Kembali</button>`;
 
-  if(db.length === 0) {
-    html += `<p style="text-align:center; margin-top:20px;">Belum ada transaksi.</p>`;
+  if(window.db.length === 0) {
+    html += `<p style="text-align:center; margin-top:20px;">Belum ada data transaksi di cloud.</p>`;
   } else {
-    db.slice().reverse().forEach((x) => {
+    window.db.slice().reverse().forEach((x) => {
       html+=`
         <div class="card">
           <b>${x.id}</b><br>
           ${x.nama} - ${x.produk}<br>
           ${formatRp(x.harga)}<br>
           Status: <b>${x.status}</b><br><br>
-          <button class="btn-edit" data-key="${x.firebaseKey}">Edit</button>
-          <button class="btn-hapus" data-key="${x.firebaseKey}" style="background:#ef4444; margin-top:5px;">Hapus</button>
+          <button onclick="editData('${x.firebaseKey}')">Edit</button>
+          <button onclick="hapusData('${x.firebaseKey}')" style="background:#ef4444; margin-top:5px;">Hapus</button>
         </div>
       `;
     });
   }
-
-  app.innerHTML=html;
-  document.getElementById("btn-back-dash").onclick = dashboard;
-
-  document.querySelectorAll(".btn-edit").forEach(btn => {
-    btn.onclick = () => editData(btn.getAttribute("data-key"));
-  });
-  document.querySelectorAll(".btn-hapus").forEach(btn => {
-    btn.onclick = () => hapusData(btn.getAttribute("data-key"));
-  });
+  app.innerHTML = html;
 }
 
 function editData(key) {
-  const item = db.find(x => x.firebaseKey === key);
+  const item = window.db.find(x => x.firebaseKey === key);
   let nama = prompt("Nama baru:", item.nama);
   let produk = prompt("Produk baru:", item.produk);
   let harga = prompt("Harga baru:", item.harga);
   let status = prompt("Status baru (SUKSES/PENDING/PROSES/GAGAL):", item.status);
 
   if(nama && produk && harga && status) {
-    const singleRef = ref(database, 'transaksi/' + key);
-    update(singleRef, { nama, produk, harga: Number(harga), status });
+    window.editTransaksiCloud(key, { nama, produk, harga: Number(harga), status });
+    setTimeout(riwayat, 500);
   }
 }
 
 function hapusData(key) {
-  if(confirm("Hapus transaksi ini dari cloud?")) {
-    const singleRef = ref(database, 'transaksi/' + key);
-    remove(singleRef);
+  if(confirm("Hapus transaksi ini dari database cloud?")) {
+    window.hapusTransaksiCloud(key);
+    setTimeout(riwayat, 500);
   }
 }
 
 function grafik(){
   document.getElementById("status-halaman").value = "grafik";
   let map={};
-  db.forEach(x=>{
+  window.db.forEach(x=>{
     if(x.status==="SUKSES"){
       let d=new Date(x.tanggal).toLocaleDateString("id-ID");
       map[d]=(map[d]||0)+Number(x.harga);
@@ -268,11 +284,10 @@ function grafik(){
 
   app.innerHTML=`
     <div class="card">
-      <button id="btn-back-dash2">⬅ Kembali</button>
+      <button onclick="dashboard()">⬅ Kembali</button>
       <canvas id="chart"></canvas>
     </div>
   `;
-  document.getElementById("btn-back-dash2").onclick = dashboard;
 
   setTimeout(()=>{
     new Chart(document.getElementById("chart"),{
@@ -290,7 +305,7 @@ function grafik(){
   },200);
 }
 
-// Langsung panggil dashboard agar tidak stuck loading teks
+// Langsung eksekusi dashboard agar tampilan langsung keluar tanpa delay
 dashboard();
 
 window.dashboard = dashboard;
@@ -299,16 +314,5 @@ window.riwayat = riwayat;
 window.grafik = grafik;
 window.sendGrafik = sendGrafik;
 </script>
-</head>
-
-<body>
-  <input type="hidden" id="status-halaman" value="dashboard">
-  <div class="header">K7N STORE</div>
-  <div class="container" id="app">Membuka koneksi database...</div>
-
-  <style>
-    body{margin:0;font-family:Arial;background:#0f172a;color:#e5e7eb}
-    .header{padding:15px;text-align:center;background:#4f46e5;font-weight:bold;color:white}
-    .container{padding:15px}
-    .card{background:#1e293b;padding:15px;border-radius:12px;margin-bottom:10px}
-    input,select{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;box-sizing:border-box;background:#334155;color:white}
+</body>
+</html>
