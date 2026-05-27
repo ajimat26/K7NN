@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>K7N STORE PRO</title>
+
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#0f172a;color:#e5e7eb;-webkit-tap-highlight-color:transparent}
 .header{padding:15px;text-align:center;background:#4f46e5;font-weight:bold;color:white;position:relative}
@@ -20,38 +21,19 @@ button{width:100%;padding:12px;border:none;border-radius:8px;background:#4f46e5;
 .bar-fill {background:#4f46e5;height:100%;width:0%;transition:width 0.5s ease-in-out}
 </style>
 </head>
+
 <body>
 
 <div id="header-area" class="header">K7N STORE</div>
-<div class="container" id="app">Membuka Aplikasi...</div>
+<div class="container" id="app"></div>
 
 <script>
-// --- FITUR AUTO-RESET: MEMBERSIHKAN DATA RUAS LAMA YANG MEMBUAT CRASH ---
-try {
-  var testDB = localStorage.getItem("k7n_store_db");
-  if (testDB && (testDB.includes("undefined") || testDB.includes("parts") || testDB.includes("[object"))) {
-    localStorage.clear(); // Bersihkan memori rusak secara pakser
-  }
-} catch(e) {
-  localStorage.clear();
-}
-
 var app = document.getElementById("app");
 var headerArea = document.getElementById("header-area");
 
-var db = [];
-try {
-  db = JSON.parse(localStorage.getItem("k7n_store_db")) || [];
-  if(!Array.isArray(db)) { db = []; localStorage.setItem("k7n_store_db", "[]"); }
-} catch(e) {
-  db = [];
-}
-
+// Database internal tersimpan permanen di web browser masing-masing kasir (bisa direfresh)
+var db = JSON.parse(localStorage.getItem("k7n_store_db")) || [];
 var currentAdmin = localStorage.getItem("k7n_admin_logged") || "";
-if(currentAdmin.includes("[object") || currentAdmin.includes("||") || currentAdmin === "undefined") {
-  currentAdmin = "";
-  localStorage.removeItem("k7n_admin_logged");
-}
 
 const WEBHOOK_STRUK = "https://discord.com";
 
@@ -65,7 +47,7 @@ function saveDB() {
 
 /* ================= VALIDASI LOGIN ================= */
 function checkAuth() {
-  if (!currentAdmin || currentAdmin === "") {
+  if (!currentAdmin) {
     tampilkanHalamanLogin();
   } else {
     headerArea.innerHTML = 'K7N STORE <button class="logout-btn" onclick="prosesLogout()">Keluar</button>';
@@ -95,7 +77,7 @@ function prosesLogin() {
     var parts = decoded.split("||");
     
     if(parts.length === 2 && parts[0] !== "") {
-      currentAdmin = parts[0]; // Ambil nama username admin secara murni
+      currentAdmin = parts[0]; // Membaca username akun secara murni
       localStorage.setItem("k7n_admin_logged", currentAdmin);
       checkAuth();
     } else {
@@ -118,7 +100,7 @@ function prosesLogout() {
 function dashboard(){
   var total = 0;
   db.forEach(function(x){
-    if(x && x.status === "SUKSES") total += Number(x.harga);
+    if(x.status === "SUKSES") total += Number(x.harga);
   });
 
   app.innerHTML = '<div class="card">' +
@@ -189,7 +171,7 @@ window.buat = function(){
   document.getElementById("harga").value = "";
 }
 
-/* ================= WEBHOOK DISCORD ================= */
+/* ================= WEBHOOK DISCORD (FORMAT SESUAI REQUEST) ================= */
 async function sendStruk(x){
   try {
     await fetch(WEBHOOK_STRUK,{
@@ -201,7 +183,7 @@ async function sendStruk(x){
           color:5763719,
           fields:[
             {name:"ID NOTA", value:x.id, inline:true},
-            {name:"admin", value: "admin:" + x.admin, inline:true}, 
+            {name:"admin", value: "admin:" + x.admin, inline:true}, // Format request: admin:username_akun
             {name:"Pelanggan", value:x.nama, inline:true},
             {name:"Produk", value:x.produk, inline:true},
             {name:"Harga", value:formatRp(x.harga), inline:true},
@@ -217,14 +199,14 @@ async function sendStruk(x){
 
 /* ================= RIWAYAT PENJUALAN ================= */
 function riwayat(){
-  var html = '<button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button><h3>Riwayat Transaksi</h3>';
+  let html = '<button onclick="dashboard()" style="background:#334155; margin-bottom:10px;">⬅ Kembali</button><h3>Riwayat Transaksi</h3>';
 
   if(db.length === 0) {
     html += '<p style="text-align:center; margin-top:20px;">Belum ada riwayat transaksi.</p>';
   } else {
     var tempArray = [];
     for(var i = 0; i < db.length; i++) {
-      if(db[i]) tempArray.push({ item: db[i], idxAsli: i });
+      tempArray.push({ item: db[i], idxAsli: i });
     }
     tempArray.reverse();
 
@@ -246,10 +228,10 @@ function riwayat(){
 
 window.edit = function(i){
   var x = db[i];
-  let nama = prompt("Nama Pelanggan:", x.nama);
-  let produk = prompt("Produk:", x.produk);
-  let harga = prompt("Harga:", x.harga);
-  let status = prompt("Status (SUKSES/PENDING/PROSES/GAGAL):", x.status);
+  var nama = prompt("Nama Pelanggan:", x.nama);
+  var produk = prompt("Produk:", x.produk);
+  var harga = prompt("Harga:", x.harga);
+  var status = prompt("Status (SUKSES/PENDING/PROSES/GAGAL):", x.status);
 
   if(nama && produk && harga && status) {
     db[i] = {id: x.id, nama: nama.trim(), produk: produk.trim(), harga: Number(harga), status: status.toUpperCase().trim(), admin: x.admin, tanggal: x.tanggal};
@@ -266,4 +248,21 @@ window.hapus = function(i){
   }
 }
 
-/* ================= GRAFIK PERSENTASE RINGAN ================= */
+/* ================= GRAFIK PERSENTASE RINGAN (PENGGANTI CHART.JS) ================= */
+function grafik(){
+  var totalSukses = 0;
+  var totalGagal = 0;
+  var totalPending = 0;
+  
+  db.forEach(function(x){
+    if(x.status === "SUKSES") totalSukses++;
+    else if(x.status === "GAGAL") totalGagal++;
+    else totalPending++;
+  });
+  
+  var totalSemua = db.length || 1;
+  var persenSukses = Math.round((totalSukses / totalSemua) * 100);
+  var persenPending = Math.round((totalPending / totalSemua) * 100);
+  var persenGagal = Math.round((totalGagal / totalSemua) * 100);
+
+  app.innerHTML = '<div class="card">' +
